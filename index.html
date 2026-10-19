@@ -3,42 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bitworld (BTW) - Airdrop</title>
+<title>Bitworld (BTW)</title>
 <style>
-:root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.65);--line:rgba(255,255,255,.08)}
+:root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.65);--line:rgba(255,255,255,.08);--spring:cubic-bezier(.34,1.56,.64,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 body{overflow-x:hidden}
 #scene{position:fixed;inset:0;z-index:0;pointer-events:none}
 main{position:relative;z-index:1;padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
 section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 0}
-.badge{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--accent2);background:rgba(34,211,238,.08);letter-spacing:.5px}
-h1{font-size:clamp(44px,10vw,96px);font-weight:800;letter-spacing:-1px;margin:20px 0 8px;background:linear-gradient(90deg,var(--accent),#fff3c4,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Badge */
+.badge{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--accent2);background:rgba(34,211,238,.08);letter-spacing:.5px;animation:floaty 3s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* Judul dengan animasi huruf memantul */
+h1{font-size:clamp(44px,10vw,96px);font-weight:800;letter-spacing:-1px;margin:20px 0 8px;line-height:1.1}
+.grad{background:linear-gradient(90deg,var(--accent),#fff3c4,var(--accent));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+@keyframes shine{to{background-position:200% center}}
+.ch{display:inline-block;opacity:0;transform:translateY(-120%) scale(.4);animation:drop .9s var(--spring) forwards;animation-delay:calc(var(--i) * 70ms + 200ms)}
+@keyframes drop{to{opacity:1;transform:none}}
+
 .tagline{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:560px;line-height:1.6}
-.btn{display:inline-block;margin-top:32px;padding:14px 28px;border-radius:12px;background:var(--accent);color:#1a1400;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:16px;transition:transform .2s,box-shadow .2s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(245,184,46,.35)}
+
+/* Tombol elastis */
+.btn{display:inline-block;margin-top:32px;padding:14px 28px;border-radius:12px;background:var(--accent);color:#1a1400;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:16px;transition:transform .5s var(--spring),box-shadow .3s;will-change:transform;position:relative}
+.btn:hover{box-shadow:0 12px 34px rgba(245,184,46,.4)}
+.btn:active{transform:scale(.9)!important}
+.btn.pulse{animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,184,46,.55)}70%,100%{box-shadow:0 0 0 22px rgba(245,184,46,0)}}
+.ghost{background:transparent;color:var(--fg);border:1px solid var(--line);margin-top:0;padding:10px 18px;font-size:14px}
+.ghost:hover{border-color:var(--accent2);color:var(--accent2)}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+.row .btn{margin-top:0}
+
+/* Ticker berjalan */
+.ticker{width:100%;overflow:hidden;border-block:1px solid var(--line);background:rgba(255,255,255,.02);padding:14px 0;margin-top:8px}
+.track{display:flex;width:max-content;animation:marquee 22s linear infinite}
+.track span{padding:0 28px;font-weight:700;letter-spacing:1px;color:var(--muted);white-space:nowrap}
+.track span b{color:var(--accent)}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* Kartu dengan efek tilt */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:40px;width:100%;max-width:900px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform-style:preserve-3d;transition:transform .4s var(--spring),border-color .3s}
+.card:hover{border-color:rgba(245,184,46,.45)}
 .card .label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
-.card .value{font-size:26px;font-weight:800;margin-top:8px;color:var(--fg);word-break:break-word}
-.card .value.gold{color:var(--accent)}
+.card .value{font-size:26px;font-weight:800;margin-top:8px;word-break:break-word;font-variant-numeric:tabular-nums}
+.gold{color:var(--accent)}
 h2{font-size:clamp(28px,5vw,40px);margin-bottom:12px}
+
+/* Langkah-langkah */
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px;width:100%;max-width:960px;text-align:left}
-.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
-.step .n{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#1a1400;display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;transition:transform .5s var(--spring)}
+.step:hover{transform:translateY(-8px)}
+.step .n{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#1a1400;display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:12px;transition:transform .6s var(--spring)}
+.step:hover .n{transform:rotate(360deg) scale(1.15)}
 .step h3{font-size:18px;margin-bottom:8px}
 .step p{color:var(--muted);font-size:14px;line-height:1.6}
+
+/* Reveal saat di-scroll */
+.reveal{opacity:0;transform:translateY(50px) scale(.92);transition:transform .9s var(--spring),opacity .6s ease}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+
+/* Kontrak */
 .contract{margin-top:32px;width:100%;max-width:720px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
 .contract .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
 .addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;margin:12px 0;word-break:break-all;color:var(--accent2)}
-.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.ghost{background:transparent;color:var(--fg);border:1px solid var(--line);margin-top:0;padding:10px 18px;font-size:14px}
-.ghost:hover{border-color:var(--accent2)}
+
 .warn{margin-top:40px;max-width:720px;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:24px}
 .warn strong{color:var(--fg)}
 footer{padding:32px 0 48px;color:var(--muted);font-size:13px}
-#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(120px);background:#fff;color:#000;padding:10px 18px;border-radius:10px;font-size:14px;transition:transform .3s;z-index:5}
-#toast.show{transform:translateX(-50%) translateY(0)}
+
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(140px) scale(.8);background:#fff;color:#000;padding:10px 18px;border-radius:10px;font-size:14px;transition:transform .6s var(--spring);z-index:5}
+#toast.show{transform:translateX(-50%) translateY(0) scale(1)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal,.ch{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
@@ -46,40 +90,232 @@ footer{padding:32px 0 48px;color:var(--muted);font-size:13px}
 
 <main>
   <section>
-    <span class="badge">AIRDROP • BEP-20 • BNB SMART CHAIN</span>
-    <h1>Bitworld</h1>
-    <p class="tagline">Proyek Layer 2 di jaringan BSC dengan token <strong>BTW</strong>. Ikuti airdrop dan jadi bagian dari ekosistem Bitworld sejak awal.</p>
-    <a class="btn" href="#cara">Ikuti Airdrop</a>
+    <span class="badge">BEP-20 • BNB SMART CHAIN</span>
+    <h1><span class="grad" id="title">Bitworld</span></h1>
+    <p class="tagline reveal">Proyek Layer 2 di jaringan BSC dengan token <strong>BTW</strong>. Pelajari token, kontrak, dan ekosistem Bitworld.</p>
+    <div class="row reveal d1">
+      <a class="btn pulse magnetic" href="#kontrak">Lihat Kontrak</a>
+    </div>
   </section>
 
+  <div class="ticker" aria-hidden="true">
+    <div class="track" id="track"></div>
+  </div>
+
   <section>
-    <h2>Informasi Token</h2>
+    <h2 class="reveal">Informasi Token</h2>
     <div class="grid">
-      <div class="card"><div class="label">Nama</div><div class="value">Bitworld</div></div>
-      <div class="card"><div class="label">Simbol</div><div class="value gold">BTW</div></div>
-      <div class="card"><div class="label">Total Supply</div><div class="value gold">21.000.000</div></div>
-      <div class="card"><div class="label">Jaringan</div><div class="value">BSC</div></div>
+      <div class="card reveal tilt"><div class="label">Nama</div><div class="value">Bitworld</div></div>
+      <div class="card reveal tilt d1"><div class="label">Simbol</div><div class="value gold">BTW</div></div>
+      <div class="card reveal tilt d2"><div class="label">Total Supply</div><div class="value gold" id="supply">0</div></div>
+      <div class="card reveal tilt d3"><div class="label">Jaringan</div><div class="value">BSC</div></div>
     </div>
 
-    <div class="contract">
+    <div class="contract reveal" id="kontrak">
       <div class="label">Smart Contract</div>
       <div class="addr" id="addr">0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea</div>
       <div class="row">
-        <button class="btn ghost" id="copyBtn">Salin Alamat</button>
-        <a class="btn ghost" href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener noreferrer">Lihat di BscScan</a>
+        <button class="btn ghost magnetic" id="copyBtn">Salin Alamat</button>
+        <a class="btn ghost magnetic" href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener noreferrer">Lihat di BscScan</a>
       </div>
     </div>
   </section>
 
-  <section id="cara">
-    <h2>Cara Ikut Airdrop</h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><h3>Verifikasi alamat</h3><p>Pastikan alamat smart contract sama persis dengan yang tertera di halaman ini sebelum melakukan apa pun.</p></div>
-      <div class="step"><div class="n">2</div><h3>Siapkan dompet BSC</h3><p>Gunakan dompet yang mendukung BNB Smart Chain, seperti MetaMask atau Trust Wallet.</p></div>
-      <div class="step"><div class="n">3</div><h3>Ikuti kanal resmi</h3><p>Ikuti akun dan komunitas resmi Bitworld. Ketentuan kelayakan airdrop akan diumumkan di sana.</p></div>
+    <section>
+    <div class="warn reveal">
+      <p><strong>Peringatan:</strong> Tidak ada tim yang akan meminta seed phrase atau private key Anda. Jangan pernah membagikannya kepada siapa pun, termasuk yang mengaku sebagai admin.</p>
+      <p style="margin-top:12px">Halaman ini bersifat informasi dan bukan ajakan investasi. Harga kripto sangat fluktuatif, dan nilai token bisa turun hingga nol. Lakukan riset sendiri (DYOR) dan hanya gunakan dana yang siap Anda risikokan.</p>
     </div>
+    <footer>© 2026 Bitworld. Semua hak dilindungi.</footer>
   </section>
+</main>
 
-  <section>
-    <div class="warn">
-      <p><strong>Peringatan:</strong> Tidak ada tim yang akan meminta seed phrase atau private key Anda. Jangan pernah membagikannya kepa
+<div id="toast">Alamat disalin</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+<script>
+/* ===== 3D koin ===== */
+(function(){
+  if (typeof THREE === 'undefined') { document.getElementById('scene').style.display = 'none'; return; }
+  try {
+  const canvas = document.getElementById('scene');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 6;
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const key = new THREE.DirectionalLight(0xfff3c4, 1.2); key.position.set(3,4,5); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x22d3ee, 0.8); rim.position.set(-4,-2,-3); scene.add(rim);
+
+  const goldMat = new THREE.MeshStandardMaterial({color:0xf5b82e, metalness:1, roughness:0.25});
+  const edgeMat = new THREE.MeshStandardMaterial({color:0xffe08a, metalness:1, roughness:0.15});
+  const coin = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,0.18,64), goldMat);
+  body.rotation.x = Math.PI/2; coin.add(body);
+  coin.add(new THREE.Mesh(new THREE.TorusGeometry(1.38,0.07,16,96), edgeMat));
+  coin.add(new THREE.Mesh(new THREE.TorusGeometry(0.9,0.035,12,80), edgeMat));
+  scene.add(coin);
+
+  const orbitGroup = new THREE.Group(); scene.add(orbitGroup);
+  const nodeGeo = new THREE.IcosahedronGeometry(0.12,1);
+  const nodeMat = new THREE.MeshStandardMaterial({color:0x22d3ee, emissive:0x0e7490, roughness:0.4});
+  const nodes = [];
+  for (let i=0;i<6;i++){
+    const n = new THREE.Mesh(nodeGeo, nodeMat);
+    n.userData = {angle:(i/6)*Math.PI*2, r:2.6+(i%2)*0.5, speed:0.25+i*0.03, tilt:(i%3-1)*0.4};
+    orbitGroup.add(n); nodes.push(n);
+  }
+
+  const count = 900, pos = new Float32Array(count*3);
+  for (let i=0;i<count;i++){
+    pos[i*3]=(Math.random()-0.5)*14; pos[i*3+1]=(Math.random()-0.5)*14; pos[i*3+2]=(Math.random()-0.5)*8-2;
+  }
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff,size:0.025,transparent:true,opacity:0.6}));
+  scene.add(stars);
+
+  let mx=0,my=0,tx=0,ty=0,boost=0;
+  window.addEventListener('pointermove', e => {
+    tx = (e.clientX/window.innerWidth-0.5)*2;
+    ty = (e.clientY/window.innerHeight-0.5)*2;
+  }, {passive:true});
+  window.addEventListener('pointerdown', () => { boost = 1; }, {passive:true});
+
+  function resize(){
+    const w=window.innerWidth,h=window.innerHeight;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h;
+    camera.position.z = w<600?8:6;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize); resize();
+
+  const clock = new THREE.Clock();
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function animate(){
+    const t = clock.getElapsedTime();
+    mx += (tx-mx)*0.05; my += (ty-my)*0.05;
+    boost *= 0.94;
+    if (!reduceMotion){
+      coin.rotation.y = t*0.6 + mx*0.6 + boost*Math.PI*2;
+      coin.rotation.x = Math.sin(t*0.8)*0.15 + my*0.4;
+      coin.position.y = Math.sin(t*1.2)*0.12;
+      orbitGroup.rotation.z = t*0.05;
+      stars.rotation.y = t*0.02;
+    }
+    nodes.forEach(n => {
+      const u=n.userData, a=u.angle+t*u.speed;
+      n.position.set(Math.cos(a)*u.r, Math.sin(a)*u.r*0.35+Math.sin(a*2)*u.tilt, Math.sin(a)*u.r*0.5);
+    });
+    camera.position.x += (mx*0.6-camera.position.x)*0.05;
+    camera.position.y += (-my*0.4-camera.position.y)*0.05;
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+  } catch (err) {
+    console.warn('3D tidak bisa ditampilkan:', err);
+    document.getElementById('scene').style.display = 'none';
+  }
+})();
+
+/* ===== Animasi UI ===== */
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// 1. Judul: pecah jadi huruf yang memantul masuk
+(function(){
+  const el = document.getElementById('title');
+  const text = el.textContent; el.textContent = '';
+  [...text].forEach((c,i) => {
+    const s = document.createElement('span');
+    s.className = 'ch'; s.style.setProperty('--i', i);
+    s.textContent = c; el.appendChild(s);
+  });
+})();
+
+// 2. Reveal saat di-scroll
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); counterCheck(en.target); } });
+}, {threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// 3. Penghitung supply dengan easing elastis
+let counted = false;
+function elasticOut(t){
+  const c4 = (2*Math.PI)/3;
+  return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1;
+}
+function counterCheck(el){
+  if (counted || !el.contains(document.getElementById('supply'))) return;
+  counted = true;
+  const target = 21000000, dur = reduce ? 0 : 2200, out = document.getElementById('supply');
+  const start = performance.now();
+  (function step(now){
+    const p = Math.min((now-start)/dur, 1);
+    out.textContent = Math.round(elasticOut(p)*target).toLocaleString('id-ID');
+    if (p < 1) requestAnimationFrame(step);
+    else out.textContent = target.toLocaleString('id-ID');
+  })(start);
+}
+// jika kartu supply sudah terlihat sejak awal (layar besar)
+const supplyCard = document.getElementById('supply').closest('.card');
+io.observe(supplyCard);
+document.getElementById('supply').textContent = '0';
+
+// 4. Kartu tilt 3D mengikuti kursor
+document.querySelectorAll('.tilt').forEach(card => {
+  card.addEventListener('pointermove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX-r.left)/r.width-0.5, y = (e.clientY-r.top)/r.height-0.5;
+    card.style.transform = `perspective(700px) rotateX(${-y*14}deg) rotateY(${x*14}deg) scale(1.03)`;
+  });
+  card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+});
+
+// 5. Tombol magnetis
+if (!reduce && matchMedia('(pointer:fine)').matches) {
+  document.querySelectorAll('.magnetic').forEach(btn => {
+    btn.addEventListener('pointermove', e => {
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX-(r.left+r.width/2), y = e.clientY-(r.top+r.height/2);
+      btn.style.transform = `translate(${x*0.25}px, ${y*0.25}px) scale(1.05)`;
+    });
+    btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
+  });
+}
+
+// 6. Ticker
+(function(){
+  const items = ['<b>BTW</b> Bitworld','Supply 21.000.000','Jaringan BSC','BEP-20','<b>Layer 2</b> BSC','DYOR'];
+  const html = items.map(t => `<span>${t}</span>`).join('');
+  document.getElementById('track').innerHTML = html + html;
+})();
+
+// 7. Salin alamat
+const toast = document.getElementById('toast');
+function showToast(msg){
+  toast.textContent = msg; toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+}
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = document.getElementById('addr').textContent.trim();
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('Alamat disalin'); }
+    catch(e){ showToast('Gagal menyalin'); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('Alamat disalin'), fallback);
+  } else fallback();
+});
+</script>
+</body>
+</html>
