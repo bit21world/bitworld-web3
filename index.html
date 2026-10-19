@@ -1,1 +1,90 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitworld (BTW) - Web3 dApp</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Bitworld (BTW)</h1>
+        <p>Web3 decentralized application powered by BNB Smart Chain.</p>
+        <button class="btn" id="connectBtn" onclick="connectWallet()">Hubungkan Dompet</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function connectWallet() {
+            const statusDiv = document.getElementById("status");
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    statusDiv.innerHTML = "Menghubungkan ke Dompet...";
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    statusDiv.innerHTML = `Terhubung: ${account.substring(0, 6)}...${account.substring(38)}`;
+                } catch (error) {
+                    statusDiv.innerHTML = "Koneksi dibatalkan oleh pengguna.";
+                }
+            } else {
+                alert("Browser Web3 tidak terdeteksi! Silakan buka tautan ini langsung di dalam browser MetaMask, Trust Wallet, atau Bitget Wallet.");
+            }
+        }
+    </script>
+
+</body>
+</html>
