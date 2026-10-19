@@ -3,87 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitworld (BTW) - Web3 dApp</title>
+    <title>Bitworld (BTW) - Web3 App</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+        body {
+            background-color: #0b0f19;
             color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            padding: 20px;
         }
         .container {
-            text-align: center;
-            background: rgba(30, 41, 59, 0.7);
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-width: 400px;
-            width: 90%;
+            width: 100%;
+            max-width: 420px;
         }
-        h1 {
+        .card {
+            background-color: #131a29;
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid #1e293b;
+        }
+        .title {
             color: #f59e0b;
+            font-size: 26px;
+            font-weight: bold;
             margin-bottom: 10px;
         }
-        p {
+        .subtitle {
             color: #94a3b8;
-            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
         }
         .btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
+            background-color: #d97706;
+            color: #ffffff;
             border: none;
-            padding: 12px 24px;
+            width: 100%;
+            padding: 14px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.3s;
-            width: 100%;
+            margin-top: 10px;
         }
         .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            background-color: #b45309;
         }
-        #status {
-            margin-top: 20px;
+        .btn-green {
+            background-color: #16a34a;
+        }
+        .btn-green:hover {
+            background-color: #15803d;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: #fff;
             font-size: 14px;
-            color: #34d399;
+        }
+        .wallet-badge {
+            background: #1e293b;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #38bdf8;
+            word-break: break-all;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        /* Mengontrol perpindahan halaman dalam 1 file */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Bitworld (BTW)</h1>
-        <p>Web3 decentralized application powered by BNB Smart Chain.</p>
-        <button class="btn" id="connectBtn" onclick="connectWallet()">Hubungkan Dompet</button>
-        <div id="status"></div>
+        
+        <!-- BAGIAN 1: KONEKSI DOMPET (Halaman Awal) -->
+        <div id="page-connect" class="card">
+            <h1 class="title">Bitworld (BTW)</h1>
+            <p class="subtitle">Aplikasi terdesentralisasi Web3 yang didukung oleh BNB Smart Chain.</p>
+            <button id="connectBtn" class="btn" onclick="connectWallet()">Hubungkan Dompet</button>
+            <p id="statusMsg" style="margin-top: 15px; font-size: 12px; color: #ef4444;"></p>
+        </div>
+
+        <!-- BAGIAN 2: DASHBOARD UTAMA (Muncul Setelah Terhubungs) -->
+        <div id="page-dashboard" class="card hidden">
+            <h1 class="title">Bitworld Dashboard</h1>
+            <div id="walletDisplay" class="wallet-badge">0x0000...0000</div>
+            
+            <p class="subtitle">Selamat datang di ekosistem Bitworld Mobile Mining.</p>
+            
+            <button class="btn btn-green" onclick="switchPage('page-profile')">Edit Profil Anda</button>
+            <button class="btn" style="background-color: #334155;" onclick="disconnectWallet()">Putuskan Dompet</button>
+        </div>
+
+        <!-- BAGIAN 3: EDIT PROFIL (Muncul Saat Dibatuhkan) -->
+        <div id="page-profile" class="card hidden">
+            <h1 class="title">Edit Profil</h1>
+            <p class="subtitle" style="margin-bottom: 15px;">Perbarui data profil Bitworld Anda.</p>
+            
+            <div class="input-group">
+                <label>Nama Pengguna (Username)</label>
+                <input type="text" id="username" placeholder="Masukkan username">
+            </div>
+
+            <div class="input-group">
+                <label>Bio / Catatan</label>
+                <input type="text" id="userbio" placeholder="Masukkan bio singkat">
+            </div>
+
+            <button class="btn btn-green" onclick="saveProfile()">Simpan Profil</button>
+            <button class="btn" style="background-color: #334155;" onclick="switchPage('page-dashboard')">Kembali ke Dashboard</button>
+        </div>
+
     </div>
 
     <script>
+        let currentAccount = "";
+
+        // Fungsi Hubungkan Dompet MetaMask
         async function connectWallet() {
-            const statusDiv = document.getElementById("status");
+            const statusMsg = document.getElementById('statusMsg');
+            const connectBtn = document.getElementById('connectBtn');
+
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    statusDiv.innerHTML = "Menghubungkan ke Dompet...";
+                    connectBtn.innerText = "Connecting...";
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    const account = accounts[0];
-                    statusDiv.innerHTML = `Terhubung: ${account.substring(0, 6)}...${account.substring(38)}`;
+                    
+                    currentAccount = accounts[0];
+                    const shortAddress = currentAccount.substring(0, 6) + "..." + currentAccount.substring(currentAccount.length - 4);
+                    
+                    // Tampilkan alamat dompet di Dashboard
+                    document.getElementById('walletDisplay').innerText = "Wallet: " + shortAddress;
+                    
+                    // Pindah Tampilan ke Dashboard tanpa reload
+                    switchPage('page-dashboard');
+
                 } catch (error) {
-                    statusDiv.innerHTML = "Koneksi dibatalkan oleh pengguna.";
+                    console.error(error);
+                    connectBtn.innerText = "Hubungkan Dompet";
+                    statusMsg.innerText = "Gagal menghubungkan dompet.";
                 }
             } else {
-                alert("Browser Web3 tidak terdeteksi! Silakan buka tautan ini langsung di dalam browser MetaMask, Trust Wallet, atau Bitget Wallet.");
+                alert("Buka tautan ini dari dalam aplikasi MetaMask (In-App Browser)!");
+                statusMsg.innerText = "Web3 Provider tidak ditemukan.";
             }
         }
-    </script>
 
+        // Fungsi Pindah Tampilan/Halaman Secara Instan
+        function switchPage(pageId) {
+            document.getElementById('page-connect').classList.add('hidden');
+            document.getElementById('page-dashboard').classList.add('hidden');
+            document.getElementById('page-profile').classList.add('hidden');
+
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // Fungsi Simpan Profil
+        function saveProfile() {
+            const username = document.getElementById('username').value;
+            if(username === "") {
+                alert("Harap isi username Anda!");
+                return;
+            }
+            alert("Profil berhasil diperbarui untuk " + username + "!");
+            switchPage('page-dashboard');
+        }
+
+        // Fungsi Putus Dompet
+        function disconnectWallet() {
+            currentAccount = "";
+            document.getElementById('connectBtn').innerText = "Hubungkan Dompet";
+            switchPage('page-connect');
+        }
+    </script>
 </body>
 </html>
