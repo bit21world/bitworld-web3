@@ -1,184 +1,85 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitworld (BTW) - Mobile Mining</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #0b0f19;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 15px;
-        }
-        .container {
-            width: 100%;
-            max-width: 420px;
-        }
-        .card {
-            background-color: #131a29;
-            border-radius: 16px;
-            padding: 24px 20px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid #1e293b;
-            margin-bottom: 15px;
-        }
-        .title {
-            color: #f59e0b;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            color: #94a3b8;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        .wallet-box {
-            background: #1e293b;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            color: #38bdf8;
-            word-break: break-all;
-            margin-bottom: 15px;
-        }
-        .btn {
-            background-color: #d97706;
-            color: #ffffff;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: 0.2s;
-        }
-        .btn-green { background-color: #16a34a; }
-        .btn-blue { background-color: #0284c7; }
-        .btn:active { transform: scale(0.98); }
-        
-        .input-group {
-            text-align: left;
-            margin-bottom: 12px;
-        }
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background-color: #0f172a;
-            color: #fff;
-            font-size: 14px;
-        }
-        .hidden { display: none !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bitworld (BTW) - Airdrop</title>
+<style>
+:root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.65);--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{overflow-x:hidden}
+#scene{position:fixed;inset:0;z-index:0;pointer-events:none}
+main{position:relative;z-index:1;padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
+section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 0}
+.badge{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--accent2);background:rgba(34,211,238,.08);letter-spacing:.5px}
+h1{font-size:clamp(44px,10vw,96px);font-weight:800;letter-spacing:-1px;margin:20px 0 8px;background:linear-gradient(90deg,var(--accent),#fff3c4,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:560px;line-height:1.6}
+.btn{display:inline-block;margin-top:32px;padding:14px 28px;border-radius:12px;background:var(--accent);color:#1a1400;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-size:16px;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(245,184,46,.35)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:40px;width:100%;max-width:900px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 18px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.card .label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+.card .value{font-size:26px;font-weight:800;margin-top:8px;color:var(--fg);word-break:break-word}
+.card .value.gold{color:var(--accent)}
+h2{font-size:clamp(28px,5vw,40px);margin-bottom:12px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px;width:100%;max-width:960px;text-align:left}
+.step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.step .n{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#1a1400;display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:12px}
+.step h3{font-size:18px;margin-bottom:8px}
+.step p{color:var(--muted);font-size:14px;line-height:1.6}
+.contract{margin-top:32px;width:100%;max-width:720px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+.contract .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+.addr{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;margin:12px 0;word-break:break-all;color:var(--accent2)}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ghost{background:transparent;color:var(--fg);border:1px solid var(--line);margin-top:0;padding:10px 18px;font-size:14px}
+.ghost:hover{border-color:var(--accent2)}
+.warn{margin-top:40px;max-width:720px;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);padding-top:24px}
+.warn strong{color:var(--fg)}
+footer{padding:32px 0 48px;color:var(--muted);font-size:13px}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(120px);background:#fff;color:#000;padding:10px 18px;border-radius:10px;font-size:14px;transition:transform .3s;z-index:5}
+#toast.show{transform:translateX(-50%) translateY(0)}
+</style>
 </head>
 <body>
+<canvas id="scene"></canvas>
 
-    <div class="container">
-        
-        <!-- DASHBOARD UTAMA (TAMPIL LANGSUNG) -->
-        <div id="page-dashboard" class="card">
-            <h1 class="title">Bitworld (BTW)</h1>
-            <p class="subtitle">Ekosistem Decentralized Mobile Mining</p>
-            
-            <div id="walletDisplay" class="wallet-box">Status Wallet: Belum Terhubung</div>
-            
-            <button id="connectBtn" class="btn" onclick="connectWallet()">Hubungkan Dompet MetaMask</button>
-            <button class="btn btn-blue" onclick="switchPage('page-mining')">⛏️ Menu Mining BTW</button>
-            <button class="btn btn-green" onclick="switchPage('page-profile')">👤 Edit Profil</button>
-        </div>
+<main>
+  <section>
+    <span class="badge">AIRDROP • BEP-20 • BNB SMART CHAIN</span>
+    <h1>Bitworld</h1>
+    <p class="tagline">Proyek Layer 2 di jaringan BSC dengan token <strong>BTW</strong>. Ikuti airdrop dan jadi bagian dari ekosistem Bitworld sejak awal.</p>
+    <a class="btn" href="#cara">Ikuti Airdrop</a>
+  </section>
 
-        <!-- MENU MINING -->
-        <div id="page-mining" class="card hidden">
-            <h1 class="title">Mining BTW</h1>
-            <p class="subtitle">Saldo Koin Anda: <b style="color:#f59e0b;" id="coinBalance">0 BTW</b></p>
-            
-            <button class="btn btn-green" onclick="startMining()">Mulai Mining</button>
-            <button class="btn" style="background-color: #334155;" onclick="switchPage('page-dashboard')">Kembali</button>
-        </div>
-
-        <!-- MENU EDIT PROFIL -->
-        <div id="page-profile" class="card hidden">
-            <h1 class="title">Edit Profil</h1>
-            
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="Masukkan username">
-            </div>
-
-            <div class="input-group">
-                <label>Bio</label>
-                <input type="text" id="userbio" placeholder="Masukkan bio">
-            </div>
-
-            <button class="btn btn-green" onclick="saveProfile()">Simpan Profil</button>
-            <button class="btn" style="background-color: #334155;" onclick="switchPage('page-dashboard')">Kembali</button>
-        </div>
-
+  <section>
+    <h2>Informasi Token</h2>
+    <div class="grid">
+      <div class="card"><div class="label">Nama</div><div class="value">Bitworld</div></div>
+      <div class="card"><div class="label">Simbol</div><div class="value gold">BTW</div></div>
+      <div class="card"><div class="label">Total Supply</div><div class="value gold">21.000.000</div></div>
+      <div class="card"><div class="label">Jaringan</div><div class="value">BSC</div></div>
     </div>
 
-    <script>
-        let balance = 0;
+    <div class="contract">
+      <div class="label">Smart Contract</div>
+      <div class="addr" id="addr">0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea</div>
+      <div class="row">
+        <button class="btn ghost" id="copyBtn">Salin Alamat</button>
+        <a class="btn ghost" href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener noreferrer">Lihat di BscScan</a>
+      </div>
+    </div>
+  </section>
 
-        function switchPage(pageId) {
-            document.getElementById('page-dashboard').classList.add('hidden');
-            document.getElementById('page-mining').classList.add('hidden');
-            document.getElementById('page-profile').classList.add('hidden');
-            document.getElementById(pageId).classList.remove('hidden');
-        }
+  <section id="cara">
+    <h2>Cara Ikut Airdrop</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Verifikasi alamat</h3><p>Pastikan alamat smart contract sama persis dengan yang tertera di halaman ini sebelum melakukan apa pun.</p></div>
+      <div class="step"><div class="n">2</div><h3>Siapkan dompet BSC</h3><p>Gunakan dompet yang mendukung BNB Smart Chain, seperti MetaMask atau Trust Wallet.</p></div>
+      <div class="step"><div class="n">3</div><h3>Ikuti kanal resmi</h3><p>Ikuti akun dan komunitas resmi Bitworld. Ketentuan kelayakan airdrop akan diumumkan di sana.</p></div>
+    </div>
+  </section>
 
-        async function connectWallet() {
-            const btn = document.getElementById('connectBtn');
-            const display = document.getElementById('walletDisplay');
-
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    const account = accounts[0];
-                    const shortAddr = account.substring(0,6) + "..." + account.substring(account.length-4);
-                    
-                    display.innerText = "Wallet: " + shortAddr;
-                    btn.innerText = "Terhubung";
-                    btn.style.backgroundColor = "#16a34a";
-                } catch (e) {
-                    alert("Koneksi ditolak.");
-                }
-            } else {
-                alert("Mode Web biasa aktif. Buka di aplikasi MetaMask jika ingin menghubungkan wallet asli.");
-            }
-        }
-
-        function startMining() {
-            balance += 10;
-            document.getElementById('coinBalance').innerText = balance + " BTW";
-            alert("Berhasil klaim 10 BTW!");
-        }
-
-        function saveProfile() {
-            const name = document.getElementById('username').value;
-            alert(name ? "Profil " + name + " tersimpan!" : "Harap isi username!");
-            if(name) switchPage('page-dashboard');
-        }
-    </script>
-</body>
-</html>
+  <section>
+    <div class="warn">
+      <p><strong>Peringatan:</strong> Tidak ada tim yang akan meminta seed phrase atau private key Anda. Jangan pernah membagikannya kepa
