@@ -2,549 +2,126 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bitworld (BTW)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitworld ($BTW) — Mining Preview</title>
 <style>
-:root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.72);--line:rgba(255,255,255,.1);--spring:cubic-bezier(.34,1.56,.64,1)}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{height:100vh;height:100dvh;display:flex;flex-direction:column}
-#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-
-/* Header */
-header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px;gap:8px}
-.brand{font-weight:800;font-size:17px;color:var(--accent)}
-.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.lang button{background:transparent;border:0;color:var(--muted);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
-.lang button.on{background:var(--accent);color:#1a1400}
-
-/* Area konten (tanpa scroll) */
-main{position:relative;z-index:1;flex:1;min-height:0;overflow:hidden}
-.view{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:8px 18px;gap:12px;text-align:center}
-.view.active{display:flex;animation:fade .5s var(--spring)}
-@keyframes fade{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-
-/* Beranda */
-h1{font-size:clamp(40px,12vw,80px);font-weight:800;letter-spacing:-1px;line-height:1.05}
-.ch{display:inline-block;background:linear-gradient(90deg,var(--accent),#fff3c4,var(--accent));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:drop .9s var(--spring) both,shine 4s linear infinite;animation-delay:calc(var(--i) * 70ms + 100ms),0s}
-@keyframes drop{from{opacity:0;transform:translateY(-120%) scale(.4)}to{opacity:1;transform:none}}
-@keyframes shine{to{background-position:200% center}}
-.badge{display:inline-block;padding:5px 12px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--accent2);background:rgba(34,211,238,.08);letter-spacing:.6px}
-.tagline{font-size:clamp(13px,3.4vw,16px);color:var(--muted);max-width:420px;line-height:1.5}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:460px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.card .label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
-.card .value{font-size:clamp(14px,4vw,18px);font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;word-break:break-word}
-.gold{color:var(--accent)}
-.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-
-/* Tombol umum */
-.btn{display:inline-block;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;transition:transform .4s var(--spring),border-color .3s,color .3s;font-family:inherit}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1400}
-.btn:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-2px)}
-.btn.primary:hover{color:#1a1400;border-color:var(--accent)}
-.btn:active{transform:scale(.93)}
-.btn:disabled{opacity:.35;cursor:default;transform:none}
-
-/* Panel isi */
-.panel{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.panel h2{font-size:clamp(18px,4.6vw,22px);margin-bottom:8px;color:var(--accent)}
-.panel p{font-size:13.5px;line-height:1.6;color:var(--fg);opacity:.92;margin-bottom:8px}
-.panel p:last-child{margin-bottom:0}
-.muted{color:var(--muted)!important}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--accent2);word-break:break-all;background:rgba(0,0,0,.3);padding:8px;border-radius:8px;margin:8px 0}
-
-/* Whitepaper: menu bagian */
-.wpmenu{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%;max-width:520px}
-.wpmenu button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 10px;font-size:11.5px;cursor:pointer;font-family:inherit;transition:all .3s var(--spring)}
-.wpmenu button.on{background:var(--accent2);border-color:var(--accent2);color:#021318;font-weight:700;transform:scale(1.05)}
-.wpnav{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:520px;gap:8px}
-.wpnav span{font-size:12px;color:var(--muted)}
-
-/* Tabel token */
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
-td:first-child{color:var(--muted);width:38%}
-
-/* Visi & misi */
-.list{padding-left:18px;font-size:13.5px;line-height:1.6}
-.list li{margin-bottom:6px}
-
-/* Ticker dan navigasi bawah */
-.ticker{position:relative;z-index:2;overflow:hidden;border-top:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 0;flex-shrink:0}
-.track{display:flex;width:max-content;animation:marquee 20s linear infinite}
-.track span{padding:0 20px;font-size:11.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);white-space:nowrap}
-.track span b{color:var(--accent)}
-@keyframes marquee{to{transform:translateX(-50%)}}
-nav.bottom{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;border-bottom:1px solid var(--line);flex-shrink:0;padding:0 4px;}
-nav.bottom::-webkit-scrollbar{display:none}
-nav.bottom button{background:transparent;border:0;color:var(--muted);padding:10px 8px;min-height:44px;font-size:12px;font-weight:700;white-space:nowrap;flex:0 0 auto;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring);}
-nav.bottom button.locked{color:#6b7389}
-nav.bottom button.on{color:var(--accent)}
-.lockcard{width:100%;max-width:460px;border:1px dashed rgba(245,184,46,.45);border-radius:14px;padding:12px;background:rgba(245,184,46,.05);text-align:left}
-.lockcard .t{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--accent)}
-.lockcard p{font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px}
-.lockcard .badge2{margin-left:auto;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-@media (max-width:360px){nav.bottom button{font-size:11px;padding:14px 2px}}
-nav.bottom button:active{transform:scale(.9)}
-
-#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(120px) scale(.8);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .6s var(--spring);z-index:9;white-space:nowrap}
-#toast.show{transform:translateX(-50%) translateY(0) scale(1)}
-
-@media (max-height:640px){ .badge,.warnhome{display:none} }
-@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
-</style>
-
-<style id="tema-biru-3d">
-:root{--bg:#06163a;--card:rgba(16,42,100,.55);--line:rgba(120,170,255,.22)}
-html,body{background-color:#051537;background-image:radial-gradient(ellipse at 50% -10%,#2563eb 0%,#1e40af 28%,#0b2a6b 62%,#051537 100%);background-attachment:fixed}
-.ticker{background:rgba(10,40,110,.65)!important;border-top:1px solid rgba(120,170,255,.3)!important}
-header{background:transparent}
-.card,.panel,.contract,.lockcard{background:linear-gradient(160deg,rgba(59,130,246,.28),rgba(12,32,90,.82))!important;border:1px solid rgba(147,197,253,.22)!important;box-shadow:0 7px 0 rgba(3,12,40,.85),0 16px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.2)!important;border-radius:16px!important}
-.card{transform:perspective(700px) rotateX(5deg)}
-.card:hover{transform:perspective(700px) rotateX(0deg) translateY(-3px)}
-nav.bottom{background:linear-gradient(180deg,#1d4ed8,#0b2a6b)!important;box-shadow:0 8px 20px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.15);border-bottom:none!important;padding:6px 6px 8px!important;gap:4px}
-nav.bottom button{background:linear-gradient(180deg,#3b72ea,#1d4aa8)!important;color:#e0ecff!important;border-radius:12px!important;margin:2px;box-shadow:0 5px 0 #0a1f5c,0 9px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.32)!important;transition:transform .15s,box-shadow .15s!important}
-nav.bottom button:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #0a1f5c,0 3px 6px rgba(0,0,0,.45)!important}
-nav.bottom button.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.4),inset 0 1px 0 rgba(255,255,255,.7)!important}
-nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!important;color:#cbd5e1!important;box-shadow:0 5px 0 #0f172a,0 9px 14px rgba(0,0,0,.4)!important}
-.btn{box-shadow:0 5px 0 #1e3a8a,0 10px 18px rgba(0,0,0,.4)!important;border-radius:12px!important;border:1px solid rgba(147,197,253,.35)!important;background:linear-gradient(180deg,rgba(59,130,246,.35),rgba(20,50,130,.7))!important;color:#e0ecff!important}
-.btn.primary{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.35)!important}
-.btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #1e3a8a!important}
-.btn.primary:active{box-shadow:0 1px 0 #a16207!important}
-.wpmenu button{background:linear-gradient(180deg,#2b5bd6,#1a3f9e)!important;color:#dbe7ff!important;border:none!important;border-radius:999px!important;box-shadow:0 4px 0 #0a1f5c,0 8px 14px rgba(0,0,0,.35)!important;padding:7px 12px!important}
-.wpmenu button.on{background:linear-gradient(180deg,#67e8f9,#22d3ee)!important;color:#021318!important;box-shadow:0 4px 0 #0e7490,0 10px 16px rgba(34,211,238,.35)!important}
-.wpmenu button:active{transform:translateY(3px)!important}
-.stats .card .value{text-shadow:0 2px 0 rgba(0,0,0,.35)}
+:root{--navy:#061b49;--blue:#123b8d;--blue2:#2457bb;--gold:#ffc536;--gold2:#ffe18a;--text:#e9f1ff;--muted:#9aafd4;--green:#36e0a1}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at 50% 15%,#244db0 0%,#102e70 42%,#06183c 100%);min-height:100vh}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:linear-gradient(100deg,#0c2a68,#2049a5,#0a245a);border-bottom:1px solid #3159a2;position:relative;z-index:2}
+.brand{font-size:25px;font-weight:900;color:var(--gold);letter-spacing:.5px}
+.lang{border:1px solid #5372b2;border-radius:24px;padding:8px 15px;color:#dce8ff;font-weight:700}
+nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:16px 14px 22px;max-width:900px;margin:auto}
+nav a{color:#e6efff;text-decoration:none;font-weight:750;padding:15px 17px;border-radius:21px;background:linear-gradient(#3470dc,#17418f);box-shadow:0 7px 0 #071d4a,0 9px 15px #06163866;border:1px solid #4e7cda}
+nav a.active{background:linear-gradient(#ffe68b,#ffbd22);color:#1b2a45;box-shadow:0 7px 0 #8e5d00,0 9px 15px #06163866}
+nav a.lock{background:linear-gradient(#3b4c65,#18283f);color:#d5dfef}
+main{max-width:850px;margin:0 auto;padding:10px 18px 80px}
+.mining-card{max-width:690px;margin:16px auto 30px;padding:22px;border-radius:24px;border:1px solid #4c79c6;background:linear-gradient(145deg,#0c285d,#123b83 55%,#09214e);box-shadow:0 14px 30px #03102e88,inset 0 1px 0 #ffffff22;position:relative;overflow:hidden}
+.mining-card:before{content:"";position:absolute;width:220px;height:220px;right:-100px;top:-110px;border-radius:50%;background:#2d69d944;filter:blur(4px)}
+.mining-head{display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative}
+.eyebrow{font-size:12px;letter-spacing:1.8px;color:#8ee9ff;font-weight:800;text-transform:uppercase}
+.mining-card h2{font-size:clamp(22px,5vw,30px);margin:6px 0;color:var(--gold2)}
+.badge{font-size:11px;font-weight:800;letter-spacing:.7px;padding:8px 10px;border-radius:20px;color:#a8ffdb;background:#123d46;border:1px solid #278f79;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 16px;position:relative}
+.stat{padding:13px 8px;text-align:center;border-radius:15px;background:#071c43aa;border:1px solid #365da0}
+.stat .label{font-size:11px;color:#a9bde1;text-transform:uppercase;letter-spacing:.7px}
+.stat .value{font-size:clamp(16px,4vw,22px);font-weight:850;color:#fff;margin-top:7px;overflow-wrap:anywhere}
+.stat .value.gold{color:var(--gold)}
+.progress-wrap{margin:14px 0 18px}
+.progress-meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#b9cbed;margin-bottom:8px}
+.progress{height:9px;border-radius:99px;background:#061638;overflow:hidden;border:1px solid #31518b}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#38e0a2,#c5ff91);transition:width .3s}
+.actions{display:flex;gap:10px}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 16px;font-weight:850;flex:1;transition:transform .15s,filter .15s}
+button:active{transform:translateY(2px)}
+.primary{color:#15213b;background:linear-gradient(#ffe58b,#ffbd28);box-shadow:0 5px 0 #986700}
+.secondary{color:#e8f0ff;background:linear-gradient(#2f61b7,#173d83);border:1px solid #4c73bb}
+button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
+.note{font-size:12px;line-height:1.6;color:#a9bde1;margin:17px 0 0}
+.note strong{color:#e6f1ff}
+.hero{text-align:center;padding:24px 0 20px}
+.chain{display:inline-block;border:1px solid #3a6fba;background:#153c7b99;color:#55d9f6;border-radius:24px;padding:9px 18px;font-size:13px;letter-spacing:.8px}
+.hero h1{font-size:clamp(48px,12vw,82px);line-height:1;margin:25px 0 24px;color:var(--gold);letter-spacing:-3px}
+.hero p{font-size:clamp(16px,3.6vw,22px);line-height:1.6;color:#9aafd4;max-width:680px;margin:0 auto 24px}
+.token-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.token-stat{border:1px solid #4269b3;border-radius:22px;padding:19px 8px;background:linear-gradient(#173c80,#0d2b65);box-shadow:0 7px 0 #06183d;text-align:center}
+.token-stat small{display:block;letter-spacing:1.5px;color:#a5b9de;font-size:12px}
+.token-stat b{display:block;color:var(--gold);font-size:clamp(17px,4vw,24px);margin-top:8px}
+.hero-buttons{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:24px}
+.hero-buttons a{display:inline-block;text-decoration:none;padding:15px 22px;border-radius:18px;font-weight:800}
+.hero-buttons .gold-btn{background:linear-gradient(#ffe68b,#ffbd22);color:#17233d;box-shadow:0 6px 0 #956300}
+.hero-buttons .blue-btn{background:linear-gradient(#234e9f,#153777);color:#eaf1ff;border:1px solid #4c70b7;box-shadow:0 6px 0 #071a43}
+.disclaimer{color:#9aafd4;margin-top:23px}
+footer{position:fixed;bottom:0;left:0;right:0;background:#0a2458ed;border-top:1px solid #274b91;padding:13px 10px;text-align:center;color:var(--gold);font-weight:800;letter-spacing:.3px;z-index:3}
+@media(max-width:520px){.topbar{height:64px;padding:0 16px}nav{gap:9px;padding:14px 9px 20px}nav a{padding:13px 12px;font-size:14px}.mining-card{padding:17px 14px;margin-top:8px}.stats{gap:6px}.stat{padding:12px 4px}.stat .label{font-size:9px;letter-spacing:.3px}.actions{flex-direction:column}.hero{padding-top:18px}.token-stats{gap:8px}.token-stat{padding:16px 4px;border-radius:16px}.token-stat small{font-size:10px;letter-spacing:.8px}.hero-buttons{gap:12px}.hero-buttons a{padding:14px 17px}}
 </style>
 </head>
 <body>
-<canvas id="scene"></canvas>
-
-<header>
-  <div class="brand">BTW</div>
-  <div class="lang" role="group" aria-label="Bahasa">
-    <button id="lang-id" class="on" type="button">ID</button>
-    <button id="lang-en" type="button">EN</button>
-  </div>
-</header>
-<nav class="bottom" aria-label="Menu utama">
-  <button type="button" data-go="home" id="n-home"></button>
-  <button type="button" data-go="wp" id="n-wp"></button>
-  <button type="button" data-go="vision" id="n-vision"></button>
-  <button type="button" data-go="token" id="n-token"></button>
-  <button type="button" data-go="contract" id="n-contract"></button>
-  <button type="button" data-go="faq" id="n-faq"></button>
-  <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
-  <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
+<header class="topbar"><div class="brand">BTW</div><div class="lang">ID　 EN</div></header>
+<nav aria-label="Menu utama">
+<a class="active" href="#beranda">Beranda</a><a href="#whitepaper">Whitepaper</a><a href="#visi">Visi</a><a href="#token">Token</a><a href="#kontrak">Kontrak</a><a href="#faq">FAQ</a><a href="#berita">📰 Berita</a><a class="lock" href="#ambassador">🔒 Ambassador</a>
 </nav>
-
-<main>
-  <!-- BERANDA -->
-  <section class="view active" id="v-home">
-    <span class="badge" data-i18n="badge">BEP-20 • BNB SMART CHAIN</span>
-    <h1 id="title">Bitworld</h1>
-    <p class="tagline" data-i18n="tagline"></p>
-    <div class="stats">
-      <div class="card"><div class="label" data-i18n="s_symbol"></div><div class="value gold">BTW</div></div>
-      <div class="card"><div class="label" data-i18n="s_supply"></div><div class="value gold" id="supply">21.000.000</div></div>
-      <div class="card"><div class="label" data-i18n="s_network"></div><div class="value">BSC</div></div>
-    </div>
-    <div class="actions">
-      <button class="btn primary" type="button" data-go="wp" data-i18n="b_wp"></button>
-      <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
-    </div>
-    <p class="warnhome tagline muted" data-i18n="warn_short"></p>
-  </section>
-
-  <!-- WHITEPAPER -->
-  <section class="view" id="v-wp">
-    <div class="wpmenu" id="wpmenu"></div>
-    <div class="panel" id="wpbody"></div>
-    <div class="wpnav">
-      <button class="btn" type="button" id="wpPrev" data-i18n="prev"></button>
-      <span id="wpCount"></span>
-      <button class="btn primary" type="button" id="wpNext" data-i18n="next"></button>
-    </div>
-  </section>
-
-  <!-- VISI & MISI -->
-  <section class="view" id="v-vision">
-    <div class="panel" id="visionBody"></div>
-  </section>
-
-  <!-- TOKEN -->
-  <section class="view" id="v-token">
-    <div class="panel" id="tokenBody"></div>
-  </section>
-
-  <!-- KONTRAK -->
-  <section class="view" id="v-contract">
-    <div class="panel" id="contractBody"></div>
-    <div class="actions">
-      <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
-      <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
-    </div>
-  </section>
-
-  <!-- BERITA -->
-  <section class="view" id="v-news">
-    <div class="panel" id="newsBody"></div>
-  </section>
-
-  <!-- AMBASSADOR (terkunci) -->
-  <section class="view" id="v-ambassador">
-    <div class="panel" style="text-align:center">
-      <div style="font-size:40px;margin-bottom:6px">&#128274;</div>
-      <h2>Program Ambassador</h2>
-      <p><span class="badge2" style="display:inline-block;margin:6px 0">SEGERA HADIR</span></p>
-      <p class="muted">Program ini belum dibuka. Aturan resminya akan diumumkan di kanal resmi Bitworld sebelum pendaftaran dibuka.</p>
-      <p class="muted">Tidak ada pendaftaran, pembayaran, atau janji hasil sebelum aturan resmi diumumkan.</p>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="view" id="v-faq">
-    <div class="panel" id="faqBody"></div>
-  </section>
+<main id="beranda">
+<section class="mining-card" aria-label="Pratinjau BTW Mining">
+ <div class="mining-head"><div><div class="eyebrow">Bitworld Community</div><h2>⛏️ BTW Mining</h2></div><span class="badge">PREVIEW MODE</span></div>
+ <div class="stats">
+  <div class="stat"><div class="label">Saldo simulasi</div><div class="value gold" id="balance">0.000 BTW</div></div>
+  <div class="stat"><div class="label">Mining rate</div><div class="value">0.002 <small>BTW/jam</small></div></div>
+  <div class="stat"><div class="label">Reward / sesi</div><div class="value gold">0.048 BTW</div></div>
+ </div>
+ <div class="progress-wrap"><div class="progress-meta"><span id="status">Belum mining</span><span id="time">24:00:00</span></div><div class="progress"><div class="progress-bar" id="progressBar"></div></div></div>
+ <div class="actions"><button class="primary" id="startBtn">START MINING</button><button class="secondary" id="claimBtn" disabled>KLAIM REWARD</button></div>
+ <p class="note"><strong>Pratinjau antarmuka:</strong> saldo dan reward di halaman ini hanya simulasi pada browser, bukan token BTW sungguhan. Data sesi tidak disimpan ke blockchain dan dapat hilang jika data browser dibersihkan.</p>
+</section>
+<section class="hero">
+ <div class="chain">BEP-20 • BNB SMART CHAIN</div>
+ <h1>Bitworld</h1>
+ <p>Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.</p>
+ <div class="token-stats" id="token">
+  <div class="token-stat"><small>SIMBOL</small><b>BTW</b></div>
+  <div class="token-stat"><small>SUPPLY</small><b>21.000.000</b></div>
+  <div class="token-stat"><small>JARINGAN</small><b style="color:#e8f0ff">BSC</b></div>
+ </div>
+ <div class="hero-buttons"><a class="gold-btn" href="#whitepaper">Baca Whitepaper</a><a class="blue-btn" href="#kontrak">Lihat Kontrak</a></div>
+ <div class="disclaimer">Bukan ajakan investasi. DYOR.</div>
+</section>
 </main>
-
-<div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
-
-
-<div id="toast"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+<footer>BNB SMART CHAIN　 •　 BEP-20　 •　 LAYER 2 BSC　 •　 DYOR　 •　 BTW</footer>
 <script>
-/* ================= DATA ================= */
-var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
-var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var lang = "id";
-
-var UI = {
-  id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
-  en: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"A Layer 2 project on the BSC network with the BTW token. Learn about Bitworld's vision, whitepaper, and contract.", s_symbol:"Symbol", s_supply:"Supply", s_network:"Network", b_wp:"Read Whitepaper", b_contract:"View Contract", warn_short:"Not investment advice. DYOR.", prev:"← Previous", next:"Next →", copy:"Copy Address", bscscan:"Open BscScan", copied:"Address copied", copyfail:"Copy failed", n_home:"Home", n_wp:"Whitepaper", n_vision:"Vision", n_token:"Token", n_contract:"Contract", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21,000,000","BSC Network","BEP-20","Layer 2 BSC","DYOR"]}
-};
-
-var WP = [
-  {t:{id:"Ringkasan",en:"Summary"},
-   b:{id:["Bitworld (BTW) adalah token BEP-20 yang berjalan di BNB Smart Chain (BSC). Proyek ini dirancang sebagai solusi Layer 2 dengan tujuan menghadirkan transaksi yang lebih cepat dan biaya yang lebih terjangkau.","Whitepaper ini menjelaskan masalah yang ingin diselesaikan, pendekatan teknis, struktur token, dan orientasi jangka panjang Bitworld.","Makna nama Bitworld: \"Bit\" merujuk pada data digital, fondasi dari setiap transaksi dan aplikasi di jaringan blockchain. \"World\" merujuk pada ekosistem tempat pengguna, pengembang, dan komunitas saling terhubung. Bitworld adalah dunia digital yang dibangun di atas BNB Smart Chain, dengan token BTW sebagai bagian dari ekosistem tersebut. Nama ini tidak berhubungan dengan Bitcoin (BTC) maupun proyek lain."],
-      en:["Bitworld (BTW) is a BEP-20 token running on BNB Smart Chain (BSC). The project is designed as a Layer 2 solution aiming to deliver faster transactions and more affordable fees.","This whitepaper outlines the problem being addressed, the technical approach, the token structure, and Bitworld's long-term direction.","Meaning of the name Bitworld: \"Bit\" refers to digital data, the foundation of every transaction and application on a blockchain. \"World\" refers to an ecosystem where users, developers, and communities connect. Bitworld is a digital world built on BNB Smart Chain, with the BTW token as part of that ecosystem. The name is not related to Bitcoin (BTC) or any other project."]}},
-  {t:{id:"Masalah",en:"Problem"},
-   b:{id:["Pengguna dan pengembang sering menghadapi biaya transaksi yang tidak stabil serta proses yang rumit saat berinteraksi dengan aplikasi terdesentralisasi.","Masih dibutuhkan infrastruktur yang sederhana, transparan, dan dapat diandalkan."],
-      en:["Users and developers often face unstable transaction fees and complicated processes when interacting with decentralized applications.","There remains a need for simple, transparent, and reliable infrastructure."]}},
-  {t:{id:"Solusi",en:"Solution"},
-   b:{id:["Bitworld menyediakan lapisan kedua di atas jaringan BSC untuk mendukung aplikasi dengan pengalaman yang lebih sederhana.","Rincian utilitas token BTW akan dijelaskan lebih lanjut seiring perkembangan proyek."],
-      en:["Bitworld provides a second layer on top of the BSC network to support applications with a simpler user experience.","Details on the utility of the BTW token will be expanded as the project develops."]}},
-  {t:{id:"Teknologi",en:"Technology"},
-   b:{id:["Token BTW mengikuti standar BEP-20 dan berjalan di BNB Smart Chain.","Alamat smart contract resmi token BTW:"],
-      en:["The BTW token follows the BEP-20 standard and runs on BNB Smart Chain.","Official BTW token smart contract address:"]},
-   code:true},
-  {t:{id:"Detail Token",en:"Token Details"},
-   table:true},
-  {t:{id:"Tokenomics",en:"Tokenomics"},
-   b:{id:["Total suplai tetap sebesar 21.000.000 BTW.","Rincian alokasi, jadwal vesting, dan mekanisme distribusi akan diumumkan melalui kanal resmi. Informasi yang belum dipublikasikan tidak dianggap final.","Kontrak BTW tidak memiliki fungsi mint, burn, atau pause. Total supply tetap 21.000.000 BTW sejak deploy dan dapat diverifikasi di BscScan."],
-      en:["The fixed total supply is 21,000,000 BTW.","Allocation details, vesting schedules, and distribution mechanisms will be announced through official channels. Unpublished information should not be considered final.","The BTW contract has no mint, burn, or pause functions. The total supply is fixed at 21,000,000 BTW since deployment and can be verified on BscScan."]}},
-  {t:{id:"Tata Kelola",en:"Governance"},
-   b:{id:["Keputusan penting proyek akan dikomunikasikan melalui kanal resmi.","Mekanisme tata kelola yang lebih formal akan dikembangkan secara bertahap seiring pertumbuhan komunitas."],
-      en:["Important project decisions will be communicated through official channels.","More formal governance mechanisms will be developed gradually as the community grows."]}},
-  {t:{id:"Roadmap",en:"Roadmap"},
-   b:{id:["Fase 1, Fondasi: token, kontrak, dan dokumentasi publik.","Fase 2, Pertumbuhan: pengembangan aplikasi dan kemitraan ekosistem.","Fase 3, Keberlanjutan: penguatan tata kelola dan utilitas jangka panjang.","Tanggal setiap fase belum ditetapkan dan dapat berubah."],
-      en:["Phase 1, Foundation: token, contract, and public documentation.","Phase 2, Growth: application development and ecosystem partnerships.","Phase 3, Sustainability: stronger governance and long-term utility.","No dates have been set for each phase, and they may change."]}},
-  {t:{id:"Risiko",en:"Risks"},
-   b:{id:["Kripto memiliki risiko tinggi, termasuk kemungkinan kehilangan nilai secara total.","Dokumen ini bukan nasihat keuangan atau ajakan membeli token. Tidak ada tim yang akan meminta seed phrase atau private key Anda."],
-      en:["Crypto carries high risk, including the possibility of total loss of value.","This document is not financial advice or a solicitation to buy tokens. No team will ever ask for your seed phrase or private key."]}}
-];
-
-var VISION = {
-  vis:{id:"Menjadi infrastruktur Layer 2 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.",en:"To become a trusted Layer 2 infrastructure on BNB Smart Chain, offering a simple experience for all users over the long term."},
-  mis:{id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang.","Menjaga transparansi melalui kontrak yang dapat diverifikasi publik.","Membangun komunitas yang bertumbuh secara bertahap dan berkelanjutan."],
-       en:["Provide fast transactions and affordable fees.","Build open documentation and tools for developers.","Maintain transparency through publicly verifiable contracts.","Grow a community that develops gradually and sustainably."]},
-  lt:{id:"Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek.",en:"Long-term focus: building a sustainable project, not short-term gains."}
-};
-
-var FAQ = [
-  {q:{id:"Apa itu BTW?",en:"What is BTW?"},a:{id:"BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld.",en:"BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem."}},
-  {q:{id:"Apakah ada airdrop?",en:"Is there an airdrop?"},a:{id:"Belum ada pengumuman airdrop resmi. Informasi hanya berasal dari kanal resmi proyek.",en:"No official airdrop has been announced. Information only comes from the project's official channels."}},
-  {q:{id:"Bagaimana cara memverifikasi kontrak?",en:"How do I verify the contract?"},a:{id:"Cocokkan alamat di halaman ini dengan BscScan sebelum berinteraksi apa pun.",en:"Match the address on this page with BscScan before interacting with anything."}},
-  {q:{id:"Apakah ini nasihat investasi?",en:"Is this investment advice?"},a:{id:"Tidak. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan.",en:"No. Do your own research and only use funds you can afford to risk."}}
-];
-
-var wpIndex = 0;
-var titles = {home:"", wp:"", vision:"", token:"", contract:"", faq:""};
-
-/* ================= HELPERS ================= */
-function $(id){ return document.getElementById(id); }
-function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-function toast(msg){
-  var t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1600);
+const RATE_PER_HOUR = 0.002;
+const SESSION_SECONDS = 24 * 60 * 60;
+const REWARD = RATE_PER_HOUR * 24;
+let startAt = null, completed = false, claimed = false, timer = null;
+const $ = id => document.getElementById(id);
+function fmtTime(sec){sec=Math.max(0,Math.floor(sec));const h=String(Math.floor(sec/3600)).padStart(2,'0');const m=String(Math.floor(sec%3600/60)).padStart(2,'0');const s=String(sec%60).padStart(2,'0');return `${h}:${m}:${s}`;}
+function update(){
+ if(startAt===null){$('time').textContent='24:00:00';return;}
+ const elapsed=Math.min(SESSION_SECONDS,(Date.now()-startAt)/1000);
+ const remaining=SESSION_SECONDS-elapsed;
+ $('time').textContent=fmtTime(remaining);
+ $('progressBar').style.width=(elapsed/SESSION_SECONDS*100)+'%';
+ $('status').textContent=remaining>0?'Mining sedang berjalan':'Sesi selesai — reward siap diklaim';
+ $('startBtn').disabled=remaining>0||!claimed;
+ $('startBtn').textContent=remaining>0?'MINING BERJALAN':(claimed?'MULAI SESI BARU':'SESI SELESAI');
+ $('claimBtn').disabled=remaining>0||claimed;
+ if(remaining<=0){completed=true;clearInterval(timer);}
 }
-
-/* ================= RENDER ================= */
-function applyUI(){
-  var u = UI[lang];
-  document.querySelectorAll("[data-i18n]").forEach(function(el){
-    var k = el.getAttribute("data-i18n");
-    if (u[k] !== undefined && typeof u[k] === "string") el.textContent = u[k];
-  });
-  $("n-home").textContent = u.n_home;
-  $("n-wp").textContent = u.n_wp;
-  $("n-vision").textContent = u.n_vision;
-  $("n-token").textContent = u.n_token;
-  $("n-contract").textContent = u.n_contract;
-  $("n-faq").textContent = u.n_faq;
-  $("n-amb").innerHTML = "&#128274; Ambassador";
-  $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
-  $("lang-id").classList.toggle("on", lang === "id");
-  $("lang-en").classList.toggle("on", lang === "en");
-  $("track").innerHTML = (function(){
-    var h = u.ticker.map(function(t){ return "<span>" + t.replace(/^(\S+)/, "<b>$1</b>") + "</span>"; }).join("");
-    return h + h;
-  })();
-  document.documentElement.lang = lang;
-  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews();
-}
-
-function renderWP(){
-  var menu = $("wpmenu"), html = "";
-  WP.forEach(function(s, i){
-    html += '<button type="button" data-wp="' + i + '" class="' + (i === wpIndex ? "on" : "") + '">' + esc(s.t[lang]) + '</button>';
-  });
-  menu.innerHTML = html;
-  var s = WP[wpIndex], body = "";
-  body += "<h2>" + esc(s.t[lang]) + "</h2>";
-  if (s.table) {
-    var rows = lang === "id"
-      ? [["Nama","Bitworld"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Smart contract",CONTRACT]]
-      : [["Name","Bitworld"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Smart contract",CONTRACT]];
-    body += "<table>" + rows.map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table>";
-  } else {
-    (s.b[lang] || []).forEach(function(p){ body += "<p>" + esc(p) + "</p>"; });
-    if (s.code) body += '<div class="mono">' + esc(CONTRACT) + "</div>";
-  }
-  $("wpbody").innerHTML = body;
-  $("wpCount").textContent = (wpIndex + 1) + " / " + WP.length;
-  $("wpPrev").disabled = wpIndex === 0;
-  $("wpNext").disabled = wpIndex === WP.length - 1;
-}
-
-function renderVision(){
-  var h = "<h2>" + (lang === "id" ? "Visi" : "Vision") + "</h2><p>" + esc(VISION.vis[lang]) + "</p>";
-  h += "<h2 style='margin-top:12px'>" + (lang === "id" ? "Misi" : "Mission") + "</h2><ul class='list'>";
-  VISION.mis[lang].forEach(function(m){ h += "<li>" + esc(m) + "</li>"; });
-  h += "</ul><p class='muted' style='margin-top:12px'>" + esc(VISION.lt[lang]) + "</p>";
-  $("visionBody").innerHTML = h;
-}
-
-function renderToken(){
-  var isId = lang === "id";
-  var cats = [
-    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e", a:"0x3cce806978300525acb416f77d28b9699bd611f0"},
-    {n:isId?"Tim":"Team",                p:15, c:"#22d3ee"},
-    {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
-    {n:isId?"Likuiditas":"Liquidity",    p:10, c:"#34d399"},
-    {n:isId?"Pemasaran & Ekosistem":"Marketing & Ecosystem", p:10, c:"#fb7185"},
-    {n:isId?"Cadangan":"Reserve",        p:5,  c:"#94a3b8"}
-  ];
-  var total = 21000000;
-  var grad = [], acc = 0;
-  cats.forEach(function(c){ var from = acc; acc += c.p; grad.push(c.c + " " + from + "% " + acc + "%"); });
-  var h = "<h2>" + (isId ? "Tokenomics" : "Tokenomics") + "</h2>";
-  h += "<div style='display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap'>";
-  h += "<div style='width:120px;height:120px;border-radius:50%;background:conic-gradient(" + grad.join(",") + ");position:relative;flex-shrink:0'>";
-  h += "<div style='position:absolute;inset:26px;border-radius:50%;background:#0c1120;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#8a94a8'>";
-  h += "<b style='font-size:13px;color:#f5b82e'>21 JT</b>BTW</div></div>";
-  h += "<table style='width:auto;flex:1;min-width:200px'>";
-  cats.forEach(function(c){
-    var amt = Math.round(total * c.p / 100).toLocaleString(isId ? "id-ID" : "en-US");
-    h += "<tr><td style='width:auto;color:" + c.c + ";font-weight:700'>" + esc(c.n) + "</td><td>" + c.p + "%</td><td>" + amt + "</td></tr>";
-  });
-  h += "</table></div>";
-  h += "<p class='muted' style='margin-top:10px;font-size:12px'>" + (isId
-      ? "Dompet komunitas: " : "Community wallet: ") + "<span class='mono' style='display:inline;padding:2px 4px;font-size:11px'>" + esc(cats[0].a) + "</span></p>";
-  h += "<p class='muted' style='font-size:12px'>" + (isId
-      ? "Alamat dompet kategori lain akan dicantumkan setelah dipisahkan. Jadwal vesting akan diumumkan melalui kanal resmi."
-      : "Wallet addresses for other categories will be listed after separation. Vesting schedules will be announced through official channels.") + "</p>";
-  $("tokenBody").innerHTML = h;
-}
-
-function renderContract(){
-  var h = "<h2>" + (lang === "id" ? "Smart Contract" : "Smart Contract") + "</h2>";
-  h += "<p>" + (lang === "id" ? "Alamat resmi token BTW di BNB Smart Chain:" : "Official BTW token address on BNB Smart Chain:") + "</p>";
-  h += "<div class='mono' id='addr'>" + esc(CONTRACT) + "</div>";
-  h += "<p class='muted'>" + (lang === "id"
-      ? "Cocokkan alamat ini dengan BscScan sebelum berinteraksi dengan kontrak apa pun. Jangan pernah mengirim seed phrase atau private key."
-      : "Match this address with BscScan before interacting with any contract. Never send your seed phrase or private key.") + "</p>";
-  $("contractBody").innerHTML = h;
-  $("bscLink").href = BSCSCAN;
-}
-
-function renderNews(){
-  var isId = lang === "id";
-  var ann = [
-    {d: isId ? "20 Okt 2026" : "20 Oct 2026", t: isId ? "Website Bitworld (BTW) dan whitepaper versi publik dirilis." : "Bitworld (BTW) website and public whitepaper released."},
-  ];
-  var src = [
-    {n: "Bitcoin.com News", u: "https://news.bitcoin.com"},
-    {n: "CoinDesk", u: "https://www.coindesk.com"},
-    {n: "BscScan", u: "https://bscscan.com"}
-  ];
-  var h = "<h2>" + (isId ? "Berita & Pengumuman" : "News & Announcements") + "</h2>";
-  h += "<p class='muted' style='font-size:12px;margin-bottom:8px'>" + (isId ? "Pengumuman resmi" : "Official announcements") + "</p>";
-  ann.forEach(function(a){
-    h += "<p><span class='gold' style='font-size:12px;font-weight:700'>" + esc(a.d) + "</span><br>" + esc(a.t) + "</p>";
-  });
-  h += "<p class='muted' style='font-size:12px;margin-top:12px'>" + (isId
-      ? "Berita pasar dari pihak luar tidak kami tulis ulang. Silakan baca langsung dari sumbernya:"
-      : "Market news from outside sources is not rewritten here. Read directly from the source:") + "</p>";
-  src.forEach(function(s){
-    h += "<p><a href='" + s.u + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent2)'>" + esc(s.n) + "</a></p>";
-  });
-  $("newsBody").innerHTML = h;
-}
-
-function renderFAQ(){
-  var h = "<h2>FAQ</h2>";
-  FAQ.forEach(function(f){
-    h += "<p><strong>" + esc(f.q[lang]) + "</strong><br><span class='muted'>" + esc(f.a[lang]) + "</span></p>";
-  });
-  $("faqBody").innerHTML = h;
-}
-
-/* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news"};
-function go(name){
-  if (!VIEWS[name]) name = "home";
-  Object.keys(VIEWS).forEach(function(k){
-    var v = $(VIEWS[k]);
-    v.classList.toggle("active", k === name);
-  });
-  document.querySelectorAll("nav.bottom button").forEach(function(b){
-    b.classList.toggle("on", b.getAttribute("data-go") === name);
-  });
-  if (history.replaceState) history.replaceState(null, "", "#" + name);
-  window.scrollTo(0,0);
-}
-
-document.addEventListener("click", function(e){
-  var t = e.target.closest("[data-go]");
-  if (t) { e.preventDefault(); go(t.getAttribute("data-go")); return; }
-  var w = e.target.closest("[data-wp]");
-  if (w) { wpIndex = parseInt(w.getAttribute("data-wp"), 10) || 0; renderWP(); return; }
+$('startBtn').addEventListener('click',()=>{
+ if(startAt!==null && !claimed && completed)return;
+ startAt=Date.now();completed=false;claimed=false;
+ $('balance').textContent='0.000 BTW';
+ $('status').textContent='Mining sedang berjalan';
+ $('startBtn').disabled=true;$('startBtn').textContent='MINING BERJALAN';
+ $('claimBtn').disabled=true;
+ timer=setInterval(update,1000);update();
 });
-$("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
-$("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
-
-$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
-$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
-
-function copyText(text){
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text).then(function(){ toast(UI[lang].copied); }, legacyCopy);
-  }
-  legacyCopy();
-  function legacyCopy(){
-    var ta = document.createElement("textarea");
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    var ok = false;
-    try { ok = document.execCommand("copy"); } catch(err) { ok = false; }
-    ta.remove();
-    toast(ok ? UI[lang].copied : UI[lang].copyfail);
-  }
-}
-$("copyBtn").addEventListener("click", function(){ copyText(CONTRACT); });
-
-/* Angka supply dengan easing elastis */
-(function(){
-  var out = $("supply");
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var target = 21000000, dur = 2000;
-  var elastic = function(t){ return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*(2*Math.PI/3))+1; };
-  var start = performance.now();
-  out.textContent = "0";
-  (function step(now){
-    var p = Math.min((now-start)/dur, 1);
-    out.textContent = Math.round(elastic(p)*target).toLocaleString("id-ID");
-    if (p < 1) requestAnimationFrame(step); else out.textContent = target.toLocaleString("id-ID");
-  })(start);
-})();
-
-/* Judul: huruf memantul */
-(function(){
-  var el = $("title"), text = el.textContent; el.textContent = "";
-  Array.prototype.forEach.call(text, function(c, i){
-    var s = document.createElement("span");
-    s.className = "ch"; s.style.setProperty("--i", i); s.textContent = c; el.appendChild(s);
-  });
-})();
-
-/* ================= INIT ================= */
-applyUI();
-var initial = (location.hash || "#home").replace("#", "");
-go(VIEWS[initial] ? initial : "home");
-
-/* Koin 3D di latar (aman jika gagal dimuat) */
-(function(){
-  var canvas = $("scene");
-  if (typeof THREE === "undefined") { canvas.style.display = "none"; return; }
-  try {
-    var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.z = 6;
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    var key = new THREE.DirectionalLight(0xfff3c4, 1.2); key.position.set(3,4,5); scene.add(key);
-    var rim = new THREE.DirectionalLight(0x22d3ee, 0.8); rim.position.set(-4,-2,-3); scene.add(rim);
-    var goldMat = new THREE.MeshStandardMaterial({color:0xf5b82e, metalness:1, roughness:0.25});
-    var edgeMat = new THREE.MeshStandardMaterial({color:0xffe08a, metalness:1, roughness:0.15});
-    var coin = new THREE.Group();
-    var body = new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,0.18,64), goldMat);
-    body.rotation.x = Math.PI/2; coin.add(body);
-    coin.add(new THREE.Mesh(new THREE.TorusGeometry(1.38,0.07,16,96), edgeMat));
-    coin.add(new THREE.Mesh(new THREE.TorusGeometry(0.9,0.035,12,80), edgeMat));
-    coin.position.y = 1.2; scene.add(coin);
-    var orbit = new THREE.Group(); orbit.position.y = 1.2; scene.add(orbit);
-    var nodeGeo = new THREE.IcosahedronGeometry(0.12,1);
-    var nodeMat = new THREE.MeshStandardMaterial({color:0x22d3ee, emissive:0x0e7490, roughness:0.4});
-    var nodes = [];
-    for (var i=0;i<6;i++){
-      var n = new THREE.Mesh(nodeGeo, nodeMat);
-      n.userData = {angle:(i/6)*Math.PI*2, r:2.6+(i%2)*0.5, speed:0.25+i*0.03, tilt:(i%3-1)*0.4};
-      orbit.add(n); nodes.push(n);
-    }
-    var count = 700, pos = new Float32Array(count*3);
-    for (var j=0;j<count;j++){ pos[j*3]=(Math.random()-0.5)*14; pos[j*3+1]=(Math.random()-0.5)*14; pos[j*3+2]=(Math.random()-0.5)*8-2; }
-    var sg = new THREE.BufferGeometry(); sg.setAttribute("position", new THREE.BufferAttribute(pos,3));
-    var stars = new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:0.025,transparent:true,opacity:0.6}));
-    scene.add(stars);
-    function resize(){
-      var w = innerWidth, h = innerHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w/h; camera.position.z = w < 600 ? 8 : 6; camera.updateProjectionMatrix();
-    }
-    addEventListener("resize", resize); resize();
-    var clock = new THREE.Clock();
-    (function animate(){
-      var t = clock.getElapsedTime();
-      coin.rotation.y = t*0.6;
-      coin.rotation.x = Math.sin(t*0.8)*0.15;
-      orbit.rotation.z = t*0.05;
-      stars.rotation.y = t*0.02;
-      nodes.forEach(function(n){
-        var u = n.userData, a = u.angle + t*u.speed;
-        n.position.set(Math.cos(a)*u.r, Math.sin(a)*u.r*0.35 + Math.sin(a*2)*u.tilt, Math.sin(a)*u.r*0.5);
-      });
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    })();
-  } catch(err) {
-    console.warn("3D tidak bisa ditampilkan:", err);
-    canvas.style.display = "none";
-  }
-})();
+$('claimBtn').addEventListener('click',()=>{
+ if(!completed||claimed)return;
+ claimed=true;$('balance').textContent=REWARD.toFixed(3)+' BTW';
+ $('status').textContent='Reward simulasi telah diklaim';
+ $('claimBtn').disabled=true;$('startBtn').disabled=false;$('startBtn').textContent='MULAI SESI BARU';
+});
 </script>
 </body>
 </html>
