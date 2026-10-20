@@ -95,6 +95,29 @@ nav.bottom button:active{transform:scale(.9)}
 @media (max-height:640px){ .badge,.warnhome{display:none} }
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
+
+<style id="tema-biru-3d">
+:root{--bg:#06163a;--card:rgba(16,42,100,.55);--line:rgba(120,170,255,.22)}
+html,body{background-color:#051537;background-image:radial-gradient(ellipse at 50% -10%,#2563eb 0%,#1e40af 28%,#0b2a6b 62%,#051537 100%);background-attachment:fixed}
+.ticker{background:rgba(10,40,110,.65)!important;border-top:1px solid rgba(120,170,255,.3)!important}
+header{background:transparent}
+.card,.panel,.contract,.lockcard{background:linear-gradient(160deg,rgba(59,130,246,.28),rgba(12,32,90,.82))!important;border:1px solid rgba(147,197,253,.22)!important;box-shadow:0 7px 0 rgba(3,12,40,.85),0 16px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.2)!important;border-radius:16px!important}
+.card{transform:perspective(700px) rotateX(5deg)}
+.card:hover{transform:perspective(700px) rotateX(0deg) translateY(-3px)}
+nav.bottom{background:linear-gradient(180deg,#1d4ed8,#0b2a6b)!important;box-shadow:0 8px 20px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.15);border-bottom:none!important;padding:6px 6px 8px!important;gap:4px}
+nav.bottom button{background:linear-gradient(180deg,#3b72ea,#1d4aa8)!important;color:#e0ecff!important;border-radius:12px!important;margin:2px;box-shadow:0 5px 0 #0a1f5c,0 9px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.32)!important;transition:transform .15s,box-shadow .15s!important}
+nav.bottom button:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #0a1f5c,0 3px 6px rgba(0,0,0,.45)!important}
+nav.bottom button.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.4),inset 0 1px 0 rgba(255,255,255,.7)!important}
+nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!important;color:#cbd5e1!important;box-shadow:0 5px 0 #0f172a,0 9px 14px rgba(0,0,0,.4)!important}
+.btn{box-shadow:0 5px 0 #1e3a8a,0 10px 18px rgba(0,0,0,.4)!important;border-radius:12px!important;border:1px solid rgba(147,197,253,.35)!important;background:linear-gradient(180deg,rgba(59,130,246,.35),rgba(20,50,130,.7))!important;color:#e0ecff!important}
+.btn.primary{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.35)!important}
+.btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #1e3a8a!important}
+.btn.primary:active{box-shadow:0 1px 0 #a16207!important}
+.wpmenu button{background:linear-gradient(180deg,#2b5bd6,#1a3f9e)!important;color:#dbe7ff!important;border:none!important;border-radius:999px!important;box-shadow:0 4px 0 #0a1f5c,0 8px 14px rgba(0,0,0,.35)!important;padding:7px 12px!important}
+.wpmenu button.on{background:linear-gradient(180deg,#67e8f9,#22d3ee)!important;color:#021318!important;box-shadow:0 4px 0 #0e7490,0 10px 16px rgba(34,211,238,.35)!important}
+.wpmenu button:active{transform:translateY(3px)!important}
+.stats .card .value{text-shadow:0 2px 0 rgba(0,0,0,.35)}
+</style>
 </head>
 <body>
 <canvas id="scene"></canvas>
