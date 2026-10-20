@@ -76,7 +76,7 @@ td:first-child{color:var(--muted);width:38%}
 .track span{padding:0 20px;font-size:11.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);white-space:nowrap}
 .track span b{color:var(--accent)}
 @keyframes marquee{to{transform:translateX(-50%)}}
-nav.bottom{position:relative;z-index:2;display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--line);background:rgba(5,7,13,.9);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.bottom{position:relative;z-index:2;display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line);flex-shrink:0;background:rgba(5,7,13,.9);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav.bottom button{background:transparent;border:0;color:var(--muted);padding:14px 1px;min-height:52px;font-size:12.5px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:clip;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring)}
 nav.bottom button.on{color:var(--accent)}
 nav.bottom button:active{transform:scale(.9)}
@@ -98,6 +98,14 @@ nav.bottom button:active{transform:scale(.9)}
     <button id="lang-en" type="button">EN</button>
   </div>
 </header>
+<nav class="bottom" aria-label="Menu utama">
+  <button type="button" data-go="home" id="n-home"></button>
+  <button type="button" data-go="wp" id="n-wp"></button>
+  <button type="button" data-go="vision" id="n-vision"></button>
+  <button type="button" data-go="token" id="n-token"></button>
+  <button type="button" data-go="contract" id="n-contract"></button>
+  <button type="button" data-go="faq" id="n-faq"></button>
+</nav>
 
 <main>
   <!-- BERANDA -->
@@ -155,14 +163,6 @@ nav.bottom button:active{transform:scale(.9)}
 
 <div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
 
-<nav class="bottom" aria-label="Menu utama">
-  <button type="button" data-go="home" id="n-home"></button>
-  <button type="button" data-go="wp" id="n-wp"></button>
-  <button type="button" data-go="vision" id="n-vision"></button>
-  <button type="button" data-go="token" id="n-token"></button>
-  <button type="button" data-go="contract" id="n-contract"></button>
-  <button type="button" data-go="faq" id="n-faq"></button>
-</nav>
 
 <div id="toast"></div>
 
