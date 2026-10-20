@@ -113,6 +113,7 @@ nav.bottom button:active{transform:scale(.9)}
   <button type="button" data-go="token" id="n-token"></button>
   <button type="button" data-go="contract" id="n-contract"></button>
   <button type="button" data-go="faq" id="n-faq"></button>
+  <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
   <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
 </nav>
 
@@ -162,6 +163,11 @@ nav.bottom button:active{transform:scale(.9)}
       <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
       <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
     </div>
+  </section>
+
+  <!-- BERITA -->
+  <section class="view" id="v-news">
+    <div class="panel" id="newsBody"></div>
   </section>
 
   <!-- AMBASSADOR (terkunci) -->
@@ -267,6 +273,7 @@ function applyUI(){
   $("n-contract").textContent = u.n_contract;
   $("n-faq").textContent = u.n_faq;
   $("n-amb").innerHTML = "&#128274; Ambassador";
+  $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
   $("lang-id").classList.toggle("on", lang === "id");
   $("lang-en").classList.toggle("on", lang === "en");
   $("track").innerHTML = (function(){
@@ -274,7 +281,7 @@ function applyUI(){
     return h + h;
   })();
   document.documentElement.lang = lang;
-  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ();
+  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews();
 }
 
 function renderWP(){
@@ -351,6 +358,30 @@ function renderContract(){
   $("bscLink").href = BSCSCAN;
 }
 
+function renderNews(){
+  var isId = lang === "id";
+  var ann = [
+    {d: isId ? "20 Okt 2026" : "20 Oct 2026", t: isId ? "Website Bitworld (BTW) dan whitepaper versi publik dirilis." : "Bitworld (BTW) website and public whitepaper released."},
+  ];
+  var src = [
+    {n: "Bitcoin.com News", u: "https://news.bitcoin.com"},
+    {n: "CoinDesk", u: "https://www.coindesk.com"},
+    {n: "BscScan", u: "https://bscscan.com"}
+  ];
+  var h = "<h2>" + (isId ? "Berita & Pengumuman" : "News & Announcements") + "</h2>";
+  h += "<p class='muted' style='font-size:12px;margin-bottom:8px'>" + (isId ? "Pengumuman resmi" : "Official announcements") + "</p>";
+  ann.forEach(function(a){
+    h += "<p><span class='gold' style='font-size:12px;font-weight:700'>" + esc(a.d) + "</span><br>" + esc(a.t) + "</p>";
+  });
+  h += "<p class='muted' style='font-size:12px;margin-top:12px'>" + (isId
+      ? "Berita pasar dari pihak luar tidak kami tulis ulang. Silakan baca langsung dari sumbernya:"
+      : "Market news from outside sources is not rewritten here. Read directly from the source:") + "</p>";
+  src.forEach(function(s){
+    h += "<p><a href='" + s.u + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent2)'>" + esc(s.n) + "</a></p>";
+  });
+  $("newsBody").innerHTML = h;
+}
+
 function renderFAQ(){
   var h = "<h2>FAQ</h2>";
   FAQ.forEach(function(f){
@@ -360,7 +391,7 @@ function renderFAQ(){
 }
 
 /* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador"};
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news"};
 function go(name){
   if (!VIEWS[name]) name = "home";
   Object.keys(VIEWS).forEach(function(k){
