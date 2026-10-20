@@ -76,9 +76,17 @@ td:first-child{color:var(--muted);width:38%}
 .track span{padding:0 20px;font-size:11.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);white-space:nowrap}
 .track span b{color:var(--accent)}
 @keyframes marquee{to{transform:translateX(-50%)}}
-nav.bottom{position:relative;z-index:2;display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line);flex-shrink:0;background:rgba(5,7,13,.9);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.bottom button{background:transparent;border:0;color:var(--muted);padding:14px 1px;min-height:52px;font-size:12.5px;font-weight:700;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:clip;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring)}
+nav.bottom{position:relative;z-index:2;display:flex;justify-content:flex-start;overflow-x:auto;border-bottom:1px solid var(--line);flex-shrink:0;padding:0 4px;scrollbar-width:none;}
+nav.bottom::-webkit-scrollbar{display:none}
+nav.bottom button{background:transparent;border:0;color:var(--muted);padding:14px 12px;min-height:52px;font-size:12px;font-weight:700;white-space:nowrap;flex:none;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring);}
+nav.bottom button.locked{color:#6b7389}
 nav.bottom button.on{color:var(--accent)}
+.lockcard{width:100%;max-width:460px;border:1px dashed rgba(245,184,46,.45);border-radius:14px;padding:12px;background:rgba(245,184,46,.05);text-align:left}
+.lockcard .t{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--accent)}
+.lockcard p{font-size:12px;color:var(--muted);line-height:1.5;margin-top:6px}
+.lockcard .badge2{margin-left:auto;font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+@media (max-width:360px){nav.bottom button{font-size:11px;padding:14px 2px}}
 nav.bottom button:active{transform:scale(.9)}
 
 #toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(120px) scale(.8);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .6s var(--spring);z-index:9;white-space:nowrap}
@@ -105,6 +113,7 @@ nav.bottom button:active{transform:scale(.9)}
   <button type="button" data-go="token" id="n-token"></button>
   <button type="button" data-go="contract" id="n-contract"></button>
   <button type="button" data-go="faq" id="n-faq"></button>
+  <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
 </nav>
 
 <main>
@@ -152,6 +161,17 @@ nav.bottom button:active{transform:scale(.9)}
     <div class="actions">
       <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
       <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
+    </div>
+  </section>
+
+  <!-- AMBASSADOR (terkunci) -->
+  <section class="view" id="v-ambassador">
+    <div class="panel" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:6px">&#128274;</div>
+      <h2>Program Ambassador</h2>
+      <p><span class="badge2" style="display:inline-block;margin:6px 0">SEGERA HADIR</span></p>
+      <p class="muted">Program ini belum dibuka. Aturan resminya akan diumumkan di kanal resmi Bitworld sebelum pendaftaran dibuka.</p>
+      <p class="muted">Tidak ada pendaftaran, pembayaran, atau janji hasil sebelum aturan resmi diumumkan.</p>
     </div>
   </section>
 
@@ -246,6 +266,7 @@ function applyUI(){
   $("n-token").textContent = u.n_token;
   $("n-contract").textContent = u.n_contract;
   $("n-faq").textContent = u.n_faq;
+  $("n-amb").innerHTML = "&#128274; Ambassador";
   $("lang-id").classList.toggle("on", lang === "id");
   $("lang-en").classList.toggle("on", lang === "en");
   $("track").innerHTML = (function(){
@@ -339,7 +360,7 @@ function renderFAQ(){
 }
 
 /* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq"};
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador"};
 function go(name){
   if (!VIEWS[name]) name = "home";
   Object.keys(VIEWS).forEach(function(k){
