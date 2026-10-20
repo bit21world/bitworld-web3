@@ -76,9 +76,9 @@ td:first-child{color:var(--muted);width:38%}
 .track span{padding:0 20px;font-size:11.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);white-space:nowrap}
 .track span b{color:var(--accent)}
 @keyframes marquee{to{transform:translateX(-50%)}}
-nav.bottom{position:relative;z-index:2;display:flex;justify-content:flex-start;overflow-x:auto;border-bottom:1px solid var(--line);flex-shrink:0;padding:0 4px;scrollbar-width:none;}
+nav.bottom{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;border-bottom:1px solid var(--line);flex-shrink:0;padding:0 4px;}
 nav.bottom::-webkit-scrollbar{display:none}
-nav.bottom button{background:transparent;border:0;color:var(--muted);padding:14px 12px;min-height:52px;font-size:12px;font-weight:700;white-space:nowrap;flex:none;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring);}
+nav.bottom button{background:transparent;border:0;color:var(--muted);padding:10px 8px;min-height:44px;font-size:12px;font-weight:700;white-space:nowrap;flex:0 0 auto;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring);}
 nav.bottom button.locked{color:#6b7389}
 nav.bottom button.on{color:var(--accent)}
 .lockcard{width:100%;max-width:460px;border:1px dashed rgba(245,184,46,.45);border-radius:14px;padding:12px;background:rgba(245,184,46,.05);text-align:left}
