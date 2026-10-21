@@ -141,6 +141,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
   <button type="button" data-go="contract" id="n-contract"></button>
   <button type="button" data-go="faq" id="n-faq"></button>
   <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
+  <button type="button" data-go="channels" id="n-chan">&#128279; Kanal</button>
   <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
 </nav>
 
@@ -190,6 +191,11 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
       <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
       <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
     </div>
+  </section>
+
+  <!-- KANAL -->
+  <section class="view" id="v-channels">
+    <div class="panel" id="chanBody"></div>
   </section>
 
   <!-- BERITA -->
@@ -301,6 +307,7 @@ function applyUI(){
   $("n-faq").textContent = u.n_faq;
   $("n-amb").innerHTML = "&#128274; Ambassador";
   $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
+  $("n-chan").innerHTML = "&#128279; " + (lang === "id" ? "Kanal" : "Channels");
   $("lang-id").classList.toggle("on", lang === "id");
   $("lang-en").classList.toggle("on", lang === "en");
   $("track").innerHTML = (function(){
@@ -308,7 +315,7 @@ function applyUI(){
     return h + h;
   })();
   document.documentElement.lang = lang;
-  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews();
+  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews(); renderChannels();
 }
 
 function renderWP(){
@@ -385,6 +392,23 @@ function renderContract(){
   $("bscLink").href = BSCSCAN;
 }
 
+function renderChannels(){
+  var isId = lang === "id";
+  var list = [
+    {n: "Website", u: "https://bitworld-btw.vercel.app", d: isId ? "Whitepaper, tokenomics, dan kontrak" : "Whitepaper, tokenomics, and contract"},
+    {n: "X (Twitter)", u: "https://x.com/bitworld_btw", d: isId ? "Pengumuman singkat" : "Short announcements"},
+    {n: "Facebook", u: "https://www.facebook.com/share/1CEsm6LNAK/", d: isId ? "Halaman resmi Bitworld - BTW" : "Official Bitworld - BTW page"}
+  ];
+  var h = "<h2>" + (isId ? "Kanal Resmi" : "Official Channels") + "</h2>";
+  h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
+      ? "Informasi resmi hanya dari kanal berikut. Waspadai akun yang menghubungi Anda lebih dulu."
+      : "Official information only comes from these channels. Be wary of accounts that contact you first.") + "</p>";
+  list.forEach(function(c){
+    h += "<p style='margin-bottom:10px'><a href='" + c.u + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent);font-weight:700'>" + esc(c.n) + "</a><br><span class='muted' style='font-size:12px'>" + esc(c.d) + "</span></p>";
+  });
+  $("chanBody").innerHTML = h;
+}
+
 function renderNews(){
   var isId = lang === "id";
   var ann = [
@@ -418,7 +442,7 @@ function renderFAQ(){
 }
 
 /* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news"};
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news", channels:"v-channels"};
 function go(name){
   if (!VIEWS[name]) name = "home";
   Object.keys(VIEWS).forEach(function(k){
