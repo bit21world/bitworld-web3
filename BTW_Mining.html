@@ -87,6 +87,23 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
 <script src="auth.js"></script>
 <script>
+// --- SYSTEM PROTEKSI LOGIN (AUTH GUARD) ---
+(() => {
+  const isAuth = localStorage.getItem('isLoggedIn') === 'true' || localStorage.getItem('btw_user_logged') === 'true';
+  const currentUser = localStorage.getItem('btw_username') || localStorage.getItem('username') || 'juan17';
+
+  // Jika belum login, alihkan kembali ke index.html
+  if (!isAuth) {
+    alert('Akses Ditolak! Anda harus login terlebih dahulu untuk mengakses fitur Mining.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Tampilkan data user yang sedang aktif
+  const uElem = document.getElementById('displayUsername');
+  if (uElem) uElem.textContent = currentUser;
+})();
+
 (() => {
   const SESSION_MS = 24 * 60 * 60 * 1000;
   const POOL_TOTAL = 10500000;
@@ -108,127 +125,4 @@ button:disabled{opacity:.4;cursor:not-allowed}
     running: isRunning, 
     done: isDone, 
     endAt: savedEndAt, 
-    balance: savedBalance, 
-    claimed: savedClaimed, 
-    lastDay: savedLastDay 
-  };
-
-  const $ = id => document.getElementById(id);
-  const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-  const today = () => new Date().toISOString().slice(0, 10);
-  const phase = () => Math.min(3, Math.floor(GLOBAL_CLAIMED / PHASE_SIZE));
-  const rate = () => RATES[phase()];
-
-  function toast(msg) {
-    const t = $('toast'); if(!t) return;
-    t.textContent = msg; t.style.display = 'block';
-    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
-  }
-
-  function renderStages() {
-    const p = phase();
-    const box = $('stages'); if(!box) return; box.textContent = '';
-    RATES.forEach((r, i) => {
-      const d = document.createElement('div');
-      d.className = 'stage' + (i === p ? ' on' : '');
-      const left = document.createElement('div');
-      const strong = document.createElement('strong');
-      strong.textContent = ['Genesis', 'Halving I', 'Halving II', 'Halving III'][i];
-      const small = document.createElement('small');
-      small.textContent = 'Alokasi ' + fmt(PHASE_SIZE, 0) + ' BTW';
-      left.append(strong, small);
-      const rt = document.createElement('b');
-      rt.textContent = fmt(r, 3) + ' BTW';
-      d.append(left, rt);
-      box.append(d);
-    });
-  }
-
-  function render() {
-    $('balance').textContent = fmt(st.balance);
-    $('claimed').textContent = fmt(st.claimed);
-    $('nextReward').textContent = fmt(rate(), 3);
-    $('phase').textContent = (phase() + 1) + ' / 4';
-    $('poolUsed').textContent = fmt(Math.min(100, GLOBAL_CLAIMED / POOL_TOTAL * 100), 2) + '%';
-    $('pill').textContent = st.running ? 'Mining aktif' : (st.done ? 'Sesi selesai' : 'Belum aktif');
-    $('btnStart').disabled = st.running || st.done;
-    $('btnStart').textContent = st.done ? '✓ Sesi selesai' : (st.running ? 'Mining berjalan…' : '▶ Start Mining');
-    $('btnClaim').disabled = !st.done;
-    $('sessLabel').textContent = st.running ? 'Sesi berjalan' : (st.done ? 'Siap diklaim' : 'Sesi belum dimulai');
-    renderStages();
-  }
-
-  function tick() {
-    if (!st.running) {
-      if (st.endAt > 0 && Date.now() >= st.endAt && !st.done) {
-        st.done = true;
-        st.running = false;
-        render();
-      }
-      $('timer').textContent = st.done ? '00:00:00' : '24:00:00';
-      $('bar').style.width = st.done ? '100%' : '0%';
-      $('pct').textContent = st.done ? '100%' : '0%';
-      return;
-    }
-
-    const left = Math.max(0, st.endAt - Date.now());
-    const pct = Math.min(100, (SESSION_MS - left) / SESSION_MS * 100);
-    const s = Math.ceil(left / 1000);
-    const hh = String(Math.floor(s / 3600)).padStart(2, '0');
-    const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
-    const ss = String(s % 60).padStart(2, '0');
-    
-    $('timer').textContent = hh + ':' + mm + ':' + ss;
-    $('bar').style.width = pct + '%';
-    $('pct').textContent = Math.floor(pct) + '%';
-
-    if (left <= 0) {
-      st.running = false; 
-      st.done = true;
-      render();
-    }
-  }
-
-  $('btnStart').onclick = () => {
-    if (st.running || st.done) return;
-    st.running = true; 
-    st.endAt = Date.now() + SESSION_MS; 
-    st.lastDay = today();
-    
-    // Simpan ke localStorage agar waktu tidak reset walau browser ditutup
-    localStorage.setItem('btw_endAt', st.endAt);
-    localStorage.setItem('btw_lastDay', st.lastDay);
-
-    render(); tick();
-    toast('Sesi mining dimulai (24 jam)');
-  };
-
-  $('btnClaim').onclick = () => {
-    if (!st.done) return;
-    const r = rate();
-    st.balance += r; 
-    st.claimed += r; 
-    GLOBAL_CLAIMED += r; 
-    st.done = false; 
-    st.endAt = 0;
-    
-    // Simpan saldo terbaru
-    localStorage.setItem('btw_balance', st.balance);
-    localStorage.setItem('btw_claimed', st.claimed);
-    localStorage.setItem('btw_global_claimed', GLOBAL_CLAIMED);
-    localStorage.removeItem('btw_endAt');
-
-    render(); tick();
-    toast('Reward berhasil diklaim!');
-  };
-
-  window.addEventListener('DOMContentLoaded', () => {
-    if (typeof loadProfile === 'function') loadProfile();
-  });
-
-  render(); tick();
-  setInterval(tick, 1000);
-})();
-</script>
-</body>
-</html>
+    balance: saved
