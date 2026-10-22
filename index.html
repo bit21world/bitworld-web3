@@ -1,639 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bitworld (BTW)</title>
-<style>
-:root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.72);--line:rgba(255,255,255,.1);--spring:cubic-bezier(.34,1.56,.64,1)}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body{height:100vh;height:100dvh;display:flex;flex-direction:column}
-#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 8px;gap:8px}
-.brand{font-weight:800;font-size:17px;color:var(--accent)}
-.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.lang button{background:transparent;border:0;color:var(--muted);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
-.lang button.on{background:var(--accent);color:#1a1400}
-main{position:relative;z-index:1;flex:1;min-height:0;overflow:hidden}
-.view{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:8px 18px;gap:12px;text-align:center}
-.view.active{display:flex;animation:fade .5s var(--spring)}
-@keyframes fade{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
-h1{font-size:clamp(40px,12vw,80px);font-weight:800;letter-spacing:-1px;line-height:1.05}
-.ch{display:inline-block;background:linear-gradient(90deg,var(--accent),#fff3c4,var(--accent));background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:drop .9s var(--spring) both,shine 4s linear infinite;animation-delay:calc(var(--i) * 70ms + 100ms),0s}
-@keyframes drop{from{opacity:0;transform:translateY(-120%) scale(.4)}to{opacity:1;transform:none}}
-@keyframes shine{to{background-position:200% center}}
-.badge{display:inline-block;padding:5px 12px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--accent2);background:rgba(34,211,238,.08);letter-spacing:.6px}
-.tagline{font-size:clamp(13px,3.4vw,16px);color:var(--muted);max-width:420px;line-height:1.5}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:460px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.card .label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
-.card .value{font-size:clamp(14px,4vw,18px);font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;word-break:break-word}
-.gold{color:var(--accent)}
-.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.btn{display:inline-block;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;transition:transform .4s var(--spring),border-color .3s,color .3s;font-family:inherit}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1400}
-.btn:hover{border-color:var(--accent2);color:var(--accent2);transform:translateY(-2px)}
-.btn.primary:hover{color:#1a1400;border-color:var(--accent)}
-.btn:active{transform:scale(.93)}
-.btn:disabled{opacity:.35;cursor:default;transform:none}
-.panel{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.panel h2{font-size:clamp(18px,4.6vw,22px);margin-bottom:8px;color:var(--accent)}
-.panel p{font-size:13.5px;line-height:1.6;color:var(--fg);opacity:.92;margin-bottom:8px}
-.panel p:last-child{margin-bottom:0}
-.muted{color:var(--muted)!important}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--accent2);word-break:break-all;background:rgba(0,0,0,.3);padding:8px;border-radius:8px;margin:8px 0}
-.wpmenu{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%;max-width:520px}
-.wpmenu button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 10px;font-size:11.5px;cursor:pointer;font-family:inherit;transition:all .3s var(--spring)}
-.wpmenu button.on{background:var(--accent2);border-color:var(--accent2);color:#021318;font-weight:700;transform:scale(1.05)}
-.wpnav{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:520px;gap:8px}
-.wpnav span{font-size:12px;color:var(--muted)}
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
-td:first-child{color:var(--muted);width:38%}
-.list{padding-left:18px;font-size:13.5px;line-height:1.6}
-.list li{margin-bottom:6px}
-.ticker{position:relative;z-index:2;overflow:hidden;border-top:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 0;flex-shrink:0}
-.track{display:flex;width:max-content;animation:marquee 20s linear infinite}
-.track span{padding:0 20px;font-size:11.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);white-space:nowrap}
-.track span b{color:var(--accent)}
-@keyframes marquee{to{transform:translateX(-50%)}}
-nav.bottom{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;border-bottom:1px solid var(--line);flex-shrink:0;padding:0 4px}
-nav.bottom button{background:transparent;border:0;color:var(--muted);padding:10px 8px;min-height:44px;font-size:12px;font-weight:700;white-space:nowrap;flex:0 0 auto;cursor:pointer;font-family:inherit;transition:color .3s,transform .4s var(--spring)}
-nav.bottom button.locked{color:#6b7389}
-nav.bottom button.on{color:var(--accent)}
-nav.bottom button:active{transform:scale(.9)}
-.lockcard{width:100%;max-width:460px;border:1px dashed rgba(245,184,46,.45);border-radius:14px;padding:12px;background:rgba(245,184,46,.05);text-align:left}
-.badge2{font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(120px) scale(.8);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .6s var(--spring);z-index:9;white-space:nowrap}
-#toast.show{transform:translateX(-50%) translateY(0) scale(1)}
-
-/* MODAL / POPUP ACCOUNT & KYC */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.active{display:flex}
-.modal-card{width:100%;max-width:400px;background:linear-gradient(160deg,rgba(16,42,100,0.95),rgba(6,22,58,0.98));border:1px solid rgba(147,197,253,0.3);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.8);color:var(--fg);text-align:left}
-.modal-card h3{margin-bottom:12px;color:var(--accent);font-size:18px}
-.form-group{margin-bottom:12px}
-.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
-.form-group input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,0.4);color:#fff;font-family:inherit;font-size:13px}
-.status-badge{display:inline-block;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:bold;margin-bottom:12px}
-.status-unverified{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
-.status-pending{background:rgba(234,179,8,0.2);color:#eab308;border:1px solid #eab308}
-.status-verified{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
-
-@media (max-width:360px){nav.bottom button{font-size:11px;padding:14px 2px}}
-@media (max-height:640px){ .badge,.warnhome{display:none} }
-@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
-</style>
-
-<style id="tema-biru-3d">
-:root{--bg:#06163a;--card:rgba(16,42,100,.55);--line:rgba(120,170,255,.22)}
-html,body{background-color:#051537;background-image:radial-gradient(ellipse at 50% -10%,#2563eb 0%,#1e40af 28%,#0b2a6b 62%,#051537 100%);background-attachment:fixed}
-.ticker{background:rgba(10,40,110,.65)!important;border-top:1px solid rgba(120,170,255,.3)!important}
-header{background:transparent}
-.card,.panel,.contract,.lockcard{background:linear-gradient(160deg,rgba(59,130,246,.28),rgba(12,32,90,.82))!important;border:1px solid rgba(147,197,253,.22)!important;box-shadow:0 7px 0 rgba(3,12,40,.85),0 16px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.2)!important;border-radius:16px!important}
-.card{transform:perspective(700px) rotateX(5deg)}
-.card:hover{transform:perspective(700px) rotateX(0deg) translateY(-3px)}
-nav.bottom{background:linear-gradient(180deg,#1d4ed8,#0b2a6b)!important;box-shadow:0 8px 20px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.15);border-bottom:none!important;padding:6px 6px 8px!important;gap:4px}
-nav.bottom button{background:linear-gradient(180deg,#3b72ea,#1d4aa8)!important;color:#e0ecff!important;border-radius:12px!important;margin:2px;box-shadow:0 5px 0 #0a1f5c,0 9px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.32)!important;transition:transform .15s,box-shadow .15s!important}
-nav.bottom button:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #0a1f5c,0 3px 6px rgba(0,0,0,.45)!important}
-nav.bottom button.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.4),inset 0 1px 0 rgba(255,255,255,.7)!important}
-nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!important;color:#cbd5e1!important;box-shadow:0 5px 0 #0f172a,0 9px 14px rgba(0,0,0,.4)!important}
-.btn{box-shadow:0 5px 0 #1e3a8a,0 10px 18px rgba(0,0,0,.4)!important;border-radius:12px!important;border:1px solid rgba(147,197,253,.35)!important;background:linear-gradient(180deg,rgba(59,130,246,.35),rgba(20,50,130,.7))!important;color:#e0ecff!important}
-.btn.primary{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.35)!important}
-.btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #1e3a8a!important}
-.btn.primary:active{box-shadow:0 1px 0 #a16207!important}
-.wpmenu button{background:linear-gradient(180deg,#2b5bd6,#1a3f9e)!important;color:#dbe7ff!important;border:none!important;border-radius:999px!important;box-shadow:0 4px 0 #0a1f5c,0 8px 14px rgba(0,0,0,.35)!important;padding:7px 12px!important}
-.wpmenu button.on{background:linear-gradient(180deg,#67e8f9,#22d3ee)!important;color:#021318!important;box-shadow:0 4px 0 #0e7490,0 10px 16px rgba(34,211,238,.35)!important}
-.wpmenu button:active{transform:translateY(3px)!important}
-.stats .card .value{text-shadow:0 2px 0 rgba(0,0,0,.35)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitworld Web3 dApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<canvas id="scene"></canvas>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
 
-<header>
-  <div class="brand">BTW</div>
-  <div style="display:flex;gap:8px;align-items:center">
-    <button class="btn primary" id="btn-account-modal" type="button" style="padding:6px 12px;font-size:12px">Login / Daftar</button>
-    <div class="lang" role="group" aria-label="Bahasa">
-      <button id="lang-id" class="on" type="button">ID</button>
-      <button id="lang-en" type="button">EN</button>
-    </div>
-  </div>
-</header>
-
-<nav class="bottom" aria-label="Menu utama">
-  <button type="button" data-go="home" id="n-home"></button>
-  <button type="button" data-go="wp" id="n-wp"></button>
-  <button type="button" data-go="vision" id="n-vision"></button>
-  <button type="button" data-go="team" id="n-team"></button>
-  <button type="button" data-go="token" id="n-token"></button>
-  <button type="button" data-go="contract" id="n-contract"></button>
-  <button type="button" data-go="faq" id="n-faq"></button>
-  <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
-  <button type="button" data-go="social" id="n-soc">&#128172; Sosial</button>
-  <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
-  <button type="button" data-go="mining" id="n-mining">&#9935; Mining</button>
-</nav>
-
-<main>
-  <!-- BERANDA -->
-  <section class="view active" id="v-home">
-    <span class="badge" data-i18n="badge">BEP-20 • BNB SMART CHAIN</span>
-    <h1 id="title">Bitworld</h1>
-    <p class="tagline" data-i18n="tagline"></p>
-    <div class="stats">
-      <div class="card"><div class="label" data-i18n="s_symbol"></div><div class="value gold">BTW</div></div>
-      <div class="card"><div class="label" data-i18n="s_supply"></div><div class="value gold" id="supply">21.000.000</div></div>
-      <div class="card"><div class="label" data-i18n="s_network"></div><div class="value">BSC</div></div>
-    </div>
-    <div class="actions">
-      <button class="btn primary" type="button" data-go="wp" data-i18n="b_wp"></button>
-      <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
-    </div>
-    <p class="warnhome tagline muted" data-i18n="warn_short"></p>
-  </section>
-
-  <!-- WHITEPAPER -->
-  <section class="view" id="v-wp">
-    <div class="wpmenu" id="wpmenu"></div>
-    <div class="panel" id="wpbody"></div>
-    <div class="wpnav">
-      <button class="btn" type="button" id="wpPrev" data-i18n="prev"></button>
-      <span id="wpCount"></span>
-      <button class="btn primary" type="button" id="wpNext" data-i18n="next"></button>
-    </div>
-  </section>
-
-  <!-- VISI & MISI -->
-  <section class="view" id="v-vision">
-    <div class="panel" id="visionBody"></div>
-  </section>
-
-  <!-- TIM -->
-  <section class="view" id="v-team">
-    <div class="panel" style="text-align:center">
-      <h2 id="teamTitle"></h2>
-      <img src="juan.png" alt="Juan" style="width:132px;height:132px;border-radius:50%;margin:6px auto 10px;object-fit:cover;border:3px solid var(--accent);box-shadow:0 8px 20px rgba(0,0,0,.45);display:block" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22132%22 height=%22132%22 viewBox=%220 0 132 132%22><rect width=%22132%22 height=%22132%22 fill=%22%23a56e19%22/><text x=%2250%%22 y=%2255%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2250%22 font-weight=%22bold%22 fill=%22%23fff%22>J</text></svg>';">
-      <p style="font-size:20px;font-weight:800;margin-bottom:2px">Juan</p>
-      <p class="gold" id="teamRole" style="font-weight:700"></p>
-      <p class="muted" id="teamNote" style="font-size:12px;margin-top:10px"></p>
-    </div>
-  </section>
-
-  <!-- TOKEN -->
-  <section class="view" id="v-token">
-    <div class="panel" id="tokenBody"></div>
-  </section>
-
-  <!-- KONTRAK -->
-  <section class="view" id="v-contract">
-    <div class="panel" id="contractBody"></div>
-    <div class="actions">
-      <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
-      <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
-    </div>
-  </section>
-
-  <!-- SOSIAL -->
-  <section class="view" id="v-social">
-    <div class="panel" id="socialBody"></div>
-  </section>
-
-  <!-- BERITA -->
-  <section class="view" id="v-news">
-    <div class="panel" id="newsBody"></div>
-  </section>
-
-  <!-- AMBASSADOR (terkunci) -->
-  <section class="view" id="v-ambassador">
-    <div class="panel" style="text-align:center">
-      <div style="font-size:40px;margin-bottom:6px">&#128274;</div>
-      <h2>Program Ambassador</h2>
-      <p><span class="badge2" style="display:inline-block;margin:6px 0">SEGERA HADIR</span></p>
-      <p class="muted">Program ini belum dibuka. Aturan resminya akan diumumkan di kanal resmi Bitworld sebelum pendaftaran dibuka.</p>
-      <p class="muted">Tidak ada pendaftaran, pembayaran, atau janji hasil sebelum aturan resmi diumumkan.</p>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="view" id="v-faq">
-    <div class="panel" id="faqBody"></div>
-  </section>
-
-  <!-- MINING -->
-  <section class="view" id="v-mining">
-    <div class="mpanel">
-      <div class="mrow"><span class="mlabel">Reward tersimpan</span><span id="m-pill" class="mlabel">Belum aktif</span></div>
-      <div class="mbal"><span id="m-balance">0.00</span> <small>BTW</small></div>
-      <div class="mbar"><div id="m-bar"></div></div>
-      <div class="mrow"><span id="m-sess">Sesi belum dimulai</span><span id="m-pct">0%</span></div>
-      <div class="mtimer" id="m-timer">24:00:00</div>
-      <div class="mbtns">
-        <button class="btn primary" type="button" id="m-start">&#9654; Start Mining</button>
-        <button class="btn" type="button" id="m-claim" disabled>Claim</button>
-      </div>
-      <div class="mstats">
-        <div class="card"><div class="label">Total diklaim</div><div class="value" id="m-claimed">0.00</div></div>
-        <div class="card"><div class="label">Reward per sesi</div><div class="value" id="m-rate">0.120</div></div>
-        <div class="card"><div class="label">Fase aktif</div><div class="value" id="m-phase">1 / 4</div></div>
-        <div class="card"><div class="label">Pool terpakai</div><div class="value" id="m-pool">0%</div></div>
-      </div>
-      <p class="mnote">Simulasi di browser. Reward belum dikirim on-chain. Refresh halaman akan mengulang sesi dan saldo.</p>
-      <div class="mlabel" style="margin-top:12px">Roadmap halving</div>
-      <div id="m-stages"></div>
-      <div class="mlabel" style="margin-top:12px">Riwayat</div>
-      <div id="m-hist"><p class="mnote">Belum ada aktivitas.</p></div>
-    </div>
-  </section>
-</main>
-
-<!-- MODAL AKUN & LOGIN -->
-<div class="modal-overlay" id="accountModal">
-  <div class="modal-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h3 id="modalTitle">Masuk Akun</h3>
-      <button type="button" id="closeModal" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">&times;</button>
-    </div>
-
-    <!-- TAMPILAN BELUM LOGIN -->
-    <div id="sec-login">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="acc-user" placeholder="Masukkan username">
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="acc-pass" placeholder="Masukkan password">
-      </div>
-      <div class="actions" style="margin-top:16px">
-        <button class="btn primary" id="btn-do-login" type="button" style="width:100%">Masuk</button>
-      </div>
-    </div>
-
-    <!-- TAMPILAN SUDAH LOGIN (PROFIL & KYC) -->
-    <div id="sec-profile" style="display:none">
-      <p style="font-size:13px;margin-bottom:4px">Selamat datang,</p>
-      <h2 id="prof-username" class="gold" style="font-size:20px;margin-bottom:12px">Juan17</h2>
-      
-      <div class="form-group">
-        <label>Status KYC</label>
-        <div>
-          <span class="status-badge status-unverified" id="kycStatusBadge">🔴 Belum Verifikasi</span>
+    <!-- Header / Navbar -->
+    <header class="w-full max-w-4xl flex justify-between items-center py-4 border-b border-slate-800 mb-8">
+        <h1 class="text-2xl font-bold text-amber-400">Bitworld</h1>
+        <div id="authHeader">
+            <button onclick="openModal('loginModal')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg transition">
+                Login / Daftar
+            </button>
         </div>
-      </div>
+    </header>
 
-      <div id="kyc-action-area" style="margin-top:16px">
-        <button class="btn primary" id="btn-open-kyc-form" type="button" style="width:100%;font-size:13px">
-          📋 Lengkapi Verifikasi KYC
-        </button>
-      </div>
+    <!-- Main Content -->
+    <main class="w-full max-w-4xl text-center space-y-6">
+        <h2 class="text-4xl font-extrabold text-amber-400">Bitworld</h2>
+        <p class="text-slate-400 max-w-lg mx-auto">
+            Proyek Layer-2 di jaringan BSC dengan ekosistem Web3 dan integrasi modul KYC aman.
+        </p>
 
-      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
-      <button class="btn" id="btn-do-logout" type="button" style="width:100%;color:#ef4444;border-color:rgba(239,68,68,0.4)">
-        Keluar (Logout)
-      </button>
+        <!-- Dynamic User Status Card -->
+        <div id="userCard" class="hidden bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md mx-auto text-left space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-slate-400">Selamat datang,</span>
+                <span id="displayUsername" class="font-bold text-amber-400 text-lg"></span>
+            </div>
+            <div class="flex justify-between items-center border-t border-slate-700 pt-3">
+                <span class="text-slate-400">Status KYC:</span>
+                <span id="displayKycStatus" class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                    Belum Verifikasi
+                </span>
+            </div>
+            <button onclick="openModal('kycModal')" id="btnKycForm" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl transition mt-2">
+                Isi Formulir KYC
+            </button>
+        </div>
+    </main>
+
+    <!-- MODAL LOGIN / REGISTER -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 relative space-y-4">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">&times;</button>
+            <h3 class="text-xl font-bold text-amber-400">Masuk / Daftar Akun</h3>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Username</label>
+                    <input type="text" id="loginUsername" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Password</label>
+                    <input type="password" id="loginPassword" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <button type="submit" id="btnLoginSubmit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition">
+                    Masuk
+                </button>
+            </form>
+        </div>
     </div>
 
-    <!-- FORM PENGISIAN KYC -->
-    <div id="sec-kyc-form" style="display:none">
-      <h4 style="color:var(--accent2);margin-bottom:12px">Formulir Verifikasi Identitas</h4>
-      <form id="formKyc">
-        <div class="form-group">
-          <label>Nama Lengkap (Sesuai KTP)</label>
-          <input type="text" id="kyc-fullname" required placeholder="Nama lengkap">
+    <!-- MODAL KYC -->
+    <div id="kycModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 relative space-y-4 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('kycModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">&times;</button>
+            <h3 class="text-xl font-bold text-amber-400">Verifikasi Identitas (KYC)</h3>
+            <form id="kycForm" onsubmit="handleKycSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap</label>
+                    <input type="text" id="kycFullName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor KTP / Paspor</label>
+                    <input type="text" id="kycDocNumber" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">URL Foto Dokumen Identity</label>
+                    <input type="text" id="kycDocImage" placeholder="https://..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">URL Foto Selfie</label>
+                    <input type="text" id="kycSelfieImage" placeholder="https://..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <button type="submit" id="btnKycSubmit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition">
+                    Kirim Verifikasi
+                </button>
+            </form>
         </div>
-        <div class="form-group">
-          <label>Nomor NIK / Paspor</label>
-          <input type="text" id="kyc-docnum" required placeholder="Nomor ID">
-        </div>
-        <div class="form-group">
-          <label>Unggah Foto Identitas (KTP/Paspor)</label>
-          <input type="file" id="kyc-docfile" accept="image/*" required style="font-size:11px">
-        </div>
-        <div class="form-group">
-          <label>Unggah Foto Selfie dengan ID</label>
-          <input type="file" id="kyc-selfiefile" accept="image/*" required style="font-size:11px">
-        </div>
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="btn" id="btn-back-prof" type="button" style="flex:1">Batal</button>
-          <button class="btn primary" type="submit" style="flex:1">Kirim KYC</button>
-        </div>
-      </form>
     </div>
 
-  </div>
-</div>
+    <script>
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-<div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
-<div id="toast"></div>
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnLoginSubmit');
+            btn.innerText = 'Memproses...';
+            btn.disabled = true;
 
-<script>
-/* ================= DATA & LOGIC UTAMA ================= */
-var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
-var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var lang = "id";
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
 
-var UI = {
-  id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
-  en: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"A Layer 2 project on the BSC network with the BTW token. Learn about Bitworld's vision, whitepaper, and contract.", s_symbol:"Symbol", s_supply:"Supply", s_network:"Network", b_wp:"Read Whitepaper", b_contract:"View Contract", warn_short:"Not investment advice. DYOR.", prev:"← Previous", next:"Next →", copy:"Copy Address", bscscan:"Open BscScan", copied:"Address copied", copyfail:"Copy failed", n_home:"Home", n_wp:"Whitepaper", n_vision:"Vision", n_token:"Token", n_contract:"Contract", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21,000,000","BSC Network","BEP-20","Layer 2 BSC","DYOR"]}
-};
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
 
-var WP = [
-  {t:{id:"Ringkasan",en:"Summary"},b:{id:["Bitworld (BTW) adalah token BEP-20 yang berjalan di BNB Smart Chain (BSC). Proyek ini dirancang sebagai solusi Layer 2 dengan tujuan menghadirkan transaksi yang lebih cepat dan biaya yang lebih terjangkau.","Whitepaper ini menjelaskan masalah yang ingin diselesaikan, pendekatan teknis, struktur token, dan orientasi jangka panjang Bitworld."],en:["Bitworld (BTW) is a BEP-20 token running on BNB Smart Chain (BSC). The project is designed as a Layer 2 solution aiming to deliver faster transactions and more affordable fees.","This whitepaper outlines the problem being addressed, the technical approach, the token structure, and Bitworld's long-term direction."]}},
-  {t:{id:"Masalah",en:"Problem"},b:{id:["Pengguna dan pengembang sering menghadapi biaya transaksi yang tidak stabil serta proses yang rumit saat berinteraksi dengan aplikasi terdesentralisasi."],en:["Users and developers often face unstable transaction fees and complicated processes when interacting with decentralized applications."]}},
-  {t:{id:"Solusi",en:"Solution"},b:{id:["Bitworld menyediakan lapisan kedua di atas jaringan BSC untuk mendukung aplikasi dengan pengalaman yang lebih sederhana."],en:["Bitworld provides a second layer on top of the BSC network to support applications with a simpler user experience."]}},
-  {t:{id:"Teknologi",en:"Technology"},b:{id:["Token BTW mengikuti standar BEP-20 dan berjalan di BNB Smart Chain.","Alamat smart contract resmi token BTW:"],en:["The BTW token follows the BEP-20 standard and runs on BNB Smart Chain.","Official BTW token smart contract address:"]},code:true},
-  {t:{id:"Detail Token",en:"Token Details"},table:true},
-  {t:{id:"Tokenomics",en:"Tokenomics"},b:{id:["Total suplai tetap sebesar 21.000.000 BTW.","Kontrak BTW tidak memiliki fungsi mint, burn, atau pause."],en:["The fixed total supply is 21,000,000 BTW.","The BTW contract has no mint, burn, or pause functions."]}},
-  {t:{id:"Tata Kelola",en:"Governance"},b:{id:["Keputusan penting proyek akan dikomunikasikan melalui kanal resmi."],en:["Important project decisions will be communicated through official channels."]}},
-  {t:{id:"Roadmap",en:"Roadmap"},b:{id:["Fase 1, Fondasi: token, kontrak, dan dokumentasi publik.","Fase 2, Pertumbuhan: pengembangan aplikasi.","Fase 3, Keberlanjutan: penguatan tata kelola."],en:["Phase 1, Foundation: token, contract.","Phase 2, Growth: application development.","Phase 3, Sustainability: governance."]}},
-  {t:{id:"Risiko",en:"Risks"},b:{id:["Kripto memiliki risiko tinggi, termasuk kemungkinan kehilangan nilai secara total."],en:["Crypto carries high risk, including the possibility of total loss of value."]}}
-];
+                if (data.success) {
+                    alert(data.message || 'Login Berhasil!');
+                    closeModal('loginModal');
+                    document.getElementById('userCard').classList.remove('hidden');
+                    document.getElementById('displayUsername').innerText = data.user.username;
+                    document.getElementById('authHeader').innerHTML = `<span class="text-amber-400 font-bold">${data.user.username}</span>`;
+                } else {
+                    alert('Gagal Login: ' + data.message);
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan jaringan atau server');
+            } finally {
+                btn.innerText = 'Masuk';
+                btn.disabled = false;
+            }
+        }
 
-var VISION = {
-  vis:{id:"Menjadi infrastruktur Layer 2 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.",en:"To become a trusted Layer 2 infrastructure on BNB Smart Chain, offering a simple experience for all users over the long term."},
-  mis:{id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang."],en:["Provide fast transactions and affordable fees.","Build open documentation and tools for developers."]},
-  lt:{id:"Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek.",en:"Long-term focus: building a sustainable project, not short-term gains."}
-};
+        async function handleKycSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnKycSubmit');
+            btn.innerText = 'Mengirim...';
+            btn.disabled = true;
 
-var FAQ = [
-  {q:{id:"Apa itu BTW?",en:"What is BTW?"},a:{id:"BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld.",en:"BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem."}},
-  {q:{id:"Apakah ada airdrop?",en:"Is there an airdrop?"},a:{id:"Belum ada pengumuman airdrop resmi. Informasi hanya berasal dari kanal resmi proyek.",en:"No official airdrop has been announced."}}
-];
+            const body = {
+                fullName: document.getElementById('kycFullName').value,
+                docNumber: document.getElementById('kycDocNumber').value,
+                docImage: document.getElementById('kycDocImage').value,
+                selfieImage: document.getElementById('kycSelfieImage').value
+            };
 
-var wpIndex = 0;
+            try {
+                const res = await fetch('/api/kyc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
 
-function $(id){ return document.getElementById(id); }
-function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-function toast(msg){
-  var t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1600);
-}
-
-function applyUI(){
-  var u = UI[lang];
-  document.querySelectorAll("[data-i18n]").forEach(function(el){
-    var k = el.getAttribute("data-i18n");
-    if (u[k] !== undefined && typeof u[k] === "string") el.textContent = u[k];
-  });
-  $("n-home").textContent = u.n_home;
-  $("n-wp").textContent = u.n_wp;
-  $("n-vision").textContent = u.n_vision;
-  $("n-token").textContent = u.n_token;
-  $("n-contract").textContent = u.n_contract;
-  $("n-faq").textContent = u.n_faq;
-  $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
-  $("n-team").innerHTML = "&#128100; " + (lang === "id" ? "Tim" : "Team");
-  $("teamTitle").textContent = lang === "id" ? "Tim Bitworld" : "Bitworld Team";
-  $("teamRole").textContent = lang === "id" ? "Pendiri, CEO & Pengembang Utama" : "Founder, CEO & Lead Developer";
-  $("teamNote").textContent = lang === "id" ? "Anggota tim lain akan diumumkan di kanal resmi setelah bergabung." : "Other team members will be announced on official channels once they join.";
-  $("n-soc").innerHTML = "&#128172; " + (lang === "id" ? "Sosial" : "Social");
-  $("lang-id").classList.toggle("on", lang === "id");
-  $("lang-en").classList.toggle("on", lang === "en");
-  $("track").innerHTML = (function(){
-    var h = u.ticker.map(function(t){ return "<span>" + t.replace(/^(\S+)/, "<b>$1</b>") + "</span>"; }).join("");
-    return h + h;
-  })();
-  document.documentElement.lang = lang;
-  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews(); renderSocial();
-}
-
-function renderWP(){
-  var html = "";
-  WP.forEach(function(s, i){ html += '<button type="button" data-wp="' + i + '" class="' + (i === wpIndex ? "on" : "") + '">' + esc(s.t[lang]) + '</button>'; });
-  $("wpmenu").innerHTML = html;
-  var s = WP[wpIndex], body = "<h2>" + esc(s.t[lang]) + "</h2>";
-  if (s.table) {
-    var rows = [["Nama","Bitworld"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Smart contract",CONTRACT]];
-    body += "<table>" + rows.map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table>";
-  } else {
-    (s.b[lang] || []).forEach(function(p){ body += "<p>" + esc(p) + "</p>"; });
-    if (s.code) body += '<div class="mono">' + esc(CONTRACT) + "</div>";
-  }
-  $("wpbody").innerHTML = body;
-  $("wpCount").textContent = (wpIndex + 1) + " / " + WP.length;
-  $("wpPrev").disabled = wpIndex === 0;
-  $("wpNext").disabled = wpIndex === WP.length - 1;
-}
-
-function renderVision(){
-  var h = "<h2>" + (lang === "id" ? "Visi" : "Vision") + "</h2><p>" + esc(VISION.vis[lang]) + "</p>";
-  h += "<h2 style='margin-top:12px'>" + (lang === "id" ? "Misi" : "Mission") + "</h2><ul class='list'>";
-  VISION.mis[lang].forEach(function(m){ h += "<li>" + esc(m) + "</li>"; });
-  h += "</ul><p class='muted' style='margin-top:12px'>" + esc(VISION.lt[lang]) + "</p>";
-  $("visionBody").innerHTML = h;
-}
-
-function renderToken(){
-  var isId = lang === "id";
-  var cats = [
-    {n:isId?"Komunitas":"Community", p:50, c:"#f5b82e"},
-    {n:isId?"Tim":"Team", p:15, c:"#22d3ee"},
-    {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
-    {n:isId?"Likuiditas":"Liquidity", p:10, c:"#34d399"},
-    {n:isId?"Pemasaran":"Marketing", p:10, c:"#fb7185"},
-    {n:isId?"Cadangan":"Reserve", p:5, c:"#94a3b8"}
-  ];
-  var total = 21000000, grad = [], acc = 0;
-  cats.forEach(function(c){ var from = acc; acc += c.p; grad.push(c.c + " " + from + "% " + acc + "%"); });
-  var h = "<h2>Tokenomics</h2>";
-  h += "<div style='display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap'>";
-  h += "<div style='width:120px;height:120px;border-radius:50%;background:conic-gradient(" + grad.join(",") + ");position:relative;flex-shrink:0'>";
-  h += "<div style='position:absolute;inset:26px;border-radius:50%;background:#0c1120;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#8a94a8'>";
-  h += "<b style='font-size:13px;color:#f5b82e'>21 JT</b>BTW</div></div>";
-  h += "<table style='width:auto;flex:1;min-width:200px'>";
-  cats.forEach(function(c){
-    var amt = Math.round(total * c.p / 100).toLocaleString("id-ID");
-    h += "<tr><td style='width:auto;color:" + c.c + ";font-weight:700'>" + esc(c.n) + "</td><td>" + c.p + "%</td><td>" + amt + "</td></tr>";
-  });
-  h += "</table></div>";
-  $("tokenBody").innerHTML = h;
-}
-
-function renderContract(){
-  var h = "<h2>Smart Contract</h2><p>Alamat resmi token BTW di BNB Smart Chain:</p>";
-  h += "<div class='mono'>" + esc(CONTRACT) + "</div>";
-  $("contractBody").innerHTML = h;
-  $("bscLink").href = BSCSCAN;
-}
-
-function renderSocial(){
-  var list = [
-    {i:"𝕏", n:"X (Twitter)", u:"https://x.com/bitworld_btw"},
-    {i:"✈", n:"Telegram", u:"https://t.me/bitworld_btw"},
-    {i:"🌐", n:"Website", u:"https://bitworld-btw.vercel.app"}
-  ];
-  var h = "<h2>Kanal Resmi</h2>";
-  list.forEach(function(c){
-    h += "<a class='btn' style='display:flex;gap:12px;align-items:center;margin-bottom:10px' href='" + c.u + "' target='_blank' rel='noopener noreferrer'><span>" + c.i + "</span><b>" + esc(c.n) + "</b></a>";
-  });
-  $("socialBody").innerHTML = h;
-}
-
-function renderNews(){
-  $("newsBody").innerHTML = "<h2>Berita & Pengumuman</h2><p><span class='gold'>20 Okt 2026</span><br>Website Bitworld (BTW) dan whitepaper resmi dirilis.</p>";
-}
-
-function renderFAQ(){
-  var h = "<h2>FAQ</h2>";
-  FAQ.forEach(function(f){ h += "<p><strong>" + esc(f.q[lang]) + "</strong><br><span class='muted'>" + esc(f.a[lang]) + "</span></p>"; });
-  $("faqBody").innerHTML = h;
-}
-
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", team:"v-team", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news", social:"v-social", mining:"v-mining"};
-function go(name){
-  if (!VIEWS[name]) name = "home";
-  Object.keys(VIEWS).forEach(function(k){ $(VIEWS[k]).classList.toggle("active", k === name); });
-  document.querySelectorAll("nav.bottom button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-go") === name); });
-  if (history.replaceState) history.replaceState(null, "", "#" + name);
-  window.scrollTo(0,0);
-}
-
-document.addEventListener("click", function(e){
-  var t = e.target.closest("[data-go]");
-  if (t) { e.preventDefault(); go(t.getAttribute("data-go")); return; }
-  var w = e.target.closest("[data-wp]");
-  if (w) { wpIndex = parseInt(w.getAttribute("data-wp"), 10) || 0; renderWP(); }
-});
-$("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
-$("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
-$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
-$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
-
-/* LOGIC MODAL LOGIN & VERIFIKASI KYC */
-var currentUser = null;
-
-$("btn-account-modal").addEventListener("click", function(){
-  $("accountModal").classList.add("active");
-});
-$("closeModal").addEventListener("click", function(){
-  $("accountModal").classList.remove("active");
-});
-
-$("btn-do-login").addEventListener("click", function(){
-  var u = $("acc-user").value, p = $("acc-pass").value;
-  if (!u || !p) { toast("Isi username & password"); return; }
-  
-  // Memanggil API /api/auth untuk login nyata ke Neon
-  fetch('/api/auth', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'login', username: u, password: p })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      currentUser = { username: data.user.username, kycStatus: data.user.kyc_status || 'UNVERIFIED' };
-      updateUserUI();
-      toast("Berhasil masuk!");
-    } else {
-      toast("Gagal: " + data.message);
-    }
-  })
-  .catch(err => toast("Gagal terhubung ke server"));
-});
-
-$("btn-do-logout").addEventListener("click", function(){
-  currentUser = null;
-  updateUserUI();
-  toast("Berhasil keluar");
-});
-
-$("btn-open-kyc-form").addEventListener("click", function(){
-  $("sec-profile").style.display = "none";
-  $("sec-kyc-form").style.display = "block";
-  $("modalTitle").textContent = "Verifikasi KYC";
-});
-
-$("btn-back-prof").addEventListener("click", function(){
-  $("sec-kyc-form").style.display = "none";
-  $("sec-profile").style.display = "block";
-  $("modalTitle").textContent = "Profil Akun";
-});
-
-// SUBMIT KYC
-$("formKyc").addEventListener("submit", function(e){
-  e.preventDefault();
-  
-  var name = $("kyc-fullname").value;
-  var doc = $("kyc-docnum").value;
-  var docFile = $("kyc-docfile").files[0];
-  var selfieFile = $("kyc-selfiefile").files[0];
-
-  if (!docFile || !selfieFile) {
-    toast("Mohon unggah kedua foto");
-    return;
-  }
-
-  Promise.all([toBase64(docFile), toBase64(selfieFile)]).then(function(images){
-    fetch('/api/kyc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fullName: name,
-        docNumber: doc,
-        docImage: images[0],
-        selfieImage: images[1]
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        currentUser.kycStatus = 'PENDING';
-        updateUserUI();
-        $("sec-kyc-form").style.display = "none";
-        $("sec-profile").style.display = "block";
-        toast("KYC Berhasil Dikirim!");
-      } else {
-        toast("Gagal: " + data.message);
-      }
-    })
-    .catch(err => toast("Error pengiriman KYC"));
-  });
-});
-
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
-function updateUserUI(){
-  if (currentUser) {
-    $("btn-account-modal").textContent = currentUser.username;
-    $("sec-login").style.display = "none";
-    $("sec-profile").style.display = "block";
-    $("prof-username").textContent = currentUser.username;
-    
-    var badge = $("kycStatusBadge");
-    if (currentUser.kycStatus === 'PENDING') {
-      badge.className = "status-badge status-pending";
-      badge.textContent = "🟡 Menunggu Peninjauan";
-      $("kyc-action-area").style.display = "none";
-    } else if (currentUser.kycStatus === 'VERIFIED') {
-      badge.className = "status-badge status-verified";
-      badge.textContent = "🟢 Terverifikasi";
-      $("kyc-action-area").style.display = "none";
-    } else {
-      badge.className = "status-badge status-unverified";
-      badge.textContent = "🔴 Belum Verifikasi";
-      $("kyc-action-area").style.display = "block";
-    }
-  } else {
-    $("btn-account-modal").textContent = "Login / Daftar";
-    $("sec-login").style.display = "block";
-    $("sec-profile").style.display = "none";
-    $("sec-kyc-form").style.display = "none";
-  }
-}
-
-applyUI();
-go("home");
-</script>
+                if (data.success) {
+                    alert('Verifikasi KYC berhasil dikirim!');
+                    closeModal('kycModal');
+                    document.getElementById('displayKycStatus').innerText = 'PENDING';
+                } else {
+                    alert('Gagal mengirim KYC: ' + data.message);
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan jaringan saat mengirim KYC');
+            } finally {
+                btn.innerText = 'Kirim Verifikasi';
+                btn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
