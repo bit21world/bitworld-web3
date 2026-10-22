@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Bitworld Admin - KYC</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; background: #0f172a; color: #fff; font: 15px system-ui, sans-serif; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { color: #fbbf24; font-size: 22px; margin: 0 0 12px; }
+  input, button { font: inherit; border-radius: 10px; border: 0; padding: 10px 12px; }
+  input { width: 100%; box-sizing: border-box; background: #1e293b; color: #fff; border: 1px solid #334155; margin-bottom: 8px; }
+  button { cursor: pointer; font-weight: 700; background: #f59e0b; color: #111; }
+  .tabs { display: flex; gap: 6px; margin: 12px 0; }
+  .tabs button { flex: 1; background: #1e293b; color: #cbd5e1; }
+  .tabs button.on { background: #f59e0b; color: #111; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .card h3 { margin: 0 0 6px; font-size: 16px; color: #fbbf24; }
+  .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; font-size: 14px; }
+  .row span:first-child { color: #94a3b8; }
+  .imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .imgs img { width: 100%; border-radius: 8px; background: #0f172a; }
+  .acts { display: flex; gap: 8px; }
+  .acts button { flex: 1; }
+  .ok { background: #16a34a; color: #fff; } .no { background: #dc2626; color: #fff; }
+  #msg { min-height: 20px; color: #fca5a5; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin KYC</h1>
+  <input id="key" type="password" placeholder="Kunci admin (ADMIN_KEY)" autocomplete="off">
+  <button id="go" style="width:100%">Masuk</button>
+  <div id="msg"></div>
+  <div class="tabs" id="tabs" style="display:none">
+    <button data-s="pending" class="on">Pending</button>
+    <button data-s="verified">Terverifikasi</button>
+    <button data-s="rejected">Ditolak</button>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+  var KEY = '', STATUS = 'pending';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function row(label, value) {
+    var d = document.createElement('div'); d.className = 'row';
+    var a = document.createElement('span'); a.textContent = label;
+    var b = document.createElement('span'); b.textContent = value;
+    d.appendChild(a); d.appendChild(b); return d;
+  }
+
+  function render(items) {
+    var box = $('list'); box.replaceChildren();
+    if (!items.length) { var e = document.createElement('div'); e.className = 'card'; e.textContent = 'Tidak ada data.'; box.appendChild(e); return; }
+    items.forEach(function (it) {
+      var c = document.createElement('div'); c.className = 'card';
+      var h = document.createElement('h3'); h.textContent = '@' + it.username; c.appendChild(h);
+      c.appendChild(row('Nama', it.full_name));
+      c.appendChild(row('No. dokumen', it.doc_number));
+      c.appendChild(row('Dikirim', new Date(it.submitted_at).toLocaleString('id-ID')));
+      if (it.note) c.appendChild(row('Catatan', it.note));
+      var imgs = document.createElement('div'); imgs.className = 'imgs';
+      [it.doc_image, it.selfie_image].forEach(function (src) {
+        var i = document.createElement('img'); i.src = src; i.alt = ''; i.onclick = function () { window.open(src); }; imgs.appendChild(i);
+      });
+      c.appendChild(imgs);
+      var acts = document.createElement('div'); acts.className = 'acts';
+      var ok = document.createElement('button'); ok.className = 'ok'; ok.textContent = 'Setujui';
+      ok.onclick = function () { review(it.id, 'verified', ''); };
+      var no = document.createElement('button'); no.className = 'no'; no.textContent = 'Tolak';
+      no.onclick = function () { var n = prompt('Alasan penolakan (opsional):') || ''; review(it.id, 'rejected', n); };
+      if (STATUS !== 'verified') acts.appendChild(ok);
+      if (STATUS !== 'rejected') acts.appendChild(no);
+      c.appendChild(acts);
+      box.appendChild(c);
+    });
+  }
+
+  function load() {
+    $('msg').textContent = 'Memuat...';
+    fetch('/api?a=kyc_list&status=' + STATUS, { headers: { 'x-admin-key': KEY } })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok) { $('msg').textContent = x.j.error === 'forbidden' ? 'Kunci admin salah (atau ADMIN_KEY belum diset di Vercel).' : 'Gagal: ' + x.j.error; $('tabs').style.display = 'none'; $('list').replaceChildren(); return; }
+        $('msg').textContent = ''; $('tabs').style.display = 'flex';
+        sessionStorage.setItem('bw_admin', KEY);
+        render(x.j.items);
+      })
+      .catch(function (e) { $('msg').textContent = 'Tidak bisa terhubung: ' + e.message; });
+  }
+
+  function review(id, status, note) {
+    fetch('/api?a=kyc_review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': KEY },
+      body: JSON.stringify({ id: id, status: status, note: note })
+    }).then(function (r) { return r.json(); })
+      .then(function (j) { if (j.ok) load(); else $('msg').textContent = 'Gagal: ' + (j.error || 'error'); })
+      .catch(function (e) { $('msg').textContent = e.message; });
+  }
+
+  $('go').onclick = function () { KEY = $('key').value.trim(); if (KEY) load(); };
+  $('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('go').click(); });
+  $('tabs').addEventListener('click', function (e) {
+    var s = e.target.getAttribute('data-s'); if (!s) return;
+    STATUS = s;
+    Array.prototype.forEach.call($('tabs').children, function (b) { b.classList.toggle('on', b === e.target); });
+    load();
+  });
+  var saved = sessionStorage.getItem('bw_admin');
+  if (saved) { KEY = saved; $('key').value = saved; load(); }
+</script>
+</body>
+</html>
