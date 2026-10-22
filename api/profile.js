@@ -4,6 +4,9 @@ import { neon } from '@neondatabase/serverless';
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 const COOKIE = 'btw_sess';
 const WALLET_RE = /^0x[a-fA-F0-9]{40}$/;
+const POOL_TOTAL = 10500000;
+const PHASE_SIZE = POOL_TOTAL / 4;
+const RATES = [0.12, 0.06, 0.03, 0.015];
 
 function sha256(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
 
@@ -34,7 +37,21 @@ async function summary(u) {
     SELECT started_at, end_at FROM mining_sessions
     WHERE user_id = ${u.id} AND claimed_at IS NULL
     ORDER BY started_at DESC LIMIT 1`)[0] || null;
+  const poolRow = (await sql`SELECT claimed FROM pool WHERE id = 1`)[0];
+  const poolClaimed = poolRow ? Number(poolRow.claimed) : 0;
+  const phase = Math.min(3, Math.floor(poolClaimed / PHASE_SIZE));
+  const todayRow = (await sql`
+    SELECT 1 FROM mining_sessions
+    WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`)[0];
   return {
+    pool: {
+      claimed: poolClaimed,
+      total: POOL_TOTAL,
+      percent: (poolClaimed / POOL_TOTAL) * 100,
+      phase: phase + 1,
+      rate: RATES[phase]
+    },
+    today_done: !!todayRow,
     user: {
       username: u.username,
       name: u.name,
@@ -51,6 +68,16 @@ async function summary(u) {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   try {
+    // Perbaikan otomatis: izinkan kolom name kosong (aman dijalankan berulang kali)
+    if (req.query && req.query.a === 'migrate') {
+      try {
+        await sql`ALTER TABLE users ALTER COLUMN name DROP NOT NULL`;
+        return res.json({ ok: true });
+      } catch (e) {
+        return res.json({ ok: false });
+      }
+    }
+
     const u = await currentUser(req);
     if (!u) return res.status(401).json({ error: 'not_logged_in' });
 
