@@ -34,16 +34,6 @@
                 <span class="text-slate-400">Selamat datang,</span>
                 <span id="displayUsername" class="font-bold text-amber-400 text-lg"></span>
             </div>
-            <div class="flex justify-between items-center border-t border-slate-700 pt-3">
-                <span class="text-slate-400">Status KYC:</span>
-                <span id="displayKycStatus" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30">
-                    Memuat...
-                </span>
-            </div>
-            <p id="kycNote" class="hidden text-sm text-red-300"></p>
-            <button onclick="openKycModal()" id="btnKycForm" class="hidden w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl transition mt-2">
-                Isi Formulir KYC
-            </button>
         </div>
     </main>
 
@@ -71,37 +61,6 @@
         </div>
     </div>
 
-    <!-- MODAL KYC -->
-    <div id="kycModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-6 relative space-y-4 max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('kycModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">&times;</button>
-            <h3 class="text-xl font-bold text-amber-400">Verifikasi Identitas (KYC)</h3>
-            <p class="text-xs text-slate-400">Data hanya dipakai untuk verifikasi dan hanya dapat dilihat oleh admin. Pastikan foto jelas dan tidak terpotong.</p>
-            <form id="kycForm" onsubmit="handleKycSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nama Lengkap (sesuai KTP/Paspor)</label>
-                    <input type="text" id="kycFullName" required maxlength="80" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nomor KTP / Paspor</label>
-                    <input type="text" id="kycDocNumber" required maxlength="32" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Foto KTP / Paspor</label>
-                    <input type="file" id="kycDocFile" accept="image/*" required class="w-full text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white">
-                    <img id="kycDocPreview" class="hidden mt-2 rounded-lg max-h-40 mx-auto" alt="">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Foto Selfie sambil memegang KTP/Paspor</label>
-                    <input type="file" id="kycSelfieFile" accept="image/*" required class="w-full text-sm text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white">
-                    <img id="kycSelfiePreview" class="hidden mt-2 rounded-lg max-h-40 mx-auto" alt="">
-                </div>
-                <p id="kycMsg" class="text-sm min-h-[1.25rem]"></p>
-                <button type="submit" id="btnKycSubmit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-xl transition">Kirim Verifikasi</button>
-            </form>
-        </div>
-    </div>
-
     <script>
         let currentMode = 'login';
         const $ = (id) => document.getElementById(id);
@@ -112,17 +71,6 @@
             username_invalid: 'Username harus 3-24 karakter: huruf, angka, _ . -',
             password_short: 'Password minimal 8 karakter.'
         };
-        const KYC_ERR = {
-            not_logged_in: 'Silakan login dulu.',
-            name_invalid: 'Nama lengkap harus 3-80 karakter.',
-            doc_invalid: 'Nomor dokumen tidak valid (5-32 karakter, huruf/angka).',
-            doc_image_invalid: 'Foto dokumen tidak valid atau terlalu besar.',
-            selfie_image_invalid: 'Foto selfie tidak valid atau terlalu besar.',
-            already_pending: 'KYC Anda sedang ditinjau admin.',
-            already_verified: 'Akun Anda sudah terverifikasi.',
-            server_error: 'Terjadi kesalahan server. Coba lagi.'
-        };
-
         function openModal(id) { $(id).classList.remove('hidden'); }
         function closeModal(id) { $(id).classList.add('hidden'); }
 
@@ -149,7 +97,6 @@
             span.className = 'text-amber-400 font-bold';
             span.textContent = username;
             $('authHeader').replaceChildren(span);
-            loadKyc();
         }
 
         async function restoreSession() {
@@ -159,48 +106,6 @@
                 const d = await r.json();
                 if (d && d.user) showLoggedIn(d.user.username);
             } catch (e) { console.error('restoreSession:', e); }
-        }
-
-        /* ---------- Status KYC dari server ---------- */
-        const KYC_VIEW = {
-            none:     { text: 'Belum Verifikasi',  cls: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', btn: 'Isi Formulir KYC' },
-            pending:  { text: 'Menunggu Review',   cls: 'bg-blue-500/20 text-blue-300 border-blue-500/30',       btn: null },
-            verified: { text: 'Terverifikasi',     cls: 'bg-green-500/20 text-green-400 border-green-500/30',    btn: null },
-            rejected: { text: 'Ditolak',           cls: 'bg-red-500/20 text-red-400 border-red-500/30',          btn: 'Kirim Ulang KYC' }
-        };
-
-        function renderKyc(status, note) {
-            const v = KYC_VIEW[status] || KYC_VIEW.none;
-            const badge = $('displayKycStatus');
-            badge.textContent = v.text;
-            badge.className = 'px-3 py-1 rounded-full text-xs font-bold border ' + v.cls;
-            const btn = $('btnKycForm');
-            if (v.btn) { btn.textContent = v.btn; btn.classList.remove('hidden'); } else { btn.classList.add('hidden'); }
-            const n = $('kycNote');
-            if (status === 'rejected' && note) { n.textContent = 'Alasan: ' + note; n.classList.remove('hidden'); } else { n.classList.add('hidden'); }
-        }
-
-        function kycLoadFailed(detail) {
-            const badge = $('displayKycStatus');
-            badge.textContent = 'Gagal memuat (' + detail + ')';
-            badge.className = 'px-3 py-1 rounded-full text-xs font-bold border bg-red-500/20 text-red-400 border-red-500/30';
-            const btn = $('btnKycForm');
-            btn.textContent = 'Coba Muat Ulang Status';
-            btn.onclick = function () { btn.onclick = function () { openKycModal(); }; $('displayKycStatus').textContent = 'Memuat...'; loadKyc(); };
-            btn.classList.remove('hidden');
-        }
-
-        async function loadKyc() {
-            try {
-                const r = await fetch('/api?a=kyc_status', { credentials: 'same-origin' });
-                const d = await r.json().catch(() => ({}));
-                if (!r.ok) { kycLoadFailed(d.error || ('HTTP ' + r.status)); return; }
-                $('btnKycForm').onclick = function () { openKycModal(); };
-                renderKyc(d.status, d.note);
-            } catch (e) {
-                console.error('loadKyc:', e);
-                kycLoadFailed(e && e.message ? e.message : 'jaringan');
-            }
         }
 
         /* ---------- Login / daftar ---------- */
@@ -236,92 +141,6 @@
                 alert('Terjadi kesalahan jaringan atau server: ' + (err && err.message ? err.message : err));
             } finally {
                 btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        /* ---------- KYC: unggah foto (dikompres di HP) ---------- */
-        function openKycModal() {
-            $('kycMsg').textContent = '';
-            openModal('kycModal');
-        }
-
-        function fileToDataUrl(file, maxSide, quality) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const url = URL.createObjectURL(file);
-                img.onload = () => {
-                    const s = Math.min(1, maxSide / Math.max(img.width, img.height));
-                    const c = document.createElement('canvas');
-                    c.width = Math.round(img.width * s);
-                    c.height = Math.round(img.height * s);
-                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                    URL.revokeObjectURL(url);
-                    resolve(c.toDataURL('image/jpeg', quality));
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Foto tidak bisa dibaca. Gunakan format JPG atau PNG.')); };
-                img.src = url;
-            });
-        }
-
-        function bindPreview(inputId, imgId) {
-            $(inputId).addEventListener('change', () => {
-                const f = $(inputId).files[0];
-                const im = $(imgId);
-                if (!f) { im.classList.add('hidden'); return; }
-                im.src = URL.createObjectURL(f);
-                im.classList.remove('hidden');
-            });
-        }
-        bindPreview('kycDocFile', 'kycDocPreview');
-        bindPreview('kycSelfieFile', 'kycSelfiePreview');
-
-        async function handleKycSubmit(e) {
-            e.preventDefault();
-            const btn = $('btnKycSubmit');
-            const msg = $('kycMsg');
-            msg.className = 'text-sm min-h-[1.25rem] text-slate-300';
-            msg.textContent = 'Memproses foto...';
-            btn.disabled = true;
-
-            try {
-                const docFile = $('kycDocFile').files[0];
-                const selfieFile = $('kycSelfieFile').files[0];
-                if (!docFile || !selfieFile) throw new Error('Pilih kedua foto terlebih dahulu.');
-
-                const body = {
-                    fullName: $('kycFullName').value.trim(),
-                    docNumber: $('kycDocNumber').value.trim(),
-                    docImage: await fileToDataUrl(docFile, 1000, 0.75),
-                    selfieImage: await fileToDataUrl(selfieFile, 900, 0.75)
-                };
-
-                msg.textContent = 'Mengirim...';
-                const res = await fetch('/api?a=kyc_submit', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const data = await res.json().catch(() => ({}));
-
-                if (res.ok) {
-                    closeModal('kycModal');
-                    $('kycForm').reset();
-                    $('kycDocPreview').classList.add('hidden');
-                    $('kycSelfiePreview').classList.add('hidden');
-                    renderKyc('pending');
-                    alert('Verifikasi KYC berhasil dikirim! Menunggu review admin.');
-                } else {
-                    msg.className = 'text-sm min-h-[1.25rem] text-red-400';
-                    msg.textContent = KYC_ERR[data.error] || ('Gagal mengirim KYC (' + (data.error || res.status) + ')');
-                    if (data.error === 'already_pending' || data.error === 'already_verified') loadKyc();
-                }
-            } catch (err) {
-                console.error('KYC error:', err);
-                msg.className = 'text-sm min-h-[1.25rem] text-red-400';
-                msg.textContent = err && err.message ? err.message : 'Terjadi kesalahan jaringan saat mengirim KYC';
-            } finally {
                 btn.disabled = false;
             }
         }
