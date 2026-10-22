@@ -3,7 +3,40 @@
 (function () {
   var FIX_LAYOUT = true; // ubah ke false kalau mau mematikan perbaikan posisi tampilan
   var PROTECTED = /^[^a-z]*(ambassador|mining)\s*$/i;
-  var user = null, prof = null, mode = 'login', pending = null;
+  var user = null, prof = null, mode = 'login', pending = null;  /* Jembatan: form login bawaan situs (/api/auth) diarahkan ke API yang aman */
+  var _origFetch = window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var url = typeof input === 'string' ? input : ((input && input.url) || '');
+    if (!/\/api\/auth(\?|$)/.test(url)) return _origFetch(input, init);
+    var b = {};
+    try { b = JSON.parse((init && init.body) || '{}'); } catch (e) {}
+    return bridgeAuth(b);
+  };
+  function jres(obj, status) {
+    return new Response(JSON.stringify(obj), { status: status || 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  function bridgeAuth(b) {
+    var u = String(b.username || '').trim(), p = String(b.password || '');
+    var registered = false;
+    return api('login', 'POST', { username: u, password: p }).then(function (r) {
+      if (r.ok || r.status >= 500) return r;
+      return api('register', 'POST', { username: u, password: p, name: b.name || u }).then(function (r2) {
+        if (r2.ok) { registered = true; return r2; }
+        if (r2.data && r2.data.error === 'username_taken') return r;
+        return r2;
+      });
+    }).then(function (r) {
+      if (r.ok) {
+        user = pickUser(r.data) || { username: u };
+        refreshBtn(); loadProfile();
+        return jres({ success: true, message: registered ? 'Pendaftaran berhasil!' : 'Login berhasil!', user: { username: u } }, 200);
+      }
+      var c = r.data && r.data.error;
+      return jres({ success: false, message: (typeof ERR !== 'undefined' && ERR[c]) || ('Gagal: ' + (c || r.status)) }, r.status || 400);
+    }).catch(function () {
+      return jres({ success: false, message: 'Terjadi kesalahan jaringan atau server' }, 500);
+    });
+  }
 
   function $(id) { return document.getElementById(id); }
   function el(tag, props, kids) {
