@@ -34,15 +34,6 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .stage{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:14px;background:#20221c;margin-top:10px;font-size:13px}
 .stage.on{border-color:#b68a37;background:#282318}
 .stage small{display:block;color:var(--muted);margin-top:3px}
-.notice{font-size:12px;color:#d9d0b8;background:#211e16;border:1px solid #55472b;border-radius:14px;padding:12px;margin-top:14px;line-height:1.6}
-.hist{font-size:13px;padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}
-.hist:last-child{border-bottom:0}
-.hist small{display:block;color:var(--muted);margin-top:3px}
-.ok{color:var(--green);font-weight:800;white-space:nowrap}
-.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:16px}
-.modal.show{display:grid}
-.card{width:min(420px,100%);background:#1b1d18;border:1px solid var(--border);border-radius:20px;padding:22px}
-input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:#11120f;color:var(--text);margin:6px 0 10px;font:inherit}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#f2d27a;color:#17140b;padding:11px 16px;border-radius:12px;font-weight:800;font-size:13px;display:none;max-width:92%}
 @media(max-width:760px){.grid{grid-template-columns:1fr}}
 </style>
@@ -101,9 +92,27 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
   const POOL_TOTAL = 10500000;
   const PHASE_SIZE = POOL_TOTAL / 4;
   const RATES = [0.12, 0.06, 0.03, 0.015];
-  let GLOBAL_CLAIMED = 0;
 
-  const st = { running: false, done: false, endAt: 0, balance: 0, claimed: 0, lastDay: '', hist: [] };
+  // Membaca penyimpanan lokal agar timer & saldo TIDAK RESET saat keluar web
+  let GLOBAL_CLAIMED = Number(localStorage.getItem('btw_global_claimed') || 0);
+  const savedEndAt = Number(localStorage.getItem('btw_endAt') || 0);
+  const savedBalance = Number(localStorage.getItem('btw_balance') || 0);
+  const savedClaimed = Number(localStorage.getItem('btw_claimed') || 0);
+  const savedLastDay = localStorage.getItem('btw_lastDay') || '';
+
+  const now = Date.now();
+  let isRunning = savedEndAt > now;
+  let isDone = !isRunning && savedEndAt > 0;
+
+  const st = { 
+    running: isRunning, 
+    done: isDone, 
+    endAt: savedEndAt, 
+    balance: savedBalance, 
+    claimed: savedClaimed, 
+    lastDay: savedLastDay 
+  };
+
   const $ = id => document.getElementById(id);
   const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   const today = () => new Date().toISOString().slice(0, 10);
@@ -111,15 +120,14 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
   const rate = () => RATES[phase()];
 
   function toast(msg) {
-    const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+    const t = $('toast'); if(!t) return;
+    t.textContent = msg; t.style.display = 'block';
     clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
   }
-  function log(title, amount) {
-    st.hist.unshift({ title, amount, time: new Date().toLocaleString('id-ID') });
-  }
+
   function renderStages() {
     const p = phase();
-    const box = $('stages'); box.textContent = '';
+    const box = $('stages'); if(!box) return; box.textContent = '';
     RATES.forEach((r, i) => {
       const d = document.createElement('div');
       d.className = 'stage' + (i === p ? ' on' : '');
@@ -135,6 +143,7 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
       box.append(d);
     });
   }
+
   function render() {
     $('balance').textContent = fmt(st.balance);
     $('claimed').textContent = fmt(st.claimed);
@@ -142,55 +151,79 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
     $('phase').textContent = (phase() + 1) + ' / 4';
     $('poolUsed').textContent = fmt(Math.min(100, GLOBAL_CLAIMED / POOL_TOTAL * 100), 2) + '%';
     $('pill').textContent = st.running ? 'Mining aktif' : (st.done ? 'Sesi selesai' : 'Belum aktif');
-    $('btnStart').disabled = st.running || st.done || st.lastDay === today();
+    $('btnStart').disabled = st.running || st.done;
     $('btnStart').textContent = st.done ? '✓ Sesi selesai' : (st.running ? 'Mining berjalan…' : '▶ Start Mining');
     $('btnClaim').disabled = !st.done;
     $('sessLabel').textContent = st.running ? 'Sesi berjalan' : (st.done ? 'Siap diklaim' : 'Sesi belum dimulai');
     renderStages();
   }
+
   function tick() {
     if (!st.running) {
+      if (st.endAt > 0 && Date.now() >= st.endAt && !st.done) {
+        st.done = true;
+        st.running = false;
+        render();
+      }
       $('timer').textContent = st.done ? '00:00:00' : '24:00:00';
       $('bar').style.width = st.done ? '100%' : '0%';
       $('pct').textContent = st.done ? '100%' : '0%';
       return;
     }
+
     const left = Math.max(0, st.endAt - Date.now());
     const pct = Math.min(100, (SESSION_MS - left) / SESSION_MS * 100);
     const s = Math.ceil(left / 1000);
     const hh = String(Math.floor(s / 3600)).padStart(2, '0');
     const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
     const ss = String(s % 60).padStart(2, '0');
+    
     $('timer').textContent = hh + ':' + mm + ':' + ss;
     $('bar').style.width = pct + '%';
     $('pct').textContent = Math.floor(pct) + '%';
+
     if (left <= 0) {
-      st.running = false; st.done = true;
-      log('Sesi mining selesai', 'Siap diklaim');
-      toast('Sesi selesai. Klaim reward.');
+      st.running = false; 
+      st.done = true;
       render();
     }
   }
+
   $('btnStart').onclick = () => {
     if (st.running || st.done) return;
-    if (st.lastDay === today()) { toast('Batas 1 sesi per hari tercapai.'); return; }
-    st.running = true; st.endAt = Date.now() + SESSION_MS; st.lastDay = today();
-    log('Sesi mining dimulai', '24 jam');
+    st.running = true; 
+    st.endAt = Date.now() + SESSION_MS; 
+    st.lastDay = today();
+    
+    // Simpan ke localStorage agar waktu tidak reset walau browser ditutup
+    localStorage.setItem('btw_endAt', st.endAt);
+    localStorage.setItem('btw_lastDay', st.lastDay);
+
     render(); tick();
+    toast('Sesi mining dimulai (24 jam)');
   };
+
   $('btnClaim').onclick = () => {
     if (!st.done) return;
     const r = rate();
-    st.balance += r; st.claimed += r; GLOBAL_CLAIMED += r; st.done = false;
-    log('Reward sesi diklaim', '+' + fmt(r, 3) + ' BTW');
+    st.balance += r; 
+    st.claimed += r; 
+    GLOBAL_CLAIMED += r; 
+    st.done = false; 
+    st.endAt = 0;
+    
+    // Simpan saldo terbaru
+    localStorage.setItem('btw_balance', st.balance);
+    localStorage.setItem('btw_claimed', st.claimed);
+    localStorage.setItem('btw_global_claimed', GLOBAL_CLAIMED);
+    localStorage.removeItem('btw_endAt');
+
     render(); tick();
-    toast('Reward dicatat (simulasi).');
+    toast('Reward berhasil diklaim!');
   };
 
   window.addEventListener('DOMContentLoaded', () => {
-    if (typeof loadProfile === 'function') {
-      loadProfile();
-    }
+    if (typeof loadProfile === 'function') loadProfile();
   });
 
   render(); tick();
