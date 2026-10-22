@@ -21,11 +21,19 @@
     invalid_wallet: 'Format wallet tidak valid (0x + 40 karakter).',
     invalid_name: 'Nama wajib diisi (maks. 60 karakter).',
     invalid_credentials: 'Username atau password salah.',
+    bad_credentials: 'Username atau password salah.',
+    username_invalid: 'Username harus 3-24 karakter: huruf, angka, _ . -',
+    password_short: 'Password minimal 8 karakter.',
+    name_required: 'Nama wajib diisi.',
+    wallet_invalid: 'Format wallet tidak valid (0x + 40 karakter).',
+    not_logged_in: 'Silakan login dulu.',
+    unknown_route: 'Endpoint tidak ditemukan.',
     server_error: 'Terjadi kesalahan server. Coba lagi.'
   };
   var MERR = {
     daily_limit: 'Batas mining harian tercapai. Coba lagi besok.',
     not_finished: 'Sesi belum selesai.',
+    claim_first: 'Klaim sesi sebelumnya dulu.',
     no_session: 'Belum ada sesi mining.',
     pool_empty: 'Pool reward sudah habis.',
     not_logged_in: 'Silakan login dulu.'
