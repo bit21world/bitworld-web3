@@ -1,4 +1,4 @@
-hereimport { neon } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // 1. Buat tabel users standar jika belum ada
+    // 1. Buat tabel users jika belum ada (tanpa constraint unik pada name)
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -28,21 +28,7 @@ export default async function handler(req, res) {
       );
     `;
 
-    // 2. Hilangkan syarat wajib (NOT NULL) dari kolom name jika tabel lama sempat memilikinya
-    try {
-      await sql`ALTER TABLE users ALTER COLUMN name DROP NOT NULL;`;
-    } catch (e) {
-      // Abaikan jika kolom name memang tidak ada
-    }
-
-    // 3. Pastikan kolom password tersedia
-    try {
-      await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255);`;
-    } catch (e) {
-      // Abaikan jika kolom sudah ada
-    }
-
-    // 4. Cek apakah user sudah terdaftar
+    // 2. Cek apakah user sudah terdaftar berdasarkan username
     const existingUsers = await sql`
       SELECT * FROM users WHERE username = ${username} LIMIT 1;
     `;
@@ -62,22 +48,12 @@ export default async function handler(req, res) {
         });
       }
     } else {
-      // 5. Pendaftaran user baru (mengisi name & username sekaligus agar aman)
-      let newUser;
-      try {
-        newUser = await sql`
-          INSERT INTO users (username, password, name)
-          VALUES (${username}, ${password}, ${username})
-          RETURNING id, username;
-        `;
-      } catch (insertErr) {
-        // Fallback jika struktur kolom berbeda
-        newUser = await sql`
-          INSERT INTO users (username, password)
-          VALUES (${username}, ${password})
-          RETURNING id, username;
-        `;
-      }
+      // 3. Pendaftaran akun baru
+      const newUser = await sql`
+        INSERT INTO users (username, password)
+        VALUES (${username}, ${password})
+        RETURNING id, username;
+      `;
 
       return res.status(200).json({
         success: true,
