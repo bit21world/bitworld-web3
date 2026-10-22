@@ -105,7 +105,7 @@
     if (prof.active) {
       var left = new Date(prof.active.end_at) - new Date();
       act = left > 0 ? 'Berjalan' : 'Siap diklaim';
-    }
+    } else if (prof.today_done) { act = 'Selesai'; }
     $('pf-act').textContent = act;
     $('pf-name').value = prof.user.name || '';
     $('pf-wal').value = prof.user.wallet || '';
@@ -119,7 +119,7 @@
 
   function loadProfile() {
     return call('/api/profile', 'GET').then(function (r) {
-      if (r.ok && r.data && r.data.user) { prof = r.data; fillProfile(); }
+      if (r.ok && r.data && r.data.user) { prof = r.data; fillProfile(); renderMine(); }
       refreshBtn();
     }).catch(function () {});
   }
@@ -248,6 +248,163 @@
   window.addEventListener('resize', scheduleFix);
   window.addEventListener('load', scheduleFix);
   scheduleFix();
+
+
+  /* ---------- Panel Mining yang terhubung ke server ---------- */
+  var minePanel = null;
+  var STAGES = [['Genesis', 0.12], ['Halving I', 0.06], ['Halving II', 0.03], ['Halving III', 0.015]];
+  var MERR = {
+    daily_limit: 'Batas mining harian tercapai. Coba lagi besok.',
+    not_finished: 'Sesi belum selesai.',
+    no_session: 'Belum ada sesi mining.',
+    pool_empty: 'Pool reward sudah habis.',
+    not_logged_in: 'Silakan login dulu.'
+  };
+  function fmt2(n) { return Number(n || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 4 }); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function clock(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60);
+  }
+  function dt(d) {
+    try { return new Date(d).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    catch (e) { return '-'; }
+  }
+
+  var mcss = el('style');
+  mcss.textContent =
+    '.au-mine .au-l{font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}' +
+    '.au-mine .au-v{font-size:15px;font-weight:700;margin-top:2px}' +
+    '.au-mine button.btn:disabled{opacity:.45;cursor:default}' +
+    '.au-mine .au-msg{min-height:16px;margin:6px 0 2px;font-size:12px}';
+  document.head.appendChild(mcss);
+
+  function mineState() {
+    if (!prof) return 'load';
+    var a = prof.active;
+    if (a) return new Date(a.end_at) <= Date.now() ? 'ready' : 'running';
+    return prof.today_done ? 'done' : 'none';
+  }
+
+  function buildMine() {
+    var h = '';
+    h += '<div class="mrow"><div class="mlabel">Saldo tersimpan</div><div class="mlabel" id="mn-state"></div></div>';
+    h += '<div class="mbal"><span id="mn-bal">0.00</span> <small>BTW</small></div>';
+    h += '<div class="mbar"><div id="mn-bar" style="width:0%"></div></div>';
+    h += '<div class="mrow"><span id="mn-lbl">Sesi mining</span><span id="mn-pct">0%</span></div>';
+    h += '<div class="mtimer" id="mn-time">--:--:--</div>';
+    h += '<div class="mbtns"><button type="button" class="btn au-pri" id="mn-start">Mulai Mining</button>' +
+         '<button type="button" class="btn au-sec" id="mn-claim">Claim</button></div>';
+    h += '<div class="au-msg" id="mn-msg"></div>';
+    h += '<div class="mstats">' +
+         '<div class="card"><div class="au-l">Total diklaim</div><div class="au-v" id="mn-tot">0.00</div></div>' +
+         '<div class="card"><div class="au-l">Reward per sesi</div><div class="au-v" id="mn-rate">0.120</div></div>' +
+         '<div class="card"><div class="au-l">Fase aktif</div><div class="au-v" id="mn-ph">1 / 4</div></div>' +
+         '<div class="card"><div class="au-l">Pool terpakai</div><div class="au-v" id="mn-pool">0.00%</div></div></div>';
+    h += '<div class="mnote">Mining tercatat di server dan tidak hilang saat halaman dimuat ulang. Satu sesi berjalan 24 jam, klaim setelah selesai. Reward belum dikirim on-chain.</div>';
+    h += '<div class="mlabel" style="margin-top:10px">Roadmap halving</div><div id="mn-stages"></div>';
+    h += '<div class="mlabel" style="margin-top:10px">Riwayat</div><div class="mhist" id="mn-hist" style="display:block"></div>';
+    minePanel.innerHTML = h;
+    $('mn-start').addEventListener('click', function () { mineAct('start'); });
+    $('mn-claim').addEventListener('click', function () { mineAct('claim'); });
+  }
+
+  function mineMsg(t, bad) {
+    var m = $('mn-msg'); if (!m) return;
+    m.style.color = bad ? '#ff8f8f' : '#7dffa6'; m.textContent = t || '';
+  }
+
+  function mineAct(action) {
+    mineMsg('Memproses...', false);
+    api(action, 'POST').then(function (r) {
+      if (!r.ok) {
+        var c = r.data && r.data.error;
+        mineMsg(MERR[c] || ('Gagal: ' + (c || r.status)), true);
+      } else if (action === 'claim') {
+        mineMsg('Berhasil! +' + fmt(r.data && r.data.reward) + ' BTW masuk ke saldo.', false);
+      } else {
+        mineMsg('Mining dimulai. Sesi berjalan 24 jam.', false);
+      }
+      return loadProfile();
+    }).catch(function () { mineMsg('Tidak bisa terhubung ke server.', true); });
+  }
+
+  function ensureMine() {
+    var old = document.querySelector('#v-mining .mpanel:not(.au-mine)');
+    if (!old) return null;
+    if (!user) {
+      if (minePanel) { minePanel.remove(); minePanel = null; }
+      old.style.display = '';
+      return null;
+    }
+    if (old.style.display !== 'none') old.style.display = 'none';
+    if (!minePanel || !minePanel.isConnected) {
+      minePanel = el('div', { className: old.className + ' au-mine' });
+      old.parentNode.insertBefore(minePanel, old.nextSibling);
+      buildMine();
+      renderMine();
+    }
+    return minePanel;
+  }
+
+  function renderMine() {
+    if (!minePanel || !minePanel.isConnected || !$('mn-bal')) return;
+    var st = mineState();
+    var p = (prof && prof.pool) || { rate: 0.12, phase: 1, percent: 0 };
+    $('mn-bal').textContent = fmt2(prof ? prof.balance : 0);
+    $('mn-tot').textContent = fmt2(prof ? prof.balance : 0);
+    $('mn-rate').textContent = Number(p.rate).toFixed(3);
+    $('mn-ph').textContent = p.phase + ' / 4';
+    $('mn-pool').textContent = Number(p.percent).toFixed(2) + '%';
+    $('mn-state').textContent = { load: 'MEMUAT...', none: 'BELUM MULAI', running: 'MINING AKTIF', ready: 'SIAP DIKLAIM', done: 'SELESAI HARI INI' }[st];
+    var s = $('mn-start'), c = $('mn-claim');
+    s.disabled = st !== 'none';
+    c.disabled = st !== 'ready';
+    s.textContent = { load: 'Memuat...', none: 'Mulai Mining', running: 'Mining berjalan...', ready: 'Sesi selesai', done: 'Selesai hari ini' }[st];
+    $('mn-lbl').textContent = st === 'running' ? 'Sesi berjalan' : (st === 'ready' ? 'Sesi selesai' : 'Sesi mining');
+
+    var sg = $('mn-stages'); sg.innerHTML = '';
+    STAGES.forEach(function (x, i) {
+      var row = el('div', { className: 'mstage' + (i === p.phase - 1 ? ' on' : '') }, [
+        el('div', {}, [el('div', { textContent: x[0] }), el('small', { textContent: 'Alokasi 2,625,000 BTW', style: 'opacity:.7;font-size:10px' })]),
+        el('b', { textContent: x[1].toFixed(3) + ' BTW' })
+      ]);
+      sg.appendChild(row);
+    });
+
+    var hs = $('mn-hist'); hs.innerHTML = '';
+    var rows = [];
+    if (prof && prof.active) rows.push(['Sesi mining dimulai', dt(prof.active.started_at), '24 jam']);
+    if (prof) prof.history.slice(0, 6).forEach(function (x) { rows.push(['Klaim reward', dt(x.claimed_at), '+' + fmt(x.reward) + ' BTW']); });
+    if (!rows.length) rows.push(['Belum ada aktivitas', '', '']);
+    rows.forEach(function (x) {
+      hs.appendChild(el('div', { style: 'display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13px' }, [
+        el('div', {}, [el('div', { textContent: x[0] }), el('small', { textContent: x[1], style: 'opacity:.65;font-size:10px' })]),
+        el('b', { textContent: x[2] })
+      ]));
+    });
+    tickMine();
+  }
+
+  function tickMine() {
+    if (!minePanel || !$('mn-time')) return;
+    var st = mineState();
+    if (st === 'running' || st === 'ready') {
+      var a = prof.active, st0 = new Date(a.started_at).getTime(), en = new Date(a.end_at).getTime();
+      var left = en - Date.now();
+      var pct = Math.min(100, Math.max(0, ((Date.now() - st0) / (en - st0)) * 100));
+      $('mn-time').textContent = clock(left);
+      $('mn-bar').style.width = pct + '%';
+      $('mn-pct').textContent = Math.floor(pct) + '%';
+      if (st === 'running' && left <= 0) renderMine();
+    } else {
+      $('mn-time').textContent = '--:--:--';
+      $('mn-bar').style.width = st === 'done' ? '100%' : '0%';
+      $('mn-pct').textContent = st === 'done' ? '100%' : '0%';
+    }
+  }
+
+  setInterval(function () { if (ensureMine()) tickMine(); }, 1000);
 
   /* ---------- Mulai: cek sesi yang sudah ada ---------- */
   refreshBtn();
