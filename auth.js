@@ -407,8 +407,9 @@
   setInterval(function () { if (ensureMine()) tickMine(); }, 1000);
 
   /* ---------- Mulai: cek sesi yang sudah ada ---------- */
-  refreshBtn();
+    refreshBtn();
   api('me', 'GET').then(function (r) {
     if (r.ok) { user = pickUser(r.data); refreshBtn(); if (user) loadProfile(); }
+    return call('/api/profile?a=migrate', 'GET');
   }).catch(function () {});
 })();
