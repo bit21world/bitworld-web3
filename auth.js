@@ -49,14 +49,25 @@
   function bridgeAuth(b) {
     var u = String(b.username || b.email || b.user || '').trim(), p = String(b.password || '');
     var registered = false;
-    return api('login', 'POST', { username: u, password: p }).then(function (r) {
-      if (r.ok || r.status >= 500) return r;
-      return api('register', 'POST', { username: u, password: p, name: b.name || u }).then(function (r2) {
-        if (r2.ok) { registered = true; return r2; }
-        if (r2.data && r2.data.error === 'username_taken') return r;
-        return r2;
+    var act = String(b.action || '').toLowerCase();
+    var first;
+    if (act === 'register') {
+      first = api('register', 'POST', { username: u, password: p, name: b.name || u }).then(function (r) {
+        registered = !!r.ok; return r;
       });
-    }).then(function (r) {
+    } else if (act === 'login') {
+      first = api('login', 'POST', { username: u, password: p });
+    } else {
+      first = api('login', 'POST', { username: u, password: p }).then(function (r) {
+        if (r.ok || r.status >= 500) return r;
+        return api('register', 'POST', { username: u, password: p, name: b.name || u }).then(function (r2) {
+          if (r2.ok) { registered = true; return r2; }
+          if (r2.data && r2.data.error === 'username_taken') return r;
+          return r2;
+        });
+      });
+    }
+    return first.then(function (r) {
       if (r.ok) {
         user = pickUser(r.data) || { username: u };
         // Update tampilan dibungkus sendiri: error di sini TIDAK boleh membuat login tampak gagal
