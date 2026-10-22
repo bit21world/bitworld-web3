@@ -50,7 +50,12 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
 <body>
 <header>
   <div class="brand"><div class="mark">BTW</div><div>BTW MINING<div class="label" style="margin-top:3px">Community mining</div></div></div>
-  <div class="tag">BNB Smart Chain · Simulasi</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div id="userHeaderInfo" style="font-size:13px; background:#1f221a; border:1px solid var(--border); padding:6px 12px; border-radius:10px;">
+      Halo, <strong id="displayUsername" style="color:var(--gold)">juan17</strong> | KYC: <span id="displayKycStatus" style="color:#8fd6a1">APPROVED</span>
+    </div>
+    <div class="tag">BNB Smart Chain</div>
+  </div>
 </header>
 
 <main>
@@ -59,13 +64,8 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
     <a href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener" style="color:var(--gold);font-weight:800;font-size:13px;text-decoration:none">Cek di BscScan ↗</a>
   </div>
 
-  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-    <div><div class="label">Profil</div><strong id="pName">Guest</strong><p id="pInfo" style="margin:4px 0 0">Belum ada profil. Buat untuk memulai.</p></div>
-    <button id="btnProfile">Buat / Edit Profil</button>
-  </div>
-
   <h1>Mine together.<br><span>Build the BTW future.</span></h1>
-  <p>Mining internal: 0,12 BTW per sesi 24 jam di fase awal. Alokasi komunitas 10.500.000 BTW dibagi 4 fase, dan rate turun di setiap fase berikutnya.</p>
+  <p>Mining internal: 0,12 BTW per sesi 24 jam di fase awal. Alokasi komunitas 10.500.000 BTW dibagi 4 fase.</p>
 
   <div class="grid" style="margin-top:18px">
     <div class="panel">
@@ -84,7 +84,6 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
         <div class="stat"><span class="label">Fase aktif</span><b id="phase">1 / 4</b></div>
         <div class="stat"><span class="label">Pool terpakai</span><b id="poolUsed">0%</b></div>
       </div>
-      <div class="notice">Simulasi di browser. Reward belum dikirim on-chain, dan koneksi wallet masih segera hadir. Refresh halaman akan mengulang sesi dan saldo.</div>
     </div>
 
     <div class="panel">
@@ -92,36 +91,19 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
       <div id="stages"></div>
     </div>
   </div>
-
-  <div class="panel" style="margin-top:16px">
-    <div class="label">Riwayat</div>
-    <div id="hist" style="margin-top:10px"><p>Belum ada aktivitas.</p></div>
-  </div>
 </main>
-
-<div class="modal" id="modal">
-  <div class="card">
-    <h3 style="margin:0 0 8px">Profil BTW</h3>
-    <input id="inName" maxlength="70" placeholder="Nama lengkap">
-    <input id="inUser" maxlength="24" placeholder="Nama pengguna (3–24 karakter)">
-    <input id="inWallet" maxlength="42" placeholder="Alamat wallet BSC (opsional, 0x...)">
-    <p style="font-size:11px">Masukkan alamat publik saja. Jangan pernah memasukkan seed phrase atau private key.</p>
-    <div class="row"><button id="btnCancel">Batal</button><button class="primary" id="btnSave">Simpan</button></div>
-  </div>
-</div>
 <div class="toast" id="toast"></div>
 
+<script src="auth.js"></script>
 <script>
 (() => {
-  // Konfigurasi. GLOBAL_CLAIMED harus diisi dari server atau kontrak (total klaim seluruh pengguna),
-  // bukan dari browser. Nilai 0 di sini hanya placeholder.
   const SESSION_MS = 24 * 60 * 60 * 1000;
   const POOL_TOTAL = 10500000;
-  const PHASE_SIZE = POOL_TOTAL / 4;            // 2.625.000 BTW per fase
+  const PHASE_SIZE = POOL_TOTAL / 4;
   const RATES = [0.12, 0.06, 0.03, 0.015];
   let GLOBAL_CLAIMED = 0;
 
-  const st = { running: false, done: false, endAt: 0, balance: 0, claimed: 0, lastDay: '', profile: null, hist: [] };
+  const st = { running: false, done: false, endAt: 0, balance: 0, claimed: 0, lastDay: '', hist: [] };
   const $ = id => document.getElementById(id);
   const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   const today = () => new Date().toISOString().slice(0, 10);
@@ -134,7 +116,6 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
   }
   function log(title, amount) {
     st.hist.unshift({ title, amount, time: new Date().toLocaleString('id-ID') });
-    renderHist();
   }
   function renderStages() {
     const p = phase();
@@ -152,19 +133,6 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
       rt.textContent = fmt(r, 3) + ' BTW';
       d.append(left, rt);
       box.append(d);
-    });
-  }
-  function renderHist() {
-    const box = $('hist'); box.textContent = '';
-    if (!st.hist.length) {
-      const p = document.createElement('p'); p.textContent = 'Belum ada aktivitas.'; box.append(p); return;
-    }
-    st.hist.forEach(h => {
-      const r = document.createElement('div'); r.className = 'hist';
-      const a = document.createElement('div'); a.textContent = h.title;
-      const s = document.createElement('small'); s.textContent = h.time; a.append(s);
-      const b = document.createElement('span'); b.className = 'ok'; b.textContent = h.amount;
-      r.append(a, b); box.append(r);
     });
   }
   function render() {
@@ -219,28 +187,13 @@ input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);
     toast('Reward dicatat (simulasi).');
   };
 
-  // Profil hanya di memori halaman ini. Akun sungguhan memerlukan backend.
-  $('btnProfile').onclick = () => {
-    $('inName').value = st.profile ? st.profile.name : '';
-    $('inUser').value = st.profile ? st.profile.user : '';
-    $('inWallet').value = st.profile ? st.profile.wallet : '';
-    $('modal').classList.add('show');
-  };
-  $('btnCancel').onclick = () => $('modal').classList.remove('show');
-  $('btnSave').onclick = () => {
-    const name = $('inName').value.trim();
-    const user = $('inUser').value.trim().replace(/^@+/, '');
-    const wallet = $('inWallet').value.trim();
-    if (!/^[a-zA-Z0-9_.-]{3,24}$/.test(user)) { toast('Nama pengguna harus 3–24 karakter (huruf, angka, . _ -).'); return; }
-    if (wallet && !/^0x[a-fA-F0-9]{40}$/.test(wallet)) { toast('Format alamat wallet BSC tidak valid.'); return; }
-    st.profile = { name, user, wallet };
-    $('pName').textContent = name || user;
-    $('pInfo').textContent = '@' + user + (wallet ? ' · ' + wallet.slice(0, 6) + '…' + wallet.slice(-4) : ' · wallet belum ditautkan');
-    $('modal').classList.remove('show');
-    toast('Profil disimpan untuk sesi ini.');
-  };
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadProfile === 'function') {
+      loadProfile();
+    }
+  });
 
-  renderHist(); render(); tick();
+  render(); tick();
   setInterval(tick, 1000);
 })();
 </script>
