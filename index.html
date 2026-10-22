@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -106,4 +105,535 @@ nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!impo
 .btn.primary:active{box-shadow:0 1px 0 #a16207!important}
 .wpmenu button{background:linear-gradient(180deg,#2b5bd6,#1a3f9e)!important;color:#dbe7ff!important;border:none!important;border-radius:999px!important;box-shadow:0 4px 0 #0a1f5c,0 8px 14px rgba(0,0,0,.35)!important;padding:7px 12px!important}
 .wpmenu button.on{background:linear-gradient(180deg,#67e8f9,#22d3ee)!important;color:#021318!important;box-shadow:0 4px 0 #0e7490,0 10px 16px rgba(34,211,238,.35)!important}
-.wpmenu button:active
+.wpmenu button:active{transform:translateY(3px)!important}
+.stats .card .value{text-shadow:0 2px 0 rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<header>
+  <div class="brand">BTW</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn primary" id="btn-account-modal" type="button" style="padding:6px 12px;font-size:12px">Login / Daftar</button>
+    <div class="lang" role="group" aria-label="Bahasa">
+      <button id="lang-id" class="on" type="button">ID</button>
+      <button id="lang-en" type="button">EN</button>
+    </div>
+  </div>
+</header>
+
+<nav class="bottom" aria-label="Menu utama">
+  <button type="button" data-go="home" id="n-home"></button>
+  <button type="button" data-go="wp" id="n-wp"></button>
+  <button type="button" data-go="vision" id="n-vision"></button>
+  <button type="button" data-go="team" id="n-team"></button>
+  <button type="button" data-go="token" id="n-token"></button>
+  <button type="button" data-go="contract" id="n-contract"></button>
+  <button type="button" data-go="faq" id="n-faq"></button>
+  <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
+  <button type="button" data-go="social" id="n-soc">&#128172; Sosial</button>
+  <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
+  <button type="button" data-go="mining" id="n-mining">&#9935; Mining</button>
+</nav>
+
+<main>
+  <!-- BERANDA -->
+  <section class="view active" id="v-home">
+    <span class="badge" data-i18n="badge">BEP-20 • BNB SMART CHAIN</span>
+    <h1 id="title">Bitworld</h1>
+    <p class="tagline" data-i18n="tagline"></p>
+    <div class="stats">
+      <div class="card"><div class="label" data-i18n="s_symbol"></div><div class="value gold">BTW</div></div>
+      <div class="card"><div class="label" data-i18n="s_supply"></div><div class="value gold" id="supply">21.000.000</div></div>
+      <div class="card"><div class="label" data-i18n="s_network"></div><div class="value">BSC</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" type="button" data-go="wp" data-i18n="b_wp"></button>
+      <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
+    </div>
+    <p class="warnhome tagline muted" data-i18n="warn_short"></p>
+  </section>
+
+  <!-- WHITEPAPER -->
+  <section class="view" id="v-wp">
+    <div class="wpmenu" id="wpmenu"></div>
+    <div class="panel" id="wpbody"></div>
+    <div class="wpnav">
+      <button class="btn" type="button" id="wpPrev" data-i18n="prev"></button>
+      <span id="wpCount"></span>
+      <button class="btn primary" type="button" id="wpNext" data-i18n="next"></button>
+    </div>
+  </section>
+
+  <!-- VISI & MISI -->
+  <section class="view" id="v-vision">
+    <div class="panel" id="visionBody"></div>
+  </section>
+
+  <!-- TIM -->
+  <section class="view" id="v-team">
+    <div class="panel" style="text-align:center">
+      <h2 id="teamTitle"></h2>
+      <img src="juan.png" alt="Juan" style="width:132px;height:132px;border-radius:50%;margin:6px auto 10px;object-fit:cover;border:3px solid var(--accent);box-shadow:0 8px 20px rgba(0,0,0,.45);display:block" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22132%22 height=%22132%22 viewBox=%220 0 132 132%22><rect width=%22132%22 height=%22132%22 fill=%22%23a56e19%22/><text x=%2250%%22 y=%2255%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2250%22 font-weight=%22bold%22 fill=%22%23fff%22>J</text></svg>';">
+      <p style="font-size:20px;font-weight:800;margin-bottom:2px">Juan</p>
+      <p class="gold" id="teamRole" style="font-weight:700"></p>
+      <p class="muted" id="teamNote" style="font-size:12px;margin-top:10px"></p>
+    </div>
+  </section>
+
+  <!-- TOKEN -->
+  <section class="view" id="v-token">
+    <div class="panel" id="tokenBody"></div>
+  </section>
+
+  <!-- KONTRAK -->
+  <section class="view" id="v-contract">
+    <div class="panel" id="contractBody"></div>
+    <div class="actions">
+      <button class="btn primary" type="button" id="copyBtn" data-i18n="copy"></button>
+      <a class="btn" id="bscLink" target="_blank" rel="noopener noreferrer" data-i18n="bscscan"></a>
+    </div>
+  </section>
+
+  <!-- SOSIAL -->
+  <section class="view" id="v-social">
+    <div class="panel" id="socialBody"></div>
+  </section>
+
+  <!-- BERITA -->
+  <section class="view" id="v-news">
+    <div class="panel" id="newsBody"></div>
+  </section>
+
+  <!-- AMBASSADOR (terkunci) -->
+  <section class="view" id="v-ambassador">
+    <div class="panel" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:6px">&#128274;</div>
+      <h2>Program Ambassador</h2>
+      <p><span class="badge2" style="display:inline-block;margin:6px 0">SEGERA HADIR</span></p>
+      <p class="muted">Program ini belum dibuka. Aturan resminya akan diumumkan di kanal resmi Bitworld sebelum pendaftaran dibuka.</p>
+      <p class="muted">Tidak ada pendaftaran, pembayaran, atau janji hasil sebelum aturan resmi diumumkan.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="view" id="v-faq">
+    <div class="panel" id="faqBody"></div>
+  </section>
+
+  <!-- MINING -->
+  <section class="view" id="v-mining">
+    <div class="mpanel">
+      <div class="mrow"><span class="mlabel">Reward tersimpan</span><span id="m-pill" class="mlabel">Belum aktif</span></div>
+      <div class="mbal"><span id="m-balance">0.00</span> <small>BTW</small></div>
+      <div class="mbar"><div id="m-bar"></div></div>
+      <div class="mrow"><span id="m-sess">Sesi belum dimulai</span><span id="m-pct">0%</span></div>
+      <div class="mtimer" id="m-timer">24:00:00</div>
+      <div class="mbtns">
+        <button class="btn primary" type="button" id="m-start">&#9654; Start Mining</button>
+        <button class="btn" type="button" id="m-claim" disabled>Claim</button>
+      </div>
+      <div class="mstats">
+        <div class="card"><div class="label">Total diklaim</div><div class="value" id="m-claimed">0.00</div></div>
+        <div class="card"><div class="label">Reward per sesi</div><div class="value" id="m-rate">0.120</div></div>
+        <div class="card"><div class="label">Fase aktif</div><div class="value" id="m-phase">1 / 4</div></div>
+        <div class="card"><div class="label">Pool terpakai</div><div class="value" id="m-pool">0%</div></div>
+      </div>
+      <p class="mnote">Simulasi di browser. Reward belum dikirim on-chain. Refresh halaman akan mengulang sesi dan saldo.</p>
+      <div class="mlabel" style="margin-top:12px">Roadmap halving</div>
+      <div id="m-stages"></div>
+      <div class="mlabel" style="margin-top:12px">Riwayat</div>
+      <div id="m-hist"><p class="mnote">Belum ada aktivitas.</p></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL AKUN & LOGIN -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h3 id="modalTitle">Masuk Akun</h3>
+      <button type="button" id="closeModal" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">&times;</button>
+    </div>
+
+    <!-- TAMPILAN BELUM LOGIN -->
+    <div id="sec-login">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="acc-user" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="acc-pass" placeholder="Masukkan password">
+      </div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn primary" id="btn-do-login" type="button" style="width:100%">Masuk</button>
+      </div>
+    </div>
+
+    <!-- TAMPILAN SUDAH LOGIN (PROFIL & KYC) -->
+    <div id="sec-profile" style="display:none">
+      <p style="font-size:13px;margin-bottom:4px">Selamat datang,</p>
+      <h2 id="prof-username" class="gold" style="font-size:20px;margin-bottom:12px">Juan17</h2>
+      
+      <div class="form-group">
+        <label>Status KYC</label>
+        <div>
+          <span class="status-badge status-unverified" id="kycStatusBadge">🔴 Belum Verifikasi</span>
+        </div>
+      </div>
+
+      <div id="kyc-action-area" style="margin-top:16px">
+        <button class="btn primary" id="btn-open-kyc-form" type="button" style="width:100%;font-size:13px">
+          📋 Lengkapi Verifikasi KYC
+        </button>
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+      <button class="btn" id="btn-do-logout" type="button" style="width:100%;color:#ef4444;border-color:rgba(239,68,68,0.4)">
+        Keluar (Logout)
+      </button>
+    </div>
+
+    <!-- FORM PENGISIAN KYC -->
+    <div id="sec-kyc-form" style="display:none">
+      <h4 style="color:var(--accent2);margin-bottom:12px">Formulir Verifikasi Identitas</h4>
+      <form id="formKyc">
+        <div class="form-group">
+          <label>Nama Lengkap (Sesuai KTP)</label>
+          <input type="text" id="kyc-fullname" required placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label>Nomor NIK / Paspor</label>
+          <input type="text" id="kyc-docnum" required placeholder="Nomor ID">
+        </div>
+        <div class="form-group">
+          <label>Unggah Foto Identitas (KTP/Paspor)</label>
+          <input type="file" id="kyc-docfile" accept="image/*" required style="font-size:11px">
+        </div>
+        <div class="form-group">
+          <label>Unggah Foto Selfie dengan ID</label>
+          <input type="file" id="kyc-selfiefile" accept="image/*" required style="font-size:11px">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn" id="btn-back-prof" type="button" style="flex:1">Batal</button>
+          <button class="btn primary" type="submit" style="flex:1">Kirim KYC</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ================= DATA & LOGIC UTAMA ================= */
+var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
+var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
+var lang = "id";
+
+var UI = {
+  id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
+  en: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"A Layer 2 project on the BSC network with the BTW token. Learn about Bitworld's vision, whitepaper, and contract.", s_symbol:"Symbol", s_supply:"Supply", s_network:"Network", b_wp:"Read Whitepaper", b_contract:"View Contract", warn_short:"Not investment advice. DYOR.", prev:"← Previous", next:"Next →", copy:"Copy Address", bscscan:"Open BscScan", copied:"Address copied", copyfail:"Copy failed", n_home:"Home", n_wp:"Whitepaper", n_vision:"Vision", n_token:"Token", n_contract:"Contract", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21,000,000","BSC Network","BEP-20","Layer 2 BSC","DYOR"]}
+};
+
+var WP = [
+  {t:{id:"Ringkasan",en:"Summary"},b:{id:["Bitworld (BTW) adalah token BEP-20 yang berjalan di BNB Smart Chain (BSC). Proyek ini dirancang sebagai solusi Layer 2 dengan tujuan menghadirkan transaksi yang lebih cepat dan biaya yang lebih terjangkau.","Whitepaper ini menjelaskan masalah yang ingin diselesaikan, pendekatan teknis, struktur token, dan orientasi jangka panjang Bitworld."],en:["Bitworld (BTW) is a BEP-20 token running on BNB Smart Chain (BSC). The project is designed as a Layer 2 solution aiming to deliver faster transactions and more affordable fees.","This whitepaper outlines the problem being addressed, the technical approach, the token structure, and Bitworld's long-term direction."]}},
+  {t:{id:"Masalah",en:"Problem"},b:{id:["Pengguna dan pengembang sering menghadapi biaya transaksi yang tidak stabil serta proses yang rumit saat berinteraksi dengan aplikasi terdesentralisasi."],en:["Users and developers often face unstable transaction fees and complicated processes when interacting with decentralized applications."]}},
+  {t:{id:"Solusi",en:"Solution"},b:{id:["Bitworld menyediakan lapisan kedua di atas jaringan BSC untuk mendukung aplikasi dengan pengalaman yang lebih sederhana."],en:["Bitworld provides a second layer on top of the BSC network to support applications with a simpler user experience."]}},
+  {t:{id:"Teknologi",en:"Technology"},b:{id:["Token BTW mengikuti standar BEP-20 dan berjalan di BNB Smart Chain.","Alamat smart contract resmi token BTW:"],en:["The BTW token follows the BEP-20 standard and runs on BNB Smart Chain.","Official BTW token smart contract address:"]},code:true},
+  {t:{id:"Detail Token",en:"Token Details"},table:true},
+  {t:{id:"Tokenomics",en:"Tokenomics"},b:{id:["Total suplai tetap sebesar 21.000.000 BTW.","Kontrak BTW tidak memiliki fungsi mint, burn, atau pause."],en:["The fixed total supply is 21,000,000 BTW.","The BTW contract has no mint, burn, or pause functions."]}},
+  {t:{id:"Tata Kelola",en:"Governance"},b:{id:["Keputusan penting proyek akan dikomunikasikan melalui kanal resmi."],en:["Important project decisions will be communicated through official channels."]}},
+  {t:{id:"Roadmap",en:"Roadmap"},b:{id:["Fase 1, Fondasi: token, kontrak, dan dokumentasi publik.","Fase 2, Pertumbuhan: pengembangan aplikasi.","Fase 3, Keberlanjutan: penguatan tata kelola."],en:["Phase 1, Foundation: token, contract.","Phase 2, Growth: application development.","Phase 3, Sustainability: governance."]}},
+  {t:{id:"Risiko",en:"Risks"},b:{id:["Kripto memiliki risiko tinggi, termasuk kemungkinan kehilangan nilai secara total."],en:["Crypto carries high risk, including the possibility of total loss of value."]}}
+];
+
+var VISION = {
+  vis:{id:"Menjadi infrastruktur Layer 2 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.",en:"To become a trusted Layer 2 infrastructure on BNB Smart Chain, offering a simple experience for all users over the long term."},
+  mis:{id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang."],en:["Provide fast transactions and affordable fees.","Build open documentation and tools for developers."]},
+  lt:{id:"Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek.",en:"Long-term focus: building a sustainable project, not short-term gains."}
+};
+
+var FAQ = [
+  {q:{id:"Apa itu BTW?",en:"What is BTW?"},a:{id:"BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld.",en:"BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem."}},
+  {q:{id:"Apakah ada airdrop?",en:"Is there an airdrop?"},a:{id:"Belum ada pengumuman airdrop resmi. Informasi hanya berasal dari kanal resmi proyek.",en:"No official airdrop has been announced."}}
+];
+
+var wpIndex = 0;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function toast(msg){
+  var t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1600);
+}
+
+function applyUI(){
+  var u = UI[lang];
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    var k = el.getAttribute("data-i18n");
+    if (u[k] !== undefined && typeof u[k] === "string") el.textContent = u[k];
+  });
+  $("n-home").textContent = u.n_home;
+  $("n-wp").textContent = u.n_wp;
+  $("n-vision").textContent = u.n_vision;
+  $("n-token").textContent = u.n_token;
+  $("n-contract").textContent = u.n_contract;
+  $("n-faq").textContent = u.n_faq;
+  $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
+  $("n-team").innerHTML = "&#128100; " + (lang === "id" ? "Tim" : "Team");
+  $("teamTitle").textContent = lang === "id" ? "Tim Bitworld" : "Bitworld Team";
+  $("teamRole").textContent = lang === "id" ? "Pendiri, CEO & Pengembang Utama" : "Founder, CEO & Lead Developer";
+  $("teamNote").textContent = lang === "id" ? "Anggota tim lain akan diumumkan di kanal resmi setelah bergabung." : "Other team members will be announced on official channels once they join.";
+  $("n-soc").innerHTML = "&#128172; " + (lang === "id" ? "Sosial" : "Social");
+  $("lang-id").classList.toggle("on", lang === "id");
+  $("lang-en").classList.toggle("on", lang === "en");
+  $("track").innerHTML = (function(){
+    var h = u.ticker.map(function(t){ return "<span>" + t.replace(/^(\S+)/, "<b>$1</b>") + "</span>"; }).join("");
+    return h + h;
+  })();
+  document.documentElement.lang = lang;
+  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews(); renderSocial();
+}
+
+function renderWP(){
+  var html = "";
+  WP.forEach(function(s, i){ html += '<button type="button" data-wp="' + i + '" class="' + (i === wpIndex ? "on" : "") + '">' + esc(s.t[lang]) + '</button>'; });
+  $("wpmenu").innerHTML = html;
+  var s = WP[wpIndex], body = "<h2>" + esc(s.t[lang]) + "</h2>";
+  if (s.table) {
+    var rows = [["Nama","Bitworld"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Smart contract",CONTRACT]];
+    body += "<table>" + rows.map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table>";
+  } else {
+    (s.b[lang] || []).forEach(function(p){ body += "<p>" + esc(p) + "</p>"; });
+    if (s.code) body += '<div class="mono">' + esc(CONTRACT) + "</div>";
+  }
+  $("wpbody").innerHTML = body;
+  $("wpCount").textContent = (wpIndex + 1) + " / " + WP.length;
+  $("wpPrev").disabled = wpIndex === 0;
+  $("wpNext").disabled = wpIndex === WP.length - 1;
+}
+
+function renderVision(){
+  var h = "<h2>" + (lang === "id" ? "Visi" : "Vision") + "</h2><p>" + esc(VISION.vis[lang]) + "</p>";
+  h += "<h2 style='margin-top:12px'>" + (lang === "id" ? "Misi" : "Mission") + "</h2><ul class='list'>";
+  VISION.mis[lang].forEach(function(m){ h += "<li>" + esc(m) + "</li>"; });
+  h += "</ul><p class='muted' style='margin-top:12px'>" + esc(VISION.lt[lang]) + "</p>";
+  $("visionBody").innerHTML = h;
+}
+
+function renderToken(){
+  var isId = lang === "id";
+  var cats = [
+    {n:isId?"Komunitas":"Community", p:50, c:"#f5b82e"},
+    {n:isId?"Tim":"Team", p:15, c:"#22d3ee"},
+    {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
+    {n:isId?"Likuiditas":"Liquidity", p:10, c:"#34d399"},
+    {n:isId?"Pemasaran":"Marketing", p:10, c:"#fb7185"},
+    {n:isId?"Cadangan":"Reserve", p:5, c:"#94a3b8"}
+  ];
+  var total = 21000000, grad = [], acc = 0;
+  cats.forEach(function(c){ var from = acc; acc += c.p; grad.push(c.c + " " + from + "% " + acc + "%"); });
+  var h = "<h2>Tokenomics</h2>";
+  h += "<div style='display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap'>";
+  h += "<div style='width:120px;height:120px;border-radius:50%;background:conic-gradient(" + grad.join(",") + ");position:relative;flex-shrink:0'>";
+  h += "<div style='position:absolute;inset:26px;border-radius:50%;background:#0c1120;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#8a94a8'>";
+  h += "<b style='font-size:13px;color:#f5b82e'>21 JT</b>BTW</div></div>";
+  h += "<table style='width:auto;flex:1;min-width:200px'>";
+  cats.forEach(function(c){
+    var amt = Math.round(total * c.p / 100).toLocaleString("id-ID");
+    h += "<tr><td style='width:auto;color:" + c.c + ";font-weight:700'>" + esc(c.n) + "</td><td>" + c.p + "%</td><td>" + amt + "</td></tr>";
+  });
+  h += "</table></div>";
+  $("tokenBody").innerHTML = h;
+}
+
+function renderContract(){
+  var h = "<h2>Smart Contract</h2><p>Alamat resmi token BTW di BNB Smart Chain:</p>";
+  h += "<div class='mono'>" + esc(CONTRACT) + "</div>";
+  $("contractBody").innerHTML = h;
+  $("bscLink").href = BSCSCAN;
+}
+
+function renderSocial(){
+  var list = [
+    {i:"𝕏", n:"X (Twitter)", u:"https://x.com/bitworld_btw"},
+    {i:"✈", n:"Telegram", u:"https://t.me/bitworld_btw"},
+    {i:"🌐", n:"Website", u:"https://bitworld-btw.vercel.app"}
+  ];
+  var h = "<h2>Kanal Resmi</h2>";
+  list.forEach(function(c){
+    h += "<a class='btn' style='display:flex;gap:12px;align-items:center;margin-bottom:10px' href='" + c.u + "' target='_blank' rel='noopener noreferrer'><span>" + c.i + "</span><b>" + esc(c.n) + "</b></a>";
+  });
+  $("socialBody").innerHTML = h;
+}
+
+function renderNews(){
+  $("newsBody").innerHTML = "<h2>Berita & Pengumuman</h2><p><span class='gold'>20 Okt 2026</span><br>Website Bitworld (BTW) dan whitepaper resmi dirilis.</p>";
+}
+
+function renderFAQ(){
+  var h = "<h2>FAQ</h2>";
+  FAQ.forEach(function(f){ h += "<p><strong>" + esc(f.q[lang]) + "</strong><br><span class='muted'>" + esc(f.a[lang]) + "</span></p>"; });
+  $("faqBody").innerHTML = h;
+}
+
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", team:"v-team", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news", social:"v-social", mining:"v-mining"};
+function go(name){
+  if (!VIEWS[name]) name = "home";
+  Object.keys(VIEWS).forEach(function(k){ $(VIEWS[k]).classList.toggle("active", k === name); });
+  document.querySelectorAll("nav.bottom button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-go") === name); });
+  if (history.replaceState) history.replaceState(null, "", "#" + name);
+  window.scrollTo(0,0);
+}
+
+document.addEventListener("click", function(e){
+  var t = e.target.closest("[data-go]");
+  if (t) { e.preventDefault(); go(t.getAttribute("data-go")); return; }
+  var w = e.target.closest("[data-wp]");
+  if (w) { wpIndex = parseInt(w.getAttribute("data-wp"), 10) || 0; renderWP(); }
+});
+$("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
+$("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
+$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
+$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
+
+/* LOGIC MODAL LOGIN & VERIFIKASI KYC */
+var currentUser = null;
+
+$("btn-account-modal").addEventListener("click", function(){
+  $("accountModal").classList.add("active");
+});
+$("closeModal").addEventListener("click", function(){
+  $("accountModal").classList.remove("active");
+});
+
+$("btn-do-login").addEventListener("click", function(){
+  var u = $("acc-user").value, p = $("acc-pass").value;
+  if (!u || !p) { toast("Isi username & password"); return; }
+  
+  // Memanggil API /api/auth untuk login nyata ke Neon
+  fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'login', username: u, password: p })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      currentUser = { username: data.user.username, kycStatus: data.user.kyc_status || 'UNVERIFIED' };
+      updateUserUI();
+      toast("Berhasil masuk!");
+    } else {
+      toast("Gagal: " + data.message);
+    }
+  })
+  .catch(err => toast("Gagal terhubung ke server"));
+});
+
+$("btn-do-logout").addEventListener("click", function(){
+  currentUser = null;
+  updateUserUI();
+  toast("Berhasil keluar");
+});
+
+$("btn-open-kyc-form").addEventListener("click", function(){
+  $("sec-profile").style.display = "none";
+  $("sec-kyc-form").style.display = "block";
+  $("modalTitle").textContent = "Verifikasi KYC";
+});
+
+$("btn-back-prof").addEventListener("click", function(){
+  $("sec-kyc-form").style.display = "none";
+  $("sec-profile").style.display = "block";
+  $("modalTitle").textContent = "Profil Akun";
+});
+
+// SUBMIT KYC
+$("formKyc").addEventListener("submit", function(e){
+  e.preventDefault();
+  
+  var name = $("kyc-fullname").value;
+  var doc = $("kyc-docnum").value;
+  var docFile = $("kyc-docfile").files[0];
+  var selfieFile = $("kyc-selfiefile").files[0];
+
+  if (!docFile || !selfieFile) {
+    toast("Mohon unggah kedua foto");
+    return;
+  }
+
+  Promise.all([toBase64(docFile), toBase64(selfieFile)]).then(function(images){
+    fetch('/api/kyc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: name,
+        docNumber: doc,
+        docImage: images[0],
+        selfieImage: images[1]
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        currentUser.kycStatus = 'PENDING';
+        updateUserUI();
+        $("sec-kyc-form").style.display = "none";
+        $("sec-profile").style.display = "block";
+        toast("KYC Berhasil Dikirim!");
+      } else {
+        toast("Gagal: " + data.message);
+      }
+    })
+    .catch(err => toast("Error pengiriman KYC"));
+  });
+});
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+function updateUserUI(){
+  if (currentUser) {
+    $("btn-account-modal").textContent = currentUser.username;
+    $("sec-login").style.display = "none";
+    $("sec-profile").style.display = "block";
+    $("prof-username").textContent = currentUser.username;
+    
+    var badge = $("kycStatusBadge");
+    if (currentUser.kycStatus === 'PENDING') {
+      badge.className = "status-badge status-pending";
+      badge.textContent = "🟡 Menunggu Peninjauan";
+      $("kyc-action-area").style.display = "none";
+    } else if (currentUser.kycStatus === 'VERIFIED') {
+      badge.className = "status-badge status-verified";
+      badge.textContent = "🟢 Terverifikasi";
+      $("kyc-action-area").style.display = "none";
+    } else {
+      badge.className = "status-badge status-unverified";
+      badge.textContent = "🔴 Belum Verifikasi";
+      $("kyc-action-area").style.display = "block";
+    }
+  } else {
+    $("btn-account-modal").textContent = "Login / Daftar";
+    $("sec-login").style.display = "block";
+    $("sec-profile").style.display = "none";
+    $("sec-kyc-form").style.display = "none";
+  }
+}
+
+applyUI();
+go("home");
+</script>
+</body>
+</html>
