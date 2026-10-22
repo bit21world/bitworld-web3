@@ -25,7 +25,7 @@ function setup() {
     await sql`CREATE TABLE IF NOT EXISTS pool (id INT PRIMARY KEY, claimed NUMERIC(30,8) NOT NULL DEFAULT 0)`;
     await sql`INSERT INTO pool (id, claimed) VALUES (1, 0) ON CONFLICT (id) DO NOTHING`;
     await sql`CREATE TABLE IF NOT EXISTS mining_sessions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, day DATE NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT now(), end_at TIMESTAMPTZ NOT NULL, claimed_at TIMESTAMPTZ, reward NUMERIC(30,8), phase INT, UNIQUE (user_id, day))`;
-    await sql`CREATE TABLE IF NOT EXISTS kyc_submissions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, full_name TEXT NOT NULL, doc_number TEXT NOT NULL, doc_image TEXT NOT NULL, selfie_image TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', note TEXT, submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), reviewed_at TIMESTAMPTZ)`;
+    await sql`CREATE TABLE IF NOT EXISTS bw_kyc_submissions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, full_name TEXT NOT NULL, doc_number TEXT NOT NULL, doc_image TEXT NOT NULL, selfie_image TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', note TEXT, submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), reviewed_at TIMESTAMPTZ)`;
   })().catch(err => { ready = null; throw err; });
   return ready;
 }
@@ -128,7 +128,7 @@ async function me(req, res) {
 async function kycStatus(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const r = (await sql`SELECT status, note, submitted_at, reviewed_at FROM kyc_submissions WHERE user_id = ${u.id}`)[0];
+  const r = (await sql`SELECT status, note, submitted_at, reviewed_at FROM bw_kyc_submissions WHERE user_id = ${u.id}`)[0];
   if (!r) return res.json({ status: 'none' });
   return res.json({ status: r.status, note: r.note || '', submitted_at: r.submitted_at, reviewed_at: r.reviewed_at });
 }
@@ -147,16 +147,16 @@ async function kycSubmit(req, res) {
   if (docImage.length > IMG_MAX || !IMG_RE.test(docImage)) return res.status(400).json({ error: 'doc_image_invalid' });
   if (selfieImage.length > IMG_MAX || !IMG_RE.test(selfieImage)) return res.status(400).json({ error: 'selfie_image_invalid' });
 
-  const rows = await sql`INSERT INTO kyc_submissions (user_id, full_name, doc_number, doc_image, selfie_image)
+  const rows = await sql`INSERT INTO bw_kyc_submissions (user_id, full_name, doc_number, doc_image, selfie_image)
                          VALUES (${u.id}, ${fullName}, ${docNumber}, ${docImage}, ${selfieImage})
                          ON CONFLICT (user_id) DO UPDATE SET
                            full_name = EXCLUDED.full_name, doc_number = EXCLUDED.doc_number,
                            doc_image = EXCLUDED.doc_image, selfie_image = EXCLUDED.selfie_image,
                            status = 'pending', note = NULL, submitted_at = now(), reviewed_at = NULL
-                         WHERE kyc_submissions.status = 'rejected'
+                         WHERE bw_kyc_submissions.status = 'rejected'
                          RETURNING id`;
   if (!rows.length) {
-    const ex = (await sql`SELECT status FROM kyc_submissions WHERE user_id = ${u.id}`)[0];
+    const ex = (await sql`SELECT status FROM bw_kyc_submissions WHERE user_id = ${u.id}`)[0];
     return res.status(409).json({ error: ex && ex.status === 'verified' ? 'already_verified' : 'already_pending' });
   }
   return res.status(201).json({ status: 'pending' });
@@ -167,7 +167,7 @@ async function kycList(req, res) {
   const status = ['pending', 'verified', 'rejected'].includes(req.query?.status) ? req.query.status : 'pending';
   const rows = await sql`SELECT k.id, k.status, k.full_name, k.doc_number, k.doc_image, k.selfie_image,
                                 k.submitted_at, k.note, u.username
-                         FROM kyc_submissions k JOIN users u ON u.id = k.user_id
+                         FROM bw_kyc_submissions k JOIN users u ON u.id = k.user_id
                          WHERE k.status = ${status} ORDER BY k.submitted_at ASC LIMIT 20`;
   return res.json({ items: rows });
 }
@@ -178,7 +178,7 @@ async function kycReview(req, res) {
   const status = String(req.body?.status || '');
   const note = String(req.body?.note || '').slice(0, 200);
   if (!Number.isInteger(id) || !['verified', 'rejected'].includes(status)) return res.status(400).json({ error: 'bad_request' });
-  const rows = await sql`UPDATE kyc_submissions SET status = ${status}, note = ${note || null}, reviewed_at = now()
+  const rows = await sql`UPDATE bw_kyc_submissions SET status = ${status}, note = ${note || null}, reviewed_at = now()
                          WHERE id = ${id} RETURNING id`;
   if (!rows.length) return res.status(404).json({ error: 'not_found' });
   return res.json({ ok: true });
