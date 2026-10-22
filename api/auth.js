@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // Buat tabel users jika belum ada
+    // 1. Buat tabel users jika belum ada
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -28,7 +28,12 @@ export default async function handler(req, res) {
       );
     `;
 
-    // Cek user
+    // 2. Pastikan kolom password tersedia (jika sebelumnya bernama kata_sandi)
+    await sql`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255);
+    `;
+
+    // 3. Cek apakah user sudah ada
     const existingUsers = await sql`
       SELECT * FROM users WHERE username = ${username} LIMIT 1;
     `;
@@ -48,7 +53,7 @@ export default async function handler(req, res) {
         });
       }
     } else {
-      // Registrasi user baru
+      // 4. Buat user baru (Daftar)
       const newUser = await sql`
         INSERT INTO users (username, password)
         VALUES (${username}, ${password})
