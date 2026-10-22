@@ -11,6 +11,11 @@ const COOKIE = 'btw_sess';
 const USER_RE = /^[a-zA-Z0-9_.-]{3,24}$/;
 const WALLET_RE = /^0x[a-fA-F0-9]{40}$/;
 
+/* KYC */
+const DOC_RE = /^[A-Za-z0-9 .\-]{5,32}$/;
+const IMG_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+const IMG_MAX = 1500000; // karakter data URL per foto (~1.1 MB)
+
 /* ---------- Tabel database (dibuat otomatis) ---------- */
 let ready = null;
 function setup() {
@@ -20,6 +25,7 @@ function setup() {
     await sql`CREATE TABLE IF NOT EXISTS pool (id INT PRIMARY KEY, claimed NUMERIC(30,8) NOT NULL DEFAULT 0)`;
     await sql`INSERT INTO pool (id, claimed) VALUES (1, 0) ON CONFLICT (id) DO NOTHING`;
     await sql`CREATE TABLE IF NOT EXISTS mining_sessions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, day DATE NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT now(), end_at TIMESTAMPTZ NOT NULL, claimed_at TIMESTAMPTZ, reward NUMERIC(30,8), phase INT, UNIQUE (user_id, day))`;
+    await sql`CREATE TABLE IF NOT EXISTS kyc_submissions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, full_name TEXT NOT NULL, doc_number TEXT NOT NULL, doc_image TEXT NOT NULL, selfie_image TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', note TEXT, submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), reviewed_at TIMESTAMPTZ)`;
   })().catch(err => { ready = null; throw err; });
   return ready;
 }
@@ -57,6 +63,14 @@ async function openSession(res, userId) {
   await sql`INSERT INTO sessions (token_hash, user_id, expires_at)
             VALUES (${sha256(token)}, ${userId}, now() + interval '30 days')`;
   setCookie(res, token);
+}
+
+/* Admin: kunci rahasia dari environment variable ADMIN_KEY (min. 12 karakter) */
+function isAdmin(req) {
+  const key = process.env.ADMIN_KEY;
+  if (!key || key.length < 12) return false;
+  const got = String(req.headers['x-admin-key'] || '');
+  return crypto.timingSafeEqual(Buffer.from(sha256(got), 'hex'), Buffer.from(sha256(key), 'hex'));
 }
 
 /* ---------- Auth ---------- */
@@ -108,6 +122,66 @@ async function me(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
   return res.json({ user: userJson(u) });
+}
+
+/* ---------- KYC ---------- */
+async function kycStatus(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+  const r = (await sql`SELECT status, note, submitted_at, reviewed_at FROM kyc_submissions WHERE user_id = ${u.id}`)[0];
+  if (!r) return res.json({ status: 'none' });
+  return res.json({ status: r.status, note: r.note || '', submitted_at: r.submitted_at, reviewed_at: r.reviewed_at });
+}
+
+async function kycSubmit(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+
+  const fullName = String(req.body?.fullName || '').trim();
+  const docNumber = String(req.body?.docNumber || '').trim();
+  const docImage = String(req.body?.docImage || '');
+  const selfieImage = String(req.body?.selfieImage || '');
+
+  if (fullName.length < 3 || fullName.length > 80) return res.status(400).json({ error: 'name_invalid' });
+  if (!DOC_RE.test(docNumber)) return res.status(400).json({ error: 'doc_invalid' });
+  if (docImage.length > IMG_MAX || !IMG_RE.test(docImage)) return res.status(400).json({ error: 'doc_image_invalid' });
+  if (selfieImage.length > IMG_MAX || !IMG_RE.test(selfieImage)) return res.status(400).json({ error: 'selfie_image_invalid' });
+
+  const rows = await sql`INSERT INTO kyc_submissions (user_id, full_name, doc_number, doc_image, selfie_image)
+                         VALUES (${u.id}, ${fullName}, ${docNumber}, ${docImage}, ${selfieImage})
+                         ON CONFLICT (user_id) DO UPDATE SET
+                           full_name = EXCLUDED.full_name, doc_number = EXCLUDED.doc_number,
+                           doc_image = EXCLUDED.doc_image, selfie_image = EXCLUDED.selfie_image,
+                           status = 'pending', note = NULL, submitted_at = now(), reviewed_at = NULL
+                         WHERE kyc_submissions.status = 'rejected'
+                         RETURNING id`;
+  if (!rows.length) {
+    const ex = (await sql`SELECT status FROM kyc_submissions WHERE user_id = ${u.id}`)[0];
+    return res.status(409).json({ error: ex && ex.status === 'verified' ? 'already_verified' : 'already_pending' });
+  }
+  return res.status(201).json({ status: 'pending' });
+}
+
+async function kycList(req, res) {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'forbidden' });
+  const status = ['pending', 'verified', 'rejected'].includes(req.query?.status) ? req.query.status : 'pending';
+  const rows = await sql`SELECT k.id, k.status, k.full_name, k.doc_number, k.doc_image, k.selfie_image,
+                                k.submitted_at, k.note, u.username
+                         FROM kyc_submissions k JOIN users u ON u.id = k.user_id
+                         WHERE k.status = ${status} ORDER BY k.submitted_at ASC LIMIT 20`;
+  return res.json({ items: rows });
+}
+
+async function kycReview(req, res) {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'forbidden' });
+  const id = Number(req.body?.id);
+  const status = String(req.body?.status || '');
+  const note = String(req.body?.note || '').slice(0, 200);
+  if (!Number.isInteger(id) || !['verified', 'rejected'].includes(status)) return res.status(400).json({ error: 'bad_request' });
+  const rows = await sql`UPDATE kyc_submissions SET status = ${status}, note = ${note || null}, reviewed_at = now()
+                         WHERE id = ${id} RETURNING id`;
+  if (!rows.length) return res.status(404).json({ error: 'not_found' });
+  return res.json({ ok: true });
 }
 
 /* ---------- Mining ---------- */
@@ -173,13 +247,17 @@ async function claim(req, res) {
 
 /* ---------- Router: /api?a=nama_aksi ---------- */
 const ROUTES = {
-  register: { m: 'POST', fn: register },
-  login:    { m: 'POST', fn: login },
-  logout:   { m: 'POST', fn: logout },
-  me:       { m: 'GET',  fn: me },
-  status:   { m: 'GET',  fn: status },
-  start:    { m: 'POST', fn: start },
-  claim:    { m: 'POST', fn: claim }
+  register:   { m: 'POST', fn: register },
+  login:      { m: 'POST', fn: login },
+  logout:     { m: 'POST', fn: logout },
+  me:         { m: 'GET',  fn: me },
+  status:     { m: 'GET',  fn: status },
+  start:      { m: 'POST', fn: start },
+  claim:      { m: 'POST', fn: claim },
+  kyc_status: { m: 'GET',  fn: kycStatus },
+  kyc_submit: { m: 'POST', fn: kycSubmit },
+  kyc_list:   { m: 'GET',  fn: kycList },
+  kyc_review: { m: 'POST', fn: kycReview }
 };
 
 export default async function handler(req, res) {
