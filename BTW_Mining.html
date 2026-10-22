@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BTW Mining</title>
+<style>
+:root{--gold:#c99a36;--bg:#10110f;--surface:#191b17;--border:#34362e;--muted:#a7a697;--text:#f7f4ec;--green:#8fd6a1}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:#151612;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.06em}
+.mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#f5d27d,#a56e19);color:#17140b;font-weight:900}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:7px 11px}
+main{max-width:1080px;margin:0 auto;padding:24px 16px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:16px}
+.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+h1{font-size:clamp(28px,5vw,44px);margin:8px 0;letter-spacing:-.03em;line-height:1.1}
+h1 span{color:var(--gold)}
+p{color:var(--muted);line-height:1.6;font-size:14px;margin:6px 0}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+.balance{font-size:44px;font-weight:850;letter-spacing:-.04em;margin:14px 0 4px}
+.balance small{font-size:15px;color:var(--gold);letter-spacing:0}
+.bar{height:8px;background:#34352d;border-radius:99px;overflow:hidden;margin:14px 0 6px}
+.bar div{height:100%;width:0;background:linear-gradient(90deg,#a66f1d,#f4d37b);transition:width .3s}
+.row{display:flex;gap:10px;margin-top:16px}
+button{font:inherit;cursor:pointer;border-radius:12px;padding:12px 14px;font-weight:800;border:1px solid var(--border);background:transparent;color:var(--text)}
+button.primary{background:var(--gold);color:#17140b;border-color:#d4aa51;flex:1}
+button:disabled{opacity:.4;cursor:not-allowed}
+.timer{font-size:30px;font-weight:850;font-variant-numeric:tabular-nums;margin-top:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.stat{background:#20221c;border:1px solid var(--border);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:18px;margin-top:6px}
+.stage{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:14px;background:#20221c;margin-top:10px;font-size:13px}
+.stage.on{border-color:#b68a37;background:#282318}
+.stage small{display:block;color:var(--muted);margin-top:3px}
+.notice{font-size:12px;color:#d9d0b8;background:#211e16;border:1px solid #55472b;border-radius:14px;padding:12px;margin-top:14px;line-height:1.6}
+.hist{font-size:13px;padding:10px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px}
+.hist:last-child{border-bottom:0}
+.hist small{display:block;color:var(--muted);margin-top:3px}
+.ok{color:var(--green);font-weight:800;white-space:nowrap}
+.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:16px}
+.modal.show{display:grid}
+.card{width:min(420px,100%);background:#1b1d18;border:1px solid var(--border);border-radius:20px;padding:22px}
+input{width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:#11120f;color:var(--text);margin:6px 0 10px;font:inherit}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#f2d27a;color:#17140b;padding:11px 16px;border-radius:12px;font-weight:800;font-size:13px;display:none;max-width:92%}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="mark">BTW</div><div>BTW MINING<div class="label" style="margin-top:3px">Community mining</div></div></div>
+  <div class="tag">BNB Smart Chain · Simulasi</div>
+</header>
+
+<main>
+  <div class="panel" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+    <div><div class="label">Kontrak token BTW (BSC)</div><code style="font-size:12px;overflow-wrap:anywhere">0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea</code></div>
+    <a href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener" style="color:var(--gold);font-weight:800;font-size:13px;text-decoration:none">Cek di BscScan ↗</a>
+  </div>
+
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><div class="label">Profil</div><strong id="pName">Guest</strong><p id="pInfo" style="margin:4px 0 0">Belum ada profil. Buat untuk memulai.</p></div>
+    <button id="btnProfile">Buat / Edit Profil</button>
+  </div>
+
+  <h1>Mine together.<br><span>Build the BTW future.</span></h1>
+  <p>Mining internal: 0,12 BTW per sesi 24 jam di fase awal. Alokasi komunitas 10.500.000 BTW dibagi 4 fase, dan rate turun di setiap fase berikutnya.</p>
+
+  <div class="grid" style="margin-top:18px">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between"><span class="label">Reward tersimpan</span><span id="pill" class="label">Belum aktif</span></div>
+      <div class="balance"><span id="balance">0.00</span> <small>BTW</small></div>
+      <div class="bar"><div id="bar"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span id="sessLabel">Sesi belum dimulai</span><span id="pct">0%</span></div>
+      <div class="timer" id="timer">24:00:00</div>
+      <div class="row">
+        <button class="primary" id="btnStart">▶ Start Mining</button>
+        <button id="btnClaim" disabled>Claim</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="label">Total diklaim</span><b id="claimed">0.00</b></div>
+        <div class="stat"><span class="label">Reward per sesi</span><b id="nextReward">0.120</b></div>
+        <div class="stat"><span class="label">Fase aktif</span><b id="phase">1 / 4</b></div>
+        <div class="stat"><span class="label">Pool terpakai</span><b id="poolUsed">0%</b></div>
+      </div>
+      <div class="notice">Simulasi di browser. Reward belum dikirim on-chain, dan koneksi wallet masih segera hadir. Refresh halaman akan mengulang sesi dan saldo.</div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Roadmap halving · alokasi komunitas</div>
+      <div id="stages"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <div class="label">Riwayat</div>
+    <div id="hist" style="margin-top:10px"><p>Belum ada aktivitas.</p></div>
+  </div>
+</main>
+
+<div class="modal" id="modal">
+  <div class="card">
+    <h3 style="margin:0 0 8px">Profil BTW</h3>
+    <input id="inName" maxlength="70" placeholder="Nama lengkap">
+    <input id="inUser" maxlength="24" placeholder="Nama pengguna (3–24 karakter)">
+    <input id="inWallet" maxlength="42" placeholder="Alamat wallet BSC (opsional, 0x...)">
+    <p style="font-size:11px">Masukkan alamat publik saja. Jangan pernah memasukkan seed phrase atau private key.</p>
+    <div class="row"><button id="btnCancel">Batal</button><button class="primary" id="btnSave">Simpan</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // Konfigurasi. GLOBAL_CLAIMED harus diisi dari server atau kontrak (total klaim seluruh pengguna),
+  // bukan dari browser. Nilai 0 di sini hanya placeholder.
+  const SESSION_MS = 24 * 60 * 60 * 1000;
+  const POOL_TOTAL = 10500000;
+  const PHASE_SIZE = POOL_TOTAL / 4;            // 2.625.000 BTW per fase
+  const RATES = [0.12, 0.06, 0.03, 0.015];
+  let GLOBAL_CLAIMED = 0;
+
+  const st = { running: false, done: false, endAt: 0, balance: 0, claimed: 0, lastDay: '', profile: null, hist: [] };
+  const $ = id => document.getElementById(id);
+  const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const today = () => new Date().toISOString().slice(0, 10);
+  const phase = () => Math.min(3, Math.floor(GLOBAL_CLAIMED / PHASE_SIZE));
+  const rate = () => RATES[phase()];
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
+  }
+  function log(title, amount) {
+    st.hist.unshift({ title, amount, time: new Date().toLocaleString('id-ID') });
+    renderHist();
+  }
+  function renderStages() {
+    const p = phase();
+    const box = $('stages'); box.textContent = '';
+    RATES.forEach((r, i) => {
+      const d = document.createElement('div');
+      d.className = 'stage' + (i === p ? ' on' : '');
+      const left = document.createElement('div');
+      const strong = document.createElement('strong');
+      strong.textContent = ['Genesis', 'Halving I', 'Halving II', 'Halving III'][i];
+      const small = document.createElement('small');
+      small.textContent = 'Alokasi ' + fmt(PHASE_SIZE, 0) + ' BTW';
+      left.append(strong, small);
+      const rt = document.createElement('b');
+      rt.textContent = fmt(r, 3) + ' BTW';
+      d.append(left, rt);
+      box.append(d);
+    });
+  }
+  function renderHist() {
+    const box = $('hist'); box.textContent = '';
+    if (!st.hist.length) {
+      const p = document.createElement('p'); p.textContent = 'Belum ada aktivitas.'; box.append(p); return;
+    }
+    st.hist.forEach(h => {
+      const r = document.createElement('div'); r.className = 'hist';
+      const a = document.createElement('div'); a.textContent = h.title;
+      const s = document.createElement('small'); s.textContent = h.time; a.append(s);
+      const b = document.createElement('span'); b.className = 'ok'; b.textContent = h.amount;
+      r.append(a, b); box.append(r);
+    });
+  }
+  function render() {
+    $('balance').textContent = fmt(st.balance);
+    $('claimed').textContent = fmt(st.claimed);
+    $('nextReward').textContent = fmt(rate(), 3);
+    $('phase').textContent = (phase() + 1) + ' / 4';
+    $('poolUsed').textContent = fmt(Math.min(100, GLOBAL_CLAIMED / POOL_TOTAL * 100), 2) + '%';
+    $('pill').textContent = st.running ? 'Mining aktif' : (st.done ? 'Sesi selesai' : 'Belum aktif');
+    $('btnStart').disabled = st.running || st.done || st.lastDay === today();
+    $('btnStart').textContent = st.done ? '✓ Sesi selesai' : (st.running ? 'Mining berjalan…' : '▶ Start Mining');
+    $('btnClaim').disabled = !st.done;
+    $('sessLabel').textContent = st.running ? 'Sesi berjalan' : (st.done ? 'Siap diklaim' : 'Sesi belum dimulai');
+    renderStages();
+  }
+  function tick() {
+    if (!st.running) {
+      $('timer').textContent = st.done ? '00:00:00' : '24:00:00';
+      $('bar').style.width = st.done ? '100%' : '0%';
+      $('pct').textContent = st.done ? '100%' : '0%';
+      return;
+    }
+    const left = Math.max(0, st.endAt - Date.now());
+    const pct = Math.min(100, (SESSION_MS - left) / SESSION_MS * 100);
+    const s = Math.ceil(left / 1000);
+    const hh = String(Math.floor(s / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    $('timer').textContent = hh + ':' + mm + ':' + ss;
+    $('bar').style.width = pct + '%';
+    $('pct').textContent = Math.floor(pct) + '%';
+    if (left <= 0) {
+      st.running = false; st.done = true;
+      log('Sesi mining selesai', 'Siap diklaim');
+      toast('Sesi selesai. Klaim reward.');
+      render();
+    }
+  }
+  $('btnStart').onclick = () => {
+    if (st.running || st.done) return;
+    if (st.lastDay === today()) { toast('Batas 1 sesi per hari tercapai.'); return; }
+    st.running = true; st.endAt = Date.now() + SESSION_MS; st.lastDay = today();
+    log('Sesi mining dimulai', '24 jam');
+    render(); tick();
+  };
+  $('btnClaim').onclick = () => {
+    if (!st.done) return;
+    const r = rate();
+    st.balance += r; st.claimed += r; GLOBAL_CLAIMED += r; st.done = false;
+    log('Reward sesi diklaim', '+' + fmt(r, 3) + ' BTW');
+    render(); tick();
+    toast('Reward dicatat (simulasi).');
+  };
+
+  // Profil hanya di memori halaman ini. Akun sungguhan memerlukan backend.
+  $('btnProfile').onclick = () => {
+    $('inName').value = st.profile ? st.profile.name : '';
+    $('inUser').value = st.profile ? st.profile.user : '';
+    $('inWallet').value = st.profile ? st.profile.wallet : '';
+    $('modal').classList.add('show');
+  };
+  $('btnCancel').onclick = () => $('modal').classList.remove('show');
+  $('btnSave').onclick = () => {
+    const name = $('inName').value.trim();
+    const user = $('inUser').value.trim().replace(/^@+/, '');
+    const wallet = $('inWallet').value.trim();
+    if (!/^[a-zA-Z0-9_.-]{3,24}$/.test(user)) { toast('Nama pengguna harus 3–24 karakter (huruf, angka, . _ -).'); return; }
+    if (wallet && !/^0x[a-fA-F0-9]{40}$/.test(wallet)) { toast('Format alamat wallet BSC tidak valid.'); return; }
+    st.profile = { name, user, wallet };
+    $('pName').textContent = name || user;
+    $('pInfo').textContent = '@' + user + (wallet ? ' · ' + wallet.slice(0, 6) + '…' + wallet.slice(-4) : ' · wallet belum ditautkan');
+    $('modal').classList.remove('show');
+    toast('Profil disimpan untuk sesi ini.');
+  };
+
+  renderHist(); render(); tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
