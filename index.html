@@ -180,13 +180,27 @@
             if (status === 'rejected' && note) { n.textContent = 'Alasan: ' + note; n.classList.remove('hidden'); } else { n.classList.add('hidden'); }
         }
 
+        function kycLoadFailed(detail) {
+            const badge = $('displayKycStatus');
+            badge.textContent = 'Gagal memuat (' + detail + ')';
+            badge.className = 'px-3 py-1 rounded-full text-xs font-bold border bg-red-500/20 text-red-400 border-red-500/30';
+            const btn = $('btnKycForm');
+            btn.textContent = 'Coba Muat Ulang Status';
+            btn.onclick = function () { btn.onclick = function () { openKycModal(); }; $('displayKycStatus').textContent = 'Memuat...'; loadKyc(); };
+            btn.classList.remove('hidden');
+        }
+
         async function loadKyc() {
             try {
                 const r = await fetch('/api?a=kyc_status', { credentials: 'same-origin' });
-                if (!r.ok) return;
-                const d = await r.json();
+                const d = await r.json().catch(() => ({}));
+                if (!r.ok) { kycLoadFailed(d.error || ('HTTP ' + r.status)); return; }
+                $('btnKycForm').onclick = function () { openKycModal(); };
                 renderKyc(d.status, d.note);
-            } catch (e) { console.error('loadKyc:', e); }
+            } catch (e) {
+                console.error('loadKyc:', e);
+                kycLoadFailed(e && e.message ? e.message : 'jaringan');
+            }
         }
 
         /* ---------- Login / daftar ---------- */
