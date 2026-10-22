@@ -1,4 +1,4 @@
-/* Bitworld auth layer v2.1: login/daftar, proteksi Ambassador & Mining,
+/* Bitworld auth layer v2.2 (+KYC): login/daftar, proteksi Ambassador & Mining,
    profil pengguna, saldo mining, dan perbaikan posisi tampilan.
    Perbaikan v2.1:
    - UI dibuat setelah DOM siap (tidak crash walau script dimuat di <head>)
@@ -13,7 +13,7 @@
   var FIX_LAYOUT = true; // ubah ke false kalau mau mematikan perbaikan posisi tampilan
   var PROTECTED = /^[^a-z]*(ambassador|mining)\s*$/i;
   var user = null, prof = null, mode = 'login', pending = null;
-  var btn = null, ov = null, pv = null, minePanel = null, fixTimer = null;
+  var btn = null, ov = null, pv = null, kv = null, kyc = null, minePanel = null, fixTimer = null;
 
   var ERR = {
     username_taken: 'Username sudah dipakai.',
@@ -79,7 +79,7 @@
       if (r.ok) {
         user = pickUser(r.data) || { username: u };
         // Update tampilan dibungkus sendiri: error di sini TIDAK boleh membuat login tampak gagal
-        try { refreshBtn(); loadProfile(); } catch (e) { console.error('UI update error:', e); }
+        try { refreshBtn(); loadProfile(); loadKyc(); } catch (e) { console.error('UI update error:', e); }
         return jres({ success: true, message: registered ? 'Pendaftaran berhasil!' : 'Login berhasil!', user: { username: u } }, 200);
       }
       var c = r.data && r.data.error;
@@ -202,6 +202,7 @@
       closeLogin();
       refreshBtn();
       loadProfile();
+      loadKyc();
       if (pending) { var p = pending; pending = null; p(); }
     }).catch(function (e) {
       console.error('submit error:', e);
@@ -224,6 +225,94 @@
       prof = r.data; fillProfile(); refreshBtn();
       msg.style.color = '#7dffa6'; msg.textContent = 'Tersimpan.';
     }).catch(function () { msg.style.color = '#ff8f8f'; msg.textContent = 'Tidak bisa terhubung ke server.'; });
+  }
+
+  /* ---------- KYC (di dalam Profil) ---------- */
+  var KYC_VIEW = {
+    none:     ['Belum Verifikasi', '#f5b82e', 'Isi Formulir KYC'],
+    pending:  ['Menunggu Review', '#7db7ff', null],
+    verified: ['Terverifikasi \u2713', '#7dffa6', null],
+    rejected: ['Ditolak', '#ff8f8f', 'Kirim Ulang KYC'],
+    error:    ['Gagal memuat status', '#ff8f8f', null]
+  };
+  var KERR = {
+    not_logged_in: 'Silakan login dulu.',
+    name_invalid: 'Nama lengkap harus 3-80 karakter.',
+    doc_invalid: 'Nomor dokumen tidak valid (5-32 karakter, huruf/angka).',
+    doc_image_invalid: 'Foto dokumen tidak valid atau terlalu besar.',
+    selfie_image_invalid: 'Foto selfie tidak valid atau terlalu besar.',
+    already_pending: 'KYC Anda sedang ditinjau admin.',
+    already_verified: 'Akun Anda sudah terverifikasi.',
+    server_error: 'Terjadi kesalahan server. Coba lagi.'
+  };
+
+  function renderKyc() {
+    var b = $('kc-badge'); if (!b) return;
+    var st = kyc ? kyc.status : 'error';
+    var v = KYC_VIEW[st] || KYC_VIEW.none;
+    b.textContent = kyc ? v[0] : 'Memuat...';
+    b.style.color = kyc ? v[1] : '#9db7ff';
+    var o = $('kc-open');
+    if (kyc && v[2]) { o.textContent = v[2]; o.style.display = ''; } else { o.style.display = 'none'; }
+    var n = $('kc-note');
+    n.textContent = (st === 'rejected' && kyc.note) ? 'Alasan: ' + kyc.note : (st === 'error' && kyc.code ? 'Kode: ' + kyc.code : '');
+  }
+
+  function loadKyc() {
+    if (!user) return Promise.resolve();
+    return call('/api?a=kyc_status', 'GET').then(function (r) {
+      kyc = (r.ok && r.data && r.data.status) ? r.data : { status: 'error', code: (r.data && r.data.error) || r.status };
+      renderKyc();
+    }).catch(function (e) {
+      console.error('loadKyc error:', e);
+      kyc = { status: 'error', code: e && e.message };
+      renderKyc();
+    });
+  }
+
+  function fileToDataUrl(file, maxSide, quality) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function () {
+        var s2 = Math.min(1, maxSide / Math.max(img.width, img.height));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * s2); c.height = Math.round(img.height * s2);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('Foto tidak bisa dibaca. Gunakan JPG atau PNG.')); };
+      img.src = url;
+    });
+  }
+
+  function openKycForm() { $('kc-msg').textContent = ''; kv.classList.add('on'); }
+
+  function submitKyc() {
+    var msg = $('kc-msg'), go = $('kc-go');
+    function say(t, bad) { msg.style.color = bad ? '#ff8f8f' : '#9db7ff'; msg.textContent = t; }
+    var df = $('kc-docf').files[0], sf = $('kc-selff').files[0];
+    if (!df || !sf) { say('Pilih foto dokumen dan foto selfie terlebih dahulu.', true); return; }
+    go.disabled = true; say('Memproses foto...');
+    var body = { fullName: $('kc-name').value.trim(), docNumber: $('kc-doc').value.trim() };
+    fileToDataUrl(df, 1000, 0.75).then(function (a) {
+      body.docImage = a; return fileToDataUrl(sf, 900, 0.75);
+    }).then(function (b2) {
+      body.selfieImage = b2; say('Mengirim...');
+      return call('/api?a=kyc_submit', 'POST', body);
+    }).then(function (r) {
+      if (r.ok) {
+        kyc = { status: 'pending' }; renderKyc();
+        kv.classList.remove('on');
+        $('kc-docf').value = ''; $('kc-selff').value = '';
+        alert('Verifikasi KYC berhasil dikirim! Menunggu review admin.');
+      } else {
+        var c = r.data && r.data.error;
+        say(KERR[c] || ('Gagal mengirim KYC (' + (c || r.status) + ')'), true);
+        if (c === 'already_pending' || c === 'already_verified') loadKyc();
+      }
+    }).catch(function (e) { say(e && e.message ? e.message : 'Tidak bisa terhubung ke server.', true); })
+      .then(function () { go.disabled = false; });
   }
 
   /* ---------- Perbaikan posisi: konten terlalu turun dari menu ---------- */
@@ -395,7 +484,8 @@
       '.au-card{background:#0b1a45;border-radius:10px;padding:10px;font-size:13px}.au-card small{display:block;color:#9db7ff;font-size:11px;margin-bottom:2px}' +
       '.au-card span{word-break:break-all}' +
       '.au-hist{margin:6px 0 4px;font-size:13px}.au-hist div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #24408f}' +
-      '.au-lb{font-size:12px;color:#9db7ff;margin-top:10px}';
+      '.au-lb{font-size:12px;color:#9db7ff;margin-top:10px}' +
+      '.au-box label{display:block;font-size:12px;color:#9db7ff;margin:8px 0 2px}';
     document.head.appendChild(css);
 
     var mcss = el('style');
@@ -434,9 +524,25 @@
       '<input id="pf-wal" placeholder="Alamat wallet 0x... (opsional)" autocapitalize="none">' +
       '<div class="au-msg" id="pf-msg"></div>' +
       '<div class="row"><button class="au-pri" id="pf-save">Simpan</button></div>' +
+      '<div class="au-lb">Verifikasi KYC</div>' +
+      '<div class="au-card" style="margin-top:6px"><small>Status</small><b id="kc-badge">Memuat...</b>' +
+      '<div class="au-msg" id="kc-note" style="min-height:0;margin-top:4px"></div></div>' +
+      '<div class="row"><button class="au-pri" id="kc-open">Isi Formulir KYC</button></div>' +
       '<div class="au-lb">Riwayat klaim terakhir</div><div class="au-hist" id="pf-hist"></div>' +
       '<div class="row"><button class="au-sec" id="pf-x">Tutup</button><button class="au-dng" id="pf-out">Keluar</button></div></div>';
     document.body.appendChild(pv);
+
+    kv = el('div', { className: 'au-ov', id: 'au-kyc' });
+    kv.innerHTML =
+      '<div class="au-box"><h3>Verifikasi Identitas (KYC)</h3>' +
+      '<div style="font-size:12px;color:#9db7ff;margin-bottom:6px">Data hanya dipakai untuk verifikasi dan hanya dapat dilihat admin. Pastikan foto jelas dan tidak terpotong.</div>' +
+      '<input id="kc-name" placeholder="Nama lengkap (sesuai KTP/Paspor)" maxlength="80" autocomplete="name">' +
+      '<input id="kc-doc" placeholder="Nomor KTP / Paspor" maxlength="32" autocapitalize="none">' +
+      '<label>Foto KTP / Paspor</label><input id="kc-docf" type="file" accept="image/*">' +
+      '<label>Foto selfie sambil memegang KTP/Paspor</label><input id="kc-selff" type="file" accept="image/*">' +
+      '<div class="au-msg" id="kc-msg"></div>' +
+      '<div class="row"><button class="au-sec" id="kc-x">Tutup</button><button class="au-pri" id="kc-go">Kirim</button></div></div>';
+    document.body.appendChild(kv);
 
     btn.addEventListener('click', function () {
       if (!user) return openLogin('login');
@@ -444,6 +550,7 @@
       fillProfile();
       pv.classList.add('on');
       loadProfile();
+      loadKyc();
     });
     $('au-x').addEventListener('click', function () { pending = null; closeLogin(); });
     $('au-go').addEventListener('click', submit);
@@ -452,6 +559,9 @@
     $('pf-x').addEventListener('click', function () { pv.classList.remove('on'); });
     $('pf-out').addEventListener('click', logout);
     $('pf-save').addEventListener('click', saveProfile);
+    $('kc-open').addEventListener('click', openKycForm);
+    $('kc-x').addEventListener('click', function () { kv.classList.remove('on'); });
+    $('kc-go').addEventListener('click', submitKyc);
 
     /* Proteksi menu Ambassador / Mining */
     document.addEventListener('click', function (e) {
@@ -481,7 +591,7 @@
     /* Cek sesi yang sudah ada */
     refreshBtn();
     api('me', 'GET').then(function (r) {
-      if (r.ok) { user = pickUser(r.data); refreshBtn(); if (user) loadProfile(); }
+      if (r.ok) { user = pickUser(r.data); refreshBtn(); if (user) { loadProfile(); loadKyc(); } }
       return call('/api/profile?a=migrate', 'GET');
     }).catch(function (e) { console.error('init error:', e); });
   }
