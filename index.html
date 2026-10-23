@@ -144,8 +144,13 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
   <button type="button" data-go="faq" id="n-faq"></button>
   <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
   <button type="button" data-go="team" id="n-team">&#128101; Tim</button>
-  <button type="button" data-go="channels" id="n-chan">&#128279; Kanal</button>
-  <button type="button" data-go="ambassador" id="n-amb" class="locked">&#128274; Ambassador</button>
+  <button type="button" data-go="docs" id="n-docs">&#128196; Dokumen</button>
+  <button type="button" data-go="security" id="n-sec">&#128737; Keamanan</button>
+  <button type="button" data-go="roadmap" id="n-road">&#128739; Roadmap</button>
+  <button type="button" data-go="alloc" id="n-alloc">&#128202; Alokasi</button>
+  <button type="button" data-go="dist" id="n-dist">&#128230; Distribusi</button>
+  <button type="button" data-go="gloss" id="n-gloss">&#128218; Glosarium</button>
+  <button type="button" data-go="channels" id="n-chan">&#128279; Tim Support</button>
 </nav>
 
 <main>
@@ -201,6 +206,24 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
     <div class="panel" id="teamBody"></div>
   </section>
 
+  <!-- DOKUMEN -->
+  <section class="view" id="v-docs"><div class="panel" id="docsBody"></div></section>
+
+  <!-- KEAMANAN -->
+  <section class="view" id="v-security"><div class="panel" id="secBody"></div></section>
+
+  <!-- ROADMAP -->
+  <section class="view" id="v-roadmap"><div class="panel" id="roadBody"></div></section>
+
+  <!-- ALOKASI -->
+  <section class="view" id="v-alloc"><div class="panel" id="allocBody"></div></section>
+
+  <!-- DISTRIBUSI -->
+  <section class="view" id="v-dist"><div class="panel" id="distBody"></div></section>
+
+  <!-- GLOSARIUM -->
+  <section class="view" id="v-gloss"><div class="panel" id="glossBody"></div></section>
+
   <!-- KANAL -->
   <section class="view" id="v-channels">
     <div class="panel" id="chanBody"></div>
@@ -209,17 +232,6 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
   <!-- BERITA -->
   <section class="view" id="v-news">
     <div class="panel" id="newsBody"></div>
-  </section>
-
-  <!-- AMBASSADOR (terkunci) -->
-  <section class="view" id="v-ambassador">
-    <div class="panel" style="text-align:center">
-      <div style="font-size:40px;margin-bottom:6px">&#128274;</div>
-      <h2>Program Ambassador</h2>
-      <p><span class="badge2" style="display:inline-block;margin:6px 0">SEGERA HADIR</span></p>
-      <p class="muted">Program ini belum dibuka. Aturan resminya akan diumumkan di kanal resmi Bitworld sebelum pendaftaran dibuka.</p>
-      <p class="muted">Tidak ada pendaftaran, pembayaran, atau janji hasil sebelum aturan resmi diumumkan.</p>
-    </div>
   </section>
 
   <!-- FAQ -->
@@ -313,10 +325,15 @@ function applyUI(){
   $("n-token").textContent = u.n_token;
   $("n-contract").textContent = u.n_contract;
   $("n-faq").textContent = u.n_faq;
-  $("n-amb").innerHTML = "&#128274; Ambassador";
   $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
+  $("n-docs").innerHTML = "&#128196; " + (lang === "id" ? "Dokumen" : "Documents");
+  $("n-sec").innerHTML = "&#128737; " + (lang === "id" ? "Keamanan" : "Security");
+  $("n-alloc").innerHTML = "&#128202; " + (lang === "id" ? "Alokasi" : "Allocation");
+  $("n-dist").innerHTML = "&#128230; " + (lang === "id" ? "Distribusi" : "Distribution");
+  $("n-gloss").innerHTML = "&#128218; " + (lang === "id" ? "Glosarium" : "Glossary");
+  $("n-road").innerHTML = "&#128739; " + (lang === "id" ? "Roadmap" : "Roadmap");
   $("n-team").innerHTML = "&#128101; " + (lang === "id" ? "Tim" : "Team");
-  $("n-chan").innerHTML = "&#128279; " + (lang === "id" ? "Kanal" : "Channels");
+  $("n-chan").innerHTML = "&#128279; " + (lang === "id" ? "Tim Support" : "Support");
   $("lang-id").classList.toggle("on", lang === "id");
   $("lang-en").classList.toggle("on", lang === "en");
   $("track").innerHTML = (function(){
@@ -324,7 +341,7 @@ function applyUI(){
     return h + h;
   })();
   document.documentElement.lang = lang;
-  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews(); renderChannels(); renderTeam();
+  renderWP(); renderVision(); renderToken(); renderContract(); renderFAQ(); renderNews(); renderChannels(); renderTeam(); renderExtra(); renderMore();
 }
 
 function renderWP(){
@@ -404,7 +421,7 @@ function renderContract(){
 function renderTeam(){
   var isId = lang === "id";
   var roles = [
-    {r: isId ? "Owner" : "Owner", n: "Juan", photo: true},
+    {r: isId ? "CEO" : "CEO", n: "Juan", photo: true},
     {r: isId ? "Pengembang" : "Developer", n: isId ? "Akan diumumkan" : "To be announced"},
     {r: isId ? "Pengelola komunitas" : "Community manager", n: isId ? "Akan diumumkan" : "To be announced"}
   ];
@@ -419,6 +436,135 @@ function renderTeam(){
   $("teamBody").innerHTML = h;
 }
 
+function renderExtra(){
+  var isId = lang === "id";
+  var d = "<h2>" + (isId ? "Dokumen" : "Documents") + "</h2>";
+  d += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
+      ? "Unduh dokumen resmi dan cara mengecek kontrak sendiri di BscScan."
+      : "Download official documents and how to check the contract yourself on BscScan.") + "</p>";
+  var files = [
+    {n: isId ? "Whitepaper (PDF)" : "Whitepaper (PDF)", u: "whitepaper-bitworld-btw-publik.pdf"},
+    {n: isId ? "Data token (info.json)" : "Token data (info.json)", u: "info.json"}
+  ];
+  files.forEach(function(f){
+    d += "<p style='margin-bottom:8px'><a href='" + f.u + "' download style='color:var(--accent);font-weight:700'>" + esc(f.n) + "</a></p>";
+  });
+  d += "<h2 style='margin-top:12px;font-size:16px'>" + (isId ? "Cek kontrak sendiri" : "Check the contract yourself") + "</h2>";
+  var steps = isId ? [
+    "Buka BscScan dan tempel alamat kontrak resmi.",
+    "Cocokkan alamatnya dengan yang tertulis di website ini.",
+    "Buka tab Contract, lalu cek apakah Source Code sudah terverifikasi.",
+    "Cek supply dan fungsi kontrak. Tidak ada fungsi mint, burn, atau pause."
+  ] : [
+    "Open BscScan and paste the official contract address.",
+    "Match the address with the one written on this website.",
+    "Open the Contract tab and check that the Source Code is verified.",
+    "Check the supply and contract functions. There are no mint, burn, or pause functions."
+  ];
+  d += "<p class='muted' style='font-size:12.5px;line-height:1.6'>" + steps.map(function(s,i){ return (i+1) + ". " + esc(s); }).join("<br>") + "</p>";
+  $("docsBody").innerHTML = d;
+
+  var s = "<h2>" + (isId ? "Keamanan" : "Security") + "</h2>";
+  var warn = isId ? [
+    "Tim BTW tidak pernah meminta seed phrase, private key, atau pembayaran.",
+    "Tidak ada janji harga, keuntungan, atau hasil tetap.",
+    "Waspadai akun yang menghubungi Anda lebih dulu, termasuk yang mengaku admin.",
+    "Hanya percayai kanal resmi yang tercantum di menu Tim Support."
+  ] : [
+    "The BTW team never asks for your seed phrase, private key, or payment.",
+    "No promises of price, profit, or fixed returns.",
+    "Be wary of accounts that contact you first, including those claiming to be admins.",
+    "Only trust the official channels listed under Tim Support."
+  ];
+  s += "<ul class='list'>" + warn.map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+  s += "<h2 style='margin-top:12px;font-size:16px'>" + (isId ? "Privasi" : "Privacy") + "</h2>";
+  s += "<p class='muted' style='font-size:12.5px;line-height:1.6'>" + (isId
+      ? "Website ini hanya mencatat jumlah kunjungan secara anonim melalui Vercel Web Analytics. Tidak ada cookie, tidak ada akun, dan tidak ada data pribadi yang dikumpulkan."
+      : "This website only records anonymous visit counts through Vercel Web Analytics. No cookies, no accounts, and no personal data are collected.") + "</p>";
+  $("secBody").innerHTML = s;
+
+  var r = "<h2>Roadmap</h2>";
+  r += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
+      ? "Rencana umum. Tanggal belum ditetapkan dan dapat berubah."
+      : "General plan. Dates have not been set and may change.") + "</p>";
+  var phases = isId ? [
+    ["Fase 1, Fondasi", "Token, kontrak, dan dokumentasi publik."],
+    ["Fase 2, Pertumbuhan", "Pengembangan aplikasi dan kemitraan ekosistem."],
+    ["Fase 3, Keberlanjutan", "Penguatan tata kelola dan utilitas jangka panjang."]
+  ] : [
+    ["Phase 1, Foundation", "Token, contract, and public documentation."],
+    ["Phase 2, Growth", "Application development and ecosystem partnerships."],
+    ["Phase 3, Sustainability", "Stronger governance and long-term utility."]
+  ];
+  phases.forEach(function(p){
+    r += "<p style='margin-bottom:10px'><strong>" + esc(p[0]) + "</strong><br><span class='muted' style='font-size:12.5px'>" + esc(p[1]) + "</span></p>";
+  });
+  $("roadBody").innerHTML = r;
+}
+
+function renderMore(){
+  var isId = lang === "id";
+  var W = "https://bscscan.com/token/" + CONTRACT + "?a=";
+  var wallets = [
+    {n: isId ? "Komunitas" : "Community", p: 50, a: "0x3cce806978300525acb416f77d28b9699bd611f0"},
+    {n: isId ? "Tim" : "Team", p: 15, a: "0x090b...813f"},
+    {n: isId ? "Pengembangan" : "Development", p: 10, a: "0x60988ac58B48337335De3f6d70B0A65aFf902455"},
+    {n: isId ? "Likuiditas" : "Liquidity", p: 10, a: "0xeceb4365dde67be55ba46018b647a2087084789d"},
+    {n: isId ? "Pemasaran & Ekosistem" : "Marketing & Ecosystem", p: 10, a: "0x10BA662fd08eD7E2F961E5E5EfCba039f62165a8"},
+    {n: isId ? "Cadangan" : "Reserve", p: 5, a: "0x0857...56e2"}
+  ];
+  var al = "<h2>" + (isId ? "Dompet Alokasi" : "Allocation Wallets") + "</h2>";
+  al += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
+      ? "Setiap dompet bisa dicek saldonya di BscScan. Alamat yang masih disingkat akan dilengkapi sebelum publikasi."
+      : "Each wallet balance can be checked on BscScan. Shortened addresses will be completed before publication.") + "</p>";
+  wallets.forEach(function(w){
+    var amt = Math.round(21000000 * w.p / 100).toLocaleString(isId ? "id-ID" : "en-US");
+    var full = w.a.indexOf("...") === -1;
+    var link = full ? "<a href='https://bscscan.com/address/" + w.a + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent2)'>BscScan</a>" : "<span class='muted'>" + (isId ? "Alamat lengkap menyusul" : "Full address to follow") + "</span>";
+    al += "<p style='margin-bottom:8px'><strong>" + esc(w.n) + "</strong> · " + w.p + "% · " + amt + " BTW<br><span class='mono' style='display:inline;font-size:10.5px;padding:2px 4px'>" + esc(w.a) + "</span> " + link + "</p>";
+  });
+  $("allocBody").innerHTML = al;
+
+  var di = "<h2>" + (isId ? "Distribusi Komunitas" : "Community Distribution") + "</h2>";
+  di += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
+      ? "Catatan setiap pembagian token dari dompet komunitas. Dicatat setelah transaksi tercatat di BscScan."
+      : "A record of every token distribution from the community wallet. Recorded after the transaction appears on BscScan.") + "</p>";
+  di += "<p style='font-size:13px'>" + (isId
+      ? "Belum ada distribusi yang tercatat."
+      : "No distribution has been recorded yet.") + "</p>";
+  di += "<p class='muted' style='font-size:12px;margin-top:10px'>" + (isId
+      ? "Setiap entri akan memuat tanggal, jumlah BTW, kategori program, dan tautan transaksi BscScan."
+      : "Each entry will include the date, BTW amount, program category, and BscScan transaction link.") + "</p>";
+  $("distBody").innerHTML = di;
+
+  var terms = isId ? [
+    ["BEP-20", "Standar token di BNB Smart Chain, mirip ERC-20 di Ethereum."],
+    ["BSC", "BNB Smart Chain, jaringan blockchain tempat token BTW berjalan."],
+    ["Layer 2", "Lapisan tambahan di atas jaringan untuk transaksi yang lebih cepat dan murah."],
+    ["DEX", "Bursa terdesentralisasi, tempat token diperdagangkan langsung dari dompet."],
+    ["Likuiditas", "Dana di pool perdagangan yang memungkinkan token dibeli dan dijual."],
+    ["LP token", "Bukti kepemilikan atas dana likuiditas. Siapa pun yang memegangnya bisa menarik likuiditas."],
+    ["Vesting", "Jadwal pelepasan token secara bertahap, agar tidak langsung bisa dijual semua."],
+    ["Supply", "Jumlah total token yang ada. Untuk BTW, tetap 21.000.000."],
+    ["Seed phrase", "Kata-kata pemulihan dompet. Jangan pernah dibagikan kepada siapa pun."]
+  ] : [
+    ["BEP-20", "Token standard on BNB Smart Chain, similar to ERC-20 on Ethereum."],
+    ["BSC", "BNB Smart Chain, the blockchain where the BTW token runs."],
+    ["Layer 2", "An extra layer on top of a network for faster and cheaper transactions."],
+    ["DEX", "Decentralized exchange, where tokens are traded directly from wallets."],
+    ["Liquidity", "Funds in a trading pool that let a token be bought and sold."],
+    ["LP token", "Proof of ownership of liquidity funds. Whoever holds it can withdraw the liquidity."],
+    ["Vesting", "A schedule that releases tokens gradually, so they cannot all be sold at once."],
+    ["Supply", "The total number of tokens. For BTW, it is fixed at 21,000,000."],
+    ["Seed phrase", "Wallet recovery words. Never share them with anyone."]
+  ]
+  var g = "<h2>" + (isId ? "Glosarium" : "Glossary") + "</h2>";
+  terms.forEach(function(t){
+    g += "<p style='margin-bottom:8px'><strong>" + esc(t[0]) + "</strong><br><span class='muted' style='font-size:12.5px'>" + esc(t[1]) + "</span></p>";
+  });
+  $("glossBody").innerHTML = g;
+}
+
 function renderChannels(){
   var isId = lang === "id";
   var list = [
@@ -427,7 +573,7 @@ function renderChannels(){
     {n: "Facebook", u: "https://www.facebook.com/share/1CEsm6LNAK/", d: isId ? "Halaman resmi Bitworld - BTW" : "Official Bitworld - BTW page"},
     {n: "Telegram", u: "https://t.me/bitworld_btw", d: isId ? "Pengumuman dan diskusi resmi" : "Official announcements and discussion"}
   ];
-  var h = "<h2>" + (isId ? "Kanal Resmi" : "Official Channels") + "</h2>";
+  var h = "<h2>" + (isId ? "Tim Support" : "Support Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
       ? "Informasi resmi hanya dari kanal berikut. Waspadai akun yang menghubungi Anda lebih dulu."
       : "Official information only comes from these channels. Be wary of accounts that contact you first.") + "</p>";
@@ -470,7 +616,7 @@ function renderFAQ(){
 }
 
 /* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", ambassador:"v-ambassador", news:"v-news", channels:"v-channels", team:"v-team"};
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", news:"v-news", channels:"v-channels", team:"v-team", docs:"v-docs", security:"v-security", roadmap:"v-roadmap", alloc:"v-alloc", dist:"v-dist", gloss:"v-gloss"};
 function go(name){
   if (!VIEWS[name]) name = "home";
   Object.keys(VIEWS).forEach(function(k){
