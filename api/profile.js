@@ -12,11 +12,11 @@ function readCookie(req) {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-// Fungsi sederhana untuk hash token tanpa crypto module
-function simpleHash(str) {
+// Hash sederhana berbasis string untuk mencocokkan token cookie
+function hashToken(string) {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+  for (let i = 0; i < string.length; i++) {
+    hash = ((hash << 5) - hash) + string.charCodeAt(i);
     hash |= 0;
   }
   return Math.abs(hash).toString(16);
@@ -25,11 +25,11 @@ function simpleHash(str) {
 async function currentUser(req) {
   const t = readCookie(req);
   if (!t) return null;
-  // Cek sesi user secara aman
+  const tokenHash = hashToken(t);
   const rows = await sql`
     SELECT u.id, u.username, u.name, u.wallet, u.created_at, u.referral_code
     FROM sessions s JOIN users u ON u.id = s.user_id
-    WHERE s.expires_at > now() LIMIT 1`;
+    WHERE s.token_hash = ${tokenHash} AND s.expires_at > now()`;
   return rows[0] || null;
 }
 
