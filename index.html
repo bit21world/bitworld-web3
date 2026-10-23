@@ -195,6 +195,23 @@ nav.bot button.on{color:var(--gold)}
         <div class="p-row"><span class="k">Wallet</span><span class="v" id="pWal">—</span></div>
         <div class="p-row"><span class="k">Bergabung</span><span class="v" id="pJoin">—</span></div>
       </div>
+      
+      <!-- KOTAK REFERRAL DI PROFIL -->
+      <div class="card">
+        <div class="st">🎁 Program Referral</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Undang teman dan bangun komunitas mining bersama!</p>
+        <div class="field">
+          <label>Link Referral Kamu</label>
+          <div style="display:flex;gap:6px">
+            <input id="pRefLink" readonly style="font-size:12px">
+            <button type="button" class="btn btn-p" id="btnCopyRef" style="flex:0 0 70px;padding:8px">Salin</button>
+          </div>
+        </div>
+        <div class="p-row" style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px">
+          <span class="k">Total Diundang</span><span class="v" id="pRefTotal" style="color:var(--gold)">0 Orang</span>
+        </div>
+      </div>
+
       <div class="card">
         <div class="st">Update Profil</div>
         <div class="field"><label>Nama</label><input id="pfName" placeholder="Nama lengkap" maxlength="60"></div>
@@ -289,7 +306,7 @@ function applyLang(){const t=T[lang];$("tagline").textContent=t.tagline;$("langI
 $("langId").onclick=()=>{lang="id";applyLang()};$("langEn").onclick=()=>{lang="en";applyLang()};
 async function api(action, method, body){
   try{
-    const r=await fetch("/api?a="+action,{method:method||"GET",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined,credentials:"include"});
+    const r=await fetch("/api/profile?a="+action,{method:method||"GET",headers:body?{"Content-Type":"application/json"}:{},body:body?JSON.stringify(body):undefined,credentials:"include"});
     const data=await r.json().catch(()=>({}));
     return {ok:r.ok,status:r.status,data};
   }catch(e){return {ok:false,status:0,data:{error:"network",message:e.message}}}
@@ -355,13 +372,40 @@ async function doAuth(){
 $("auSubmit").onclick=doAuth;
 $("auPass").addEventListener("keydown",e=>{if(e.key==="Enter")doAuth()});
 async function logout(){await api("logout","POST",{}).catch(()=>{});setUser(null);profile=null;kycStatus="none";toast("Logout")}
-async function loadProfile(){if(!user)return;const r=await api("profile","GET");if(r.ok&&r.data){profile=r.data;renderProf();renderDash()}else if(user){profile={name:user.name||user.username,wallet:user.wallet||""};renderProf()}}
+async function loadProfile(){if(!user)return;const r=await api("","GET");if(r.ok&&r.data){profile=r.data;renderProf();renderDash()}else if(user){profile={name:user.name||user.username,wallet:user.wallet||""};renderProf()}}
 async function loadKyc(){if(!user)return;const r=await api("kyc_status","GET");if(r.ok&&r.data&&r.data.status)kycStatus=r.data.status;else kycStatus=user.local?"unsubmitted":"none";renderProf();renderDash()}
 function kycBadge(el,st){el.className="kyc-b "+(st||"none");const map={approved:"APPROVED",pending:"PENDING",rejected:"REJECTED",unsubmitted:"BELUM",none:"—",error:"ERROR"};el.textContent=map[st]||st||"—"}
 function gateMine(){const lock=$("mineLock"),cont=$("mineContent");if(!user){lock.style.display="";cont.style.display="none"}else{lock.style.display="none";cont.style.display=""}}
-function renderDash(){$("dUser").textContent=user?user.username:"—";kycBadge($("dKyc"),user?kycStatus:"none");$("dBal").textContent=fmt(Number(localStorage.getItem("btw_balance")||0))+" BTW";$("dCl").textContent=fmt(Number(localStorage.getItem("btw_claimed")||0))+" BTW";const gc=Number(localStorage.getItem("btw_global_claimed")||0);$("dPh").textContent=(Math.min(3,Math.floor(gc/2625000))+1)+" / 4";$("dWal").textContent=userAddress?short(userAddress):(profile&&profile.wallet?short(profile.wallet):"—")}
-function renderProf(){if(!user){$("profLock").style.display="";$("profContent").style.display="none";return}$("profLock").style.display="none";$("profContent").style.display="";$("pUser").textContent=user.username||"—";$("pName").textContent=(profile&&profile.name)||user.name||user.username||"—";kycBadge($("pKyc"),kycStatus);$("pWal").textContent=(profile&&profile.wallet)?short(profile.wallet):(userAddress?short(userAddress):"—");$("pJoin").textContent=(profile&&(profile.created_at||profile.joined))||"—";if(profile){$("pfName").value=profile.name||"";$("pfWal").value=profile.wallet||""}}
-$("btnSaveProf").onclick=async()=>{$("pfErr").textContent="";const name=$("pfName").value.trim(),wallet=$("pfWal").value.trim();if(!name){$("pfErr").textContent="Nama wajib";return}if(wallet&&!/^0x[a-fA-F0-9]{40}$/.test(wallet)){$("pfErr").textContent="Format wallet tidak valid";return}const r=await api("profile","POST",{name,wallet});if(r.ok||user.local){profile={...(profile||{}),name,wallet};if(user.local){user.name=name;user.wallet=wallet;localStorage.setItem("btw_user",JSON.stringify(user))}toast("Profil disimpan");renderProf();renderDash()}else $("pfErr").textContent=r.data.error||r.data.message||"Gagal simpan"};
+function renderDash(){$("dUser").textContent=user?user.username:"—";kycBadge($("dKyc"),user?kycStatus:"none");$("dBal").textContent=fmt(Number(localStorage.getItem("btw_balance")||0))+" BTW";$("dCl").textContent=fmt(Number(localStorage.getItem("btw_claimed")||0))+" BTW";const gc=Number(localStorage.getItem("btw_global_claimed")||0);$("dPh").textContent=(Math.min(3,Math.floor(gc/2625000))+1)+" / 4";$("dWal").textContent=userAddress?short(userAddress):(profile&&profile.user&&profile.user.wallet?short(profile.user.wallet):"—")}
+function renderProf(){
+  if(!user){$("profLock").style.display="";$("profContent").style.display="none";return}
+  $("profLock").style.display="none";$("profContent").style.display="";
+  $("pUser").textContent=user.username||"—";
+  
+  const uObj = profile && profile.user ? profile.user : user;
+  $("pName").textContent=uObj.name||user.name||user.username||"—";
+  kycBadge($("pKyc"),kycStatus);
+  $("pWal").textContent=(uObj.wallet)?short(uObj.wallet):(userAddress?short(userAddress):"—");
+  $("pJoin").textContent=uObj.created_at||"—";
+  
+  if(uObj.referral_link){
+    $("pRefLink").value = uObj.referral_link;
+  } else {
+    $("pRefLink").value = "https://bitworld-web3-two.vercel.app/?ref=" + (uObj.referral_code || "REF" + (uObj.id || ""));
+  }
+  const totalInv = profile && profile.referral ? profile.referral.total_invited : 0;
+  $("pRefTotal").textContent = totalInv + " Orang";
+
+  if(profile && profile.user){
+    $("pfName").value=uObj.name||"";
+    $("pfWal").value=uObj.wallet||"";
+  }
+}
+$("btnCopyRef").onclick=()=>{
+  const input = $("pRefLink");
+  navigator.clipboard?.writeText(input.value).then(()=>toast("Link referral disalin!")).catch(()=>toast("Gagal menyalin"));
+};
+$("btnSaveProf").onclick=async()=>{$("pfErr").textContent="";const name=$("pfName").value.trim(),wallet=$("pfWal").value.trim();if(!name){$("pfErr").textContent="Nama wajib";return}if(wallet&&!/^0x[a-fA-F0-9]{40}$/.test(wallet)){$("pfErr").textContent="Format wallet tidak valid";return}const r=await api("","POST",{name,wallet});if(r.ok||user.local){profile=profile||{};profile.user={...(profile.user||{}),name,wallet};if(user.local){user.name=name;user.wallet=wallet;localStorage.setItem("btw_user",JSON.stringify(user))}toast("Profil disimpan");renderProf();renderDash()}else $("pfErr").textContent=r.data.error||r.data.message||"Gagal simpan"};
 $("btnKyc").onclick=async()=>{$("kycErr").textContent="";const name=$("kycName").value.trim(),idn=$("kycId").value.trim();if(!name||!idn){$("kycErr").textContent="Lengkapi data KYC";return}const r=await api("kyc_submit","POST",{name,id_number:idn});if(r.ok||user.local){kycStatus="pending";toast("KYC dikirim");renderProf();renderDash()}else $("kycErr").textContent=r.data.error||r.data.message||"Gagal submit KYC"};
 $("btnLogout").onclick=logout;
 async function connectWal(){if(!window.ethereum){toast("Wallet tidak ditemukan");return}try{$("walLabel").textContent="…";await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}).catch(async e=>{if(e.code===4902)await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:"0x38",chainName:"BNB Smart Chain",nativeCurrency:{name:"BNB",symbol:"BNB",decimals:18},rpcUrls:["https://bsc-dataseed.binance.org/"],blockExplorerUrls:["https://bscscan.com/"]}]})});provider=new ethers.BrowserProvider(window.ethereum);await provider.send("eth_requestAccounts",[]);const s=await provider.getSigner();userAddress=await s.getAddress();$("walLabel").textContent=short(userAddress);$("btnWallet").classList.add("ok");localStorage.setItem("btw_wallet",userAddress);toast("Wallet terhubung");renderDash()}catch(e){$("walLabel").textContent="Wallet";toast(e.message?e.message.slice(0,40):"Gagal")}}
