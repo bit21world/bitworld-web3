@@ -19,30 +19,46 @@ async function currentUser(req) {
   const t = readCookie(req);
   if (!t) return null;
   const rows = await sql`
-    SELECT u.id, u.username, u.name, u.wallet, u.created_at
+    SELECT u.id, u.username, u.name, u.wallet, u.created_at, u.referral_code
     FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token_hash = ${sha256(t)} AND s.expires_at > now()`;
   return rows[0] || null;
 }
 
 async function summary(u) {
+  // Generate referral code otomatis jika user belum memilikinya
+  let refCode = u.referral_code;
+  if (!refCode) {
+    refCode = 'REF' + u.id + crypto.randomBytes(2).toString('hex').toUpperCase();
+    await sql`UPDATE users SET referral_code = ${refCode} WHERE id = ${u.id}`;
+  }
+
   const agg = (await sql`
     SELECT COALESCE(SUM(reward), 0) AS balance, COUNT(*) AS sessions
     FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NOT NULL`)[0];
+  
   const history = await sql`
     SELECT day, reward, claimed_at FROM mining_sessions
     WHERE user_id = ${u.id} AND claimed_at IS NOT NULL
     ORDER BY claimed_at DESC LIMIT 10`;
+  
   const open = (await sql`
     SELECT started_at, end_at FROM mining_sessions
     WHERE user_id = ${u.id} AND claimed_at IS NULL
     ORDER BY started_at DESC LIMIT 1`)[0] || null;
+  
   const poolRow = (await sql`SELECT claimed FROM pool WHERE id = 1`)[0];
   const poolClaimed = poolRow ? Number(poolRow.claimed) : 0;
   const phase = Math.min(3, Math.floor(poolClaimed / PHASE_SIZE));
+  
   const todayRow = (await sql`
     SELECT 1 FROM mining_sessions
     WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`)[0];
+
+  // Hitung jumlah teman yang berhasil diundang
+  const refStats = (await sql`
+    SELECT COUNT(*) AS total_invited FROM users WHERE referred_by = ${u.id}`)[0];
+
   return {
     pool: {
       claimed: poolClaimed,
@@ -56,7 +72,12 @@ async function summary(u) {
       username: u.username,
       name: u.name,
       wallet: u.wallet,
-      created_at: u.created_at
+      created_at: u.created_at,
+      referral_code: refCode,
+      referral_link: `https://bitworld-web3-two.vercel.app/?ref=${refCode}`
+    },
+    referral: {
+      total_invited: Number(refStats.total_invited || 0)
     },
     balance: Number(agg.balance),
     sessions: Number(agg.sessions),
@@ -66,23 +87,22 @@ async function summary(u) {
 }
 
 export default async function handler(req, res) {
-  // Tambahan Header CORS agar API dapat diakses aman dari frontend dApp
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Cache-Control', 'no-store');
 
-  // Menangani preflight request browser
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
-    // Migrasi otomatis schema database jika parameter a=migrate dipanggil
     if (req.query && req.query.a === 'migrate') {
       try {
         await sql`ALTER TABLE users ALTER COLUMN name DROP NOT NULL`;
-        return res.json({ ok: true, message: 'Schema migration success' });
+        await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(30) UNIQUE`;
+        await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by INTEGER REFERENCES users(id)`;
+        return res.json({ ok: true, message: 'Referral & profile schema migration success' });
       } catch (e) {
         return res.json({ ok: false, error: e.message });
       }
