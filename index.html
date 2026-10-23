@@ -427,9 +427,7 @@ function renderContract(){
 function renderTeam(){
   var isId = lang === "id";
   var roles = [
-    {r: isId ? "CEO" : "CEO", n: "Juan", photo: true},
-    {r: isId ? "Pengembang" : "Developer", n: isId ? "Akan diumumkan" : "To be announced"},
-    {r: isId ? "Pengelola komunitas" : "Community manager", n: isId ? "Akan diumumkan" : "To be announced"}
+    {r: isId ? "CEO & Developer" : "CEO & Developer", n: "Juan", photo: true}
   ];
   var h = "<h2>" + (isId ? "Tim" : "Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
