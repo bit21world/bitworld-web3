@@ -1,48 +1,64 @@
 import { neon } from '@neondatabase/serverless';
 
+const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const action = req.query.a || '';
 
   try {
-    const { fullName, docNumber, docImage, selfieImage } = req.body;
+    // 1. Submit KYC oleh User
+    if (req.method === 'POST' && action === 'submit') {
+      const { user_id, username, name, id_number } = req.body;
+      if (!user_id || !name || !id_number) {
+        return res.status(400).json({ error: 'Data KYC tidak lengkap' });
+      }
 
-    if (!fullName || !docNumber || !docImage || !selfieImage) {
-      return res.status(400).json({ success: false, message: 'Semua data dan foto KYC wajib diisi' });
+      // Cek apakah sudah pernah submit
+      const existing = await sql`SELECT * FROM kyc WHERE user_id = ${user_id}`;
+      if (existing.length > 0) {
+        await sql`UPDATE kyc SET fullname = ${name}, id_number = ${id_number}, status = 'pending' WHERE user_id = ${user_id}`;
+      } else {
+        await sql`INSERT INTO kyc (user_id, username, fullname, id_number, status) VALUES (${user_id}, ${username || ''}, ${name}, ${id_number}, 'pending')`;
+      }
+
+      return res.json({ ok: true, message: 'KYC berhasil dikirim dan menunggu verifikasi owner.' });
     }
 
-    if (!process.env.DATABASE_URL) {
-      return res.status(500).json({ success: false, message: 'DATABASE_URL belum dipasang di Vercel' });
+    // 2. Cek Status KYC oleh User
+    if (req.method === 'GET' && action === 'status') {
+      const userId = req.query.user_id;
+      if (!userId) return res.json({ status: 'none' });
+
+      const resKyc = await sql`SELECT status FROM kyc WHERE user_id = ${userId}`;
+      if (resKyc.length === 0) return res.json({ status: 'none' });
+      return res.json({ status: resKyc[0].status });
     }
 
-    const sql = neon(process.env.DATABASE_URL);
+    // 3. Khusus Owner: Lihat Semua List Pengajuan KYC
+    if (req.method === 'GET' && action === 'admin_list') {
+      const list = await sql`SELECT * FROM kyc ORDER BY id DESC`;
+      return res.json({ ok: true, list });
+    }
 
-    // Bikin tabel kyc_submissions jika belum ada
-    await sql`
-      CREATE TABLE IF NOT EXISTS kyc_submissions (
-        id SERIAL PRIMARY KEY,
-        full_name VARCHAR(255) NOT NULL,
-        doc_number VARCHAR(100) NOT NULL,
-        doc_image TEXT NOT NULL,
-        selfie_image TEXT NOT NULL,
-        status VARCHAR(50) DEFAULT 'PENDING',
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+    // 4. Khusus Owner: Approve atau Reject KYC
+    if (req.method === 'POST' && action === 'admin_action') {
+      const { kyc_id, status } = req.body; // status: 'approved' atau 'rejected'
+      if (!kyc_id || !['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: 'Aksi tidak valid' });
+      }
 
-    await sql`
-      INSERT INTO kyc_submissions (full_name, doc_number, doc_image, selfie_image, status)
-      VALUES (${fullName}, ${docNumber}, ${docImage}, ${selfieImage}, 'PENDING');
-    `;
+      await sql`UPDATE kyc SET status = ${status} WHERE id = ${kyc_id}`;
+      return res.json({ ok: true, message: `KYC berhasil diubah menjadi ${status}` });
+    }
 
-    return res.status(200).json({
-      success: true,
-      message: 'Pengajuan KYC berhasil dikirim'
-    });
-
-  } catch (error) {
-    console.error('KYC Error:', error);
-    return res.status(500).json({ success: false, message: error.message || 'Server Error' });
+    return res.status(400).json({ error: 'Invalid action' });
+  } catch (err) {
+    return res.status(500).json({ error: 'server_error', details: err.message });
   }
 }
