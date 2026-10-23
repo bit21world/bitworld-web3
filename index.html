@@ -130,19 +130,50 @@ main{overflow:hidden}
 #v-home{justify-content:center;overflow:hidden}
 .view .panel{margin:auto 0}
 </style>
+<style id="auth-mining">
+.hright{display:flex;align-items:center;gap:8px}
+.accbtn{border:0;border-radius:999px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;color:#1a1400;background:linear-gradient(180deg,#fde68a,#f5b82e);box-shadow:0 3px 0 #a16207}
+.accbtn:active{transform:translateY(3px);box-shadow:none}
+.fm h2{font-size:20px;color:var(--accent);margin-bottom:4px}
+.fm .sub{color:var(--muted);font-size:13px;margin-bottom:10px}
+.fm label{display:block;font-size:12px;margin:12px 0 5px;color:#cdd8ff}
+.fm input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-size:16px}
+.fm input:focus{outline:2px solid var(--accent)}
+.fm .btn{width:100%;margin-top:16px;text-align:center}
+.fm .btn:disabled{opacity:.55}
+.tabs2{display:flex;gap:6px;margin-bottom:8px}
+.tabs2 button{flex:1;padding:9px;border:0;border-radius:10px;font-weight:700;cursor:pointer;color:#dbe7ff;background:rgba(255,255,255,.08)}
+.tabs2 button.on{background:var(--accent);color:#1a1400}
+.fmsg{margin-top:12px;padding:9px 11px;border-radius:10px;font-size:13px;display:none}
+.fmsg.err{display:block;background:rgba(239,68,68,.22);color:#fecaca}
+.fmsg.ok{display:block;background:rgba(34,197,94,.22);color:#bbf7d0}
+.lnk{margin-top:12px;text-align:center;font-size:13px}
+.lnk a{color:var(--accent);cursor:pointer}
+.bal{text-align:center;margin:10px 0 4px}
+.bal .n{font-size:44px;font-weight:800;color:var(--accent)}
+.bal .u{font-size:12px;color:var(--muted);letter-spacing:2px}
+.mst{display:flex;gap:8px;margin:10px 0}
+.mst div{flex:1;text-align:center;padding:9px;border-radius:12px;background:rgba(255,255,255,.07);font-size:12px;color:var(--muted)}
+.mst b{display:block;font-size:16px;color:#fff;margin-top:2px}
+.note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
+</style>
 </head>
 <body>
 <canvas id="scene"></canvas>
 
 <header>
   <div class="brand">BTW</div>
-  <div class="lang" role="group" aria-label="Bahasa">
-    <button id="lang-id" class="on" type="button">ID</button>
-    <button id="lang-en" type="button">EN</button>
+  <div class="hright">
+    <button id="acc-btn" class="accbtn" type="button">Masuk</button>
+    <div class="lang" role="group" aria-label="Bahasa">
+      <button id="lang-id" class="on" type="button">ID</button>
+      <button id="lang-en" type="button">EN</button>
+    </div>
   </div>
 </header>
 <nav class="bottom" aria-label="Menu utama">
   <button type="button" data-go="home" id="n-home"></button>
+  <button type="button" data-go="mine" id="n-mine">&#9935; Mining</button>
   <button type="button" data-go="wp" id="n-wp"></button>
   <button type="button" data-go="vision" id="n-vision"></button>
   <button type="button" data-go="token" id="n-token"></button>
@@ -244,6 +275,11 @@ main{overflow:hidden}
   <section class="view" id="v-faq">
     <div class="panel" id="faqBody"></div>
   </section>
+  <!-- AKUN (LOGIN/DAFTAR) -->
+  <section class="view" id="v-auth"><div class="panel fm" id="authBody"></div></section>
+
+  <!-- MINING -->
+  <section class="view" id="v-mine"><div class="panel fm" id="mineBody"></div></section>
 </main>
 
 <div class="ticker" aria-hidden="true"><div class="track" id="track"></div></div>
@@ -620,7 +656,7 @@ function renderFAQ(){
 }
 
 /* ================= NAVIGASI ================= */
-var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", news:"v-news", channels:"v-channels", team:"v-team", docs:"v-docs", security:"v-security", roadmap:"v-roadmap", alloc:"v-alloc", dist:"v-dist", gloss:"v-gloss"};
+var VIEWS = {home:"v-home", wp:"v-wp", vision:"v-vision", token:"v-token", contract:"v-contract", faq:"v-faq", news:"v-news", channels:"v-channels", team:"v-team", docs:"v-docs", security:"v-security", roadmap:"v-roadmap", alloc:"v-alloc", dist:"v-dist", gloss:"v-gloss", auth:"v-auth", mine:"v-mine"};
 function go(name){
   if (!VIEWS[name]) name = "home";
   Object.keys(VIEWS).forEach(function(k){
@@ -750,6 +786,225 @@ go(VIEWS[initial] ? initial : "home");
     console.warn("3D tidak bisa ditampilkan:", err);
     canvas.style.display = "none";
   }
+})();
+</script>
+<script>
+/* ============ AKUN + MINING (API Vercel + Neon) ============ */
+(function(){
+  var COOLDOWN_MS = 24 * 3600 * 1000; // sama dengan api/claim.js
+  var user = null, mode = "login", tick = null, resetToken = null;
+  var g = function(id){ return document.getElementById(id); };
+  var T = function(id_, en){ return (typeof lang !== "undefined" && lang === "en") ? en : id_; };
+  var fmt = function(n){ return Number(n || 0).toLocaleString("id-ID"); };
+
+  function api(path, body){
+    var post = body !== undefined;
+    return fetch("/api/" + path, {
+      method: post ? "POST" : "GET", credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: post ? JSON.stringify(body) : undefined
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, data: d }; });
+    }).catch(function(){ return { ok: false, data: { error: "network" } }; });
+  }
+  function errText(c){
+    if (c === "invalid_credentials") return T("Email atau password salah.", "Wrong email or password.");
+    if (c === "email_taken") return T("Email sudah terdaftar.", "Email already registered.");
+    if (c === "weak_password") return T("Password minimal 8 karakter.", "Password must be at least 8 characters.");
+    if (c === "invalid_input") return T("Data tidak valid. Periksa email dan nama.", "Invalid data. Check email and name.");
+    if (c === "cooldown") return T("Belum waktunya klaim. Tunggu hitung mundur selesai.", "Not ready yet. Wait for the countdown.");
+    if (c === "not_verified") return T("Email belum diverifikasi. Cek inbox/spam Anda.", "Email not verified. Check your inbox/spam.");
+    if (c === "rate_limited") return T("Terlalu banyak percobaan. Coba lagi beberapa menit lagi.", "Too many attempts. Try again in a few minutes.");
+    if (c === "token_invalid") return T("Link tidak valid atau sudah kedaluwarsa. Minta link baru.", "Link is invalid or expired. Request a new one.");
+    if (c === "network") return T("Koneksi bermasalah.", "Connection problem.");
+    return T("Terjadi kesalahan di server. Coba lagi.", "Server error. Try again.");
+  }
+  function msg(text, ok){ var e = g("fmsg"); if (!e) return; e.textContent = text; e.className = "fmsg " + (ok ? "ok" : "err"); }
+
+  function loadMe(){
+    return api("me").then(function(r){ user = (r.ok && r.data.user) ? r.data.user : null; });
+  }
+
+  /* ---------- AUTH ---------- */
+  function renderAuth(){
+    var b = g("authBody"); if (!b) return;
+    if (mode === "reset" && resetToken) {
+      b.innerHTML = '<h2>' + T("Password Baru", "New Password") + '</h2><p class="sub">' + T("Buat password baru untuk akun Anda.", "Create a new password for your account.") + '</p>' +
+        '<form id="aForm" novalidate><label for="fPass">' + T("Password baru (min. 8 karakter)", "New password (min. 8 chars)") + '</label>' +
+        '<input id="fPass" type="password" autocomplete="new-password" required>' +
+        '<label for="fPass2">' + T("Ulangi password", "Repeat password") + '</label><input id="fPass2" type="password" autocomplete="new-password" required>' +
+        '<button class="btn primary" type="submit" id="fBtn">' + T("Simpan Password", "Save Password") + '</button></form><div class="fmsg" id="fmsg"></div>';
+      g("aForm").onsubmit = doReset; return;
+    }
+    if (!user && mode === "forgot") {
+      b.innerHTML = '<h2>' + T("Lupa Password", "Forgot Password") + '</h2><p class="sub">' + T("Masukkan email Anda, kami kirim link untuk membuat password baru.", "Enter your email and we will send you a link to set a new password.") + '</p>' +
+        '<form id="aForm" novalidate><label for="fEmail">Email</label><input id="fEmail" type="email" autocomplete="email" required>' +
+        '<button class="btn primary" type="submit" id="fBtn">' + T("Kirim Link", "Send Link") + '</button></form><div class="fmsg" id="fmsg"></div>' +
+        '<div class="lnk"><a id="fBack">' + T("Kembali ke Masuk", "Back to Log in") + '</a></div>';
+      g("aForm").onsubmit = doForgot; g("fBack").onclick = function(){ mode = "login"; renderAuth(); }; return;
+    }
+    if (user) {
+      b.innerHTML = '<h2>' + T("Akun Saya", "My Account") + '</h2><p class="sub" id="aEmail"></p>' +
+        '<button class="btn primary" type="button" id="aMine">&#9935; Mining</button>' +
+        '<button class="btn" type="button" id="aOut">' + T("Keluar", "Log out") + '</button>';
+      g("aEmail").textContent = (user.name ? user.name + " \u2022 " : "") + user.email;
+      g("aMine").onclick = function(){ go("mine"); };
+      g("aOut").onclick = function(){ api("logout", {}).then(function(){ user = null; refreshAll(); go("home"); }); };
+      return;
+    }
+    var reg = mode === "register";
+    b.innerHTML =
+      '<div class="tabs2"><button type="button" id="tLogin" class="' + (reg ? "" : "on") + '">' + T("Masuk", "Log in") + '</button>' +
+      '<button type="button" id="tReg" class="' + (reg ? "on" : "") + '">' + T("Daftar", "Sign up") + '</button></div>' +
+      '<form id="aForm" novalidate>' +
+      (reg ? '<label for="fName">' + T("Nama lengkap", "Full name") + '</label><input id="fName" autocomplete="name" required>' : '') +
+      '<label for="fEmail">Email</label><input id="fEmail" type="email" autocomplete="email" required>' +
+      '<label for="fPass">Password' + (reg ? T(" (min. 8 karakter)", " (min. 8 chars)") : '') + '</label>' +
+      '<input id="fPass" type="password" autocomplete="' + (reg ? "new-password" : "current-password") + '" required>' +
+      (reg ? '<label for="fPass2">' + T("Ulangi password", "Repeat password") + '</label><input id="fPass2" type="password" autocomplete="new-password" required>' : '') +
+      '<button class="btn primary" type="submit" id="fBtn">' + (reg ? T("Buat Akun", "Create account") : T("Masuk", "Log in")) + '</button>' +
+      '</form><div class="fmsg" id="fmsg"></div>' +
+      (reg ? '' : '<div class="lnk"><a id="fForgot">' + T("Lupa password?", "Forgot password?") + '</a></div>') +
+      '<div class="lnk">' + (reg ? T("Sudah punya akun? ", "Already have an account? ") + '<a id="fSwap">' + T("Masuk", "Log in") + '</a>'
+                                 : T("Belum punya akun? ", "No account yet? ") + '<a id="fSwap">' + T("Daftar", "Sign up") + '</a>') + '</div>';
+    g("tLogin").onclick = function(){ mode = "login"; renderAuth(); };
+    g("tReg").onclick = function(){ mode = "register"; renderAuth(); };
+    g("fSwap").onclick = function(){ mode = reg ? "login" : "register"; renderAuth(); };
+    g("aForm").onsubmit = reg ? doRegister : doLogin;
+    if (g("fForgot")) g("fForgot").onclick = function(){ mode = "forgot"; renderAuth(); };
+  }
+  function doRegister(e){
+    e.preventDefault();
+    var nm = g("fName").value.trim(), em = g("fEmail").value.trim(), p = g("fPass").value;
+    if (!nm || !em) return msg(T("Lengkapi semua data.", "Fill in all fields."));
+    if (p.length < 8) return msg(errText("weak_password"));
+    if (p !== g("fPass2").value) return msg(T("Konfirmasi password tidak sama.", "Passwords do not match."));
+    g("fBtn").disabled = true;
+    api("register", { name: nm, email: em, password: p }).then(function(r){
+      if (g("fBtn")) g("fBtn").disabled = false;
+      if (!r.ok) return msg(errText(r.data.error));
+      mode = "login"; renderAuth();
+      if (r.data.mail_sent === false) msg(T("Akun dibuat, tapi email gagal terkirim. Coba masuk lalu pilih kirim ulang verifikasi.", "Account created, but the email failed to send. Try logging in and choose resend verification."));
+      else msg(T("Berhasil! Kami mengirim link verifikasi ke email Anda (cek juga folder spam). Klik link itu, lalu masuk.", "Done! We sent a verification link to your email (check spam too). Click it, then log in."), true);
+    });
+  }
+  function addResend(em){
+    var m = g("fmsg"); if (!m) return;
+    var a = document.createElement("a");
+    a.textContent = T("Kirim ulang email verifikasi", "Resend verification email");
+    a.style.cssText = "color:#fde68a;cursor:pointer;text-decoration:underline;display:block;margin-top:6px";
+    a.onclick = function(){
+      api("resend", { email: em }).then(function(r){
+        msg(r.ok ? T("Email verifikasi dikirim ulang. Cek inbox/spam.", "Verification email resent. Check inbox/spam.") : errText(r.data.error), r.ok);
+      });
+    };
+    m.appendChild(a);
+  }
+  function doLogin(e){
+    e.preventDefault();
+    var em = g("fEmail").value.trim();
+    g("fBtn").disabled = true;
+    api("login", { email: em, password: g("fPass").value }).then(function(r){
+      if (g("fBtn")) g("fBtn").disabled = false;
+      if (!r.ok) { msg(errText(r.data.error)); if (r.data.error === "not_verified") addResend(em); return; }
+      return loadMe().then(function(){ refreshAll(); go("home"); });
+    });
+  }
+  function doForgot(e){
+    e.preventDefault();
+    var em = g("fEmail").value.trim();
+    if (!em) return msg(T("Isi email Anda dulu.", "Enter your email first."));
+    g("fBtn").disabled = true;
+    api("forgot", { email: em }).then(function(r){
+      if (g("fBtn")) g("fBtn").disabled = false;
+      if (!r.ok) return msg(errText(r.data.error));
+      msg(T("Jika email terdaftar, link reset sudah dikirim. Cek inbox/spam.", "If the email is registered, a reset link has been sent. Check inbox/spam."), true);
+    });
+  }
+  function doReset(e){
+    e.preventDefault();
+    var p = g("fPass").value;
+    if (p.length < 8) return msg(errText("weak_password"));
+    if (p !== g("fPass2").value) return msg(T("Konfirmasi password tidak sama.", "Passwords do not match."));
+    g("fBtn").disabled = true;
+    api("reset", { token: resetToken, password: p }).then(function(r){
+      if (g("fBtn")) g("fBtn").disabled = false;
+      if (!r.ok) return msg(errText(r.data.error));
+      resetToken = null; user = null; mode = "login"; refreshAll();
+      msg(T("Password berhasil diganti. Silakan masuk.", "Password changed. Please log in."), true);
+    });
+  }
+
+  /* ---------- MINING ---------- */
+  function renderMine(){
+    var b = g("mineBody"); if (!b) return;
+    clearInterval(tick);
+    if (!user) { b.innerHTML = '<h2>Mining</h2><p class="sub">' + T("Masuk dulu untuk mulai mining.", "Log in to start mining.") +
+      '</p><button class="btn primary" type="button" id="mGo">' + T("Masuk / Daftar", "Log in / Sign up") + '</button>';
+      g("mGo").onclick = function(){ go("auth"); }; return; }
+    b.innerHTML = '<h2>&#9935; Mining</h2><p class="sub">' + T("Klaim reward harian Anda.", "Claim your daily reward.") + '</p>' +
+      '<div class="bal"><div class="n">' + fmt(user.balance) + '</div><div class="u">' + T("POIN BTW (INTERNAL)", "BTW POINTS (INTERNAL)") + '</div></div>' +
+      '<div class="mst"><div>Streak<b>' + user.streak + ' ' + T("hari", "days") + '</b></div>' +
+      '<div>Status<b id="mStat">-</b></div></div>' +
+      '<button class="btn primary" type="button" id="mBtn" disabled>-</button><div class="fmsg" id="fmsg"></div>' +
+      '<p class="note">' + T(
+        "Poin internal adalah catatan reward di dalam aplikasi ini, bukan token BTW on-chain, dan tidak ada jaminan dapat ditukar atau bernilai uang. Bukan ajakan investasi.",
+        "Internal points are in-app reward records, not on-chain BTW tokens, with no guarantee of conversion or monetary value. Not investment advice.") + '</p>';
+    g("mBtn").onclick = claim;
+    var next = user.last_claim ? new Date(user.last_claim).getTime() + COOLDOWN_MS : 0;
+    function upd(){
+      var left = next - Date.now(), btn = g("mBtn"); if (!btn) return clearInterval(tick);
+      if (left <= 0) { btn.disabled = false; btn.textContent = T("Klaim Mining", "Claim Mining"); g("mStat").textContent = T("Siap", "Ready"); }
+      else {
+        var s = Math.ceil(left / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), c = s % 60;
+        btn.disabled = true; btn.textContent = [h, m, c].map(function(x){ return String(x).padStart(2, "0"); }).join(":");
+        g("mStat").textContent = T("Menunggu", "Waiting");
+      }
+    }
+    upd(); tick = setInterval(upd, 1000);
+  }
+  function claim(){
+    g("mBtn").disabled = true;
+    api("claim", {}).then(function(r){
+      loadMe().then(function(){
+        renderMine();
+        if (r.ok) msg("+" + fmt(r.data.reward) + " " + T("poin berhasil diklaim!", "points claimed!"), true);
+        else msg(errText(r.data.error));
+      });
+    });
+  }
+
+  /* ---------- tombol akun, gate, sinkron status ---------- */
+  function updAcc(){
+    var b = g("acc-btn"); if (!b) return;
+    b.textContent = user ? "\uD83D\uDC64 " + T("Akun", "Account") : T("Masuk", "Log in");
+  }
+  function refreshAll(){ updAcc(); renderAuth(); renderMine(); }
+
+  g("acc-btn").addEventListener("click", function(){ go("auth"); });
+  ["lang-id", "lang-en"].forEach(function(id){ g(id).addEventListener("click", refreshAll); });
+
+  var _go = go;
+  go = function(n){
+    if (n === "mine" && !user) { toast(T("Masuk dulu untuk mining", "Log in to mine")); n = "auth"; }
+    _go(n);
+    if (n === "mine") loadMe().then(renderMine);
+  };
+
+  var qs = new URLSearchParams(location.search), vt = qs.get("verify"), rt = qs.get("reset");
+  if (vt || rt) history.replaceState(null, "", location.pathname + location.hash);
+  refreshAll();
+  loadMe().then(function(){
+    refreshAll();
+    if (vt) {
+      return api("verify", { token: vt }).then(function(r){
+        if (r.ok) return loadMe().then(function(){ refreshAll(); go("home"); toast(T("Email terverifikasi!", "Email verified!")); });
+        go("auth"); msg(errText(r.data.error || "token_invalid"));
+      });
+    }
+    if (rt) { resetToken = rt; mode = "reset"; refreshAll(); go("auth"); return; }
+    if (!user && location.hash === "#mine") go("auth");
+  });
 })();
 </script>
 </body>
