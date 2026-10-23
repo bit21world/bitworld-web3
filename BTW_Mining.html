@@ -8,11 +8,37 @@
 :root{--gold:#c99a36;--bg:#10110f;--surface:#191b17;--border:#34362e;--muted:#a7a697;--text:#f7f4ec;--green:#8fd6a1}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:80px}
+
+/* MENU NAVIGASI UTAMA */
+nav.nav-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  background: #151612;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+nav.nav-bar a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+nav.nav-bar a.active {
+  color: #17140b;
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:#151612;flex-wrap:wrap}
 .brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.06em}
 .mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#f5d27d,#a56e19);color:#17140b;font-weight:900}
 .tag{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:7px 11px}
-.btn-home{background:var(--surface);color:var(--gold);border:1px solid var(--border);padding:6px 14px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px}
 main{max-width:1080px;margin:0 auto;padding:24px 16px}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:16px}
 .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
@@ -40,13 +66,21 @@ button:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
+
+<!-- BILAH MENU NAVIGASI -->
+<nav class="nav-bar">
+  <a href="index.html">🏠 Beranda</a>
+  <a href="BTW_Mining.html" class="active">⚡ Mining</a>
+  <a href="whitepaper-bitworld-btw-publik.pdf" target="_blank">📄 Whitepaper</a>
+  <a href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank">🔍 BscScan</a>
+</nav>
+
 <header>
   <div class="brand">
     <div class="mark">BTW</div>
     <div>BTW MINING<div class="label" style="margin-top:3px">Community mining</div></div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
-    <a href="index.html" class="btn-home">🏠 Beranda</a>
     <div id="userHeaderInfo" style="font-size:13px; background:#1f221a; border:1px solid var(--border); padding:6px 12px; border-radius:10px;">
       Halo, <strong id="displayUsername" style="color:var(--gold)">juan17</strong> | KYC: <span id="displayKycStatus" style="color:#8fd6a1">APPROVED</span>
     </div>
@@ -203,7 +237,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- SKRIP AUTH DAN AKUN (MENU/MODAL LOGIN) -->
 <script src="auth.js"></script>
 </body>
 </html>
