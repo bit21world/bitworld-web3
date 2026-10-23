@@ -14,7 +14,7 @@ const WALLET_RE = /^0x[a-fA-F0-9]{40}$/;
 /* KYC */
 const DOC_RE = /^[A-Za-z0-9 .\-]{5,32}$/;
 const IMG_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
-const IMG_MAX = 1500000; // karakter data URL per foto (~1.1 MB)
+const IMG_MAX = 1500000;
 
 /* ---------- Tabel database (dibuat otomatis) ---------- */
 let ready = null;
@@ -65,7 +65,6 @@ async function openSession(res, userId) {
   setCookie(res, token);
 }
 
-/* Admin: kunci rahasia dari environment variable ADMIN_KEY (min. 12 karakter) */
 function isAdmin(req) {
   const key = process.env.ADMIN_KEY;
   if (!key || key.length < 12) return false;
@@ -124,6 +123,80 @@ async function me(req, res) {
   return res.json({ user: userJson(u) });
 }
 
+/* ---------- Profile & Mining ---------- */
+async function status(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+
+  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
+  const phase = phaseOf(claimed);
+  const current = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
+                             ORDER BY started_at DESC LIMIT 1`)[0] || null;
+  const startedToday = (await sql`SELECT 1 FROM mining_sessions
+                                  WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`).length > 0;
+  const totals = (await sql`SELECT COALESCE(SUM(reward), 0) AS reward,
+                                   COUNT(*) FILTER (WHERE claimed_at IS NOT NULL) AS sessions
+                            FROM mining_sessions WHERE user_id = ${u.id}`)[0];
+  const history = await sql`SELECT started_at, claimed_at, reward, phase FROM mining_sessions
+                            WHERE user_id = ${u.id} ORDER BY started_at DESC LIMIT 20`;
+
+  return res.json({
+    user: userJson(u),
+    balance: Number(totals.reward),
+    sessions: Number(totals.sessions),
+    active: current ? { started_at: current.started_at, end_at: current.end_at } : null,
+    today_done: startedToday,
+    pool: { claimed, total: POOL_TOTAL, phase: phase + 1, rate: RATES[phase] },
+    history
+  });
+}
+
+async function updateProfile(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+
+  const name = String(req.body?.name || '').trim();
+  const wallet = String(req.body?.wallet || '').trim();
+  if (wallet && !WALLET_RE.test(wallet)) return res.status(400).json({ error: 'wallet_invalid' });
+
+  await sql`UPDATE users SET name = COALESCE(${name || null}, name), wallet = ${wallet || null} WHERE id = ${u.id}`;
+  return status(req, res);
+}
+
+async function start(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+  const open = await sql`SELECT 1 FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL`;
+  if (open.length) return res.status(409).json({ error: 'claim_first' });
+  const rows = await sql`INSERT INTO mining_sessions (user_id, day, end_at)
+                         VALUES (${u.id}, (now() AT TIME ZONE 'UTC')::date,
+                                 now() + (${SESSION_MS / 1000} * interval '1 second'))
+                         ON CONFLICT (user_id, day) DO NOTHING RETURNING *`;
+  if (!rows.length) return res.status(409).json({ error: 'daily_limit' });
+  return res.status(201).json({ session: rows[0] });
+}
+
+async function claim(req, res) {
+  const u = await currentUser(req);
+  if (!u) return res.status(401).json({ error: 'not_logged_in' });
+  const cur = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
+                         ORDER BY started_at DESC LIMIT 1`)[0];
+  if (!cur) return res.status(404).json({ error: 'no_session' });
+  if (new Date(cur.end_at) > new Date()) return res.status(409).json({ error: 'not_finished' });
+
+  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
+  if (claimed >= POOL_TOTAL) return res.status(409).json({ error: 'pool_empty' });
+  const phase = phaseOf(claimed);
+  const reward = RATES[phase];
+
+  await sql.transaction([
+    sql`UPDATE mining_sessions SET claimed_at = now(), reward = ${reward}, phase = ${phase + 1}
+        WHERE id = ${cur.id} AND claimed_at IS NULL`,
+    sql`UPDATE pool SET claimed = claimed + ${reward} WHERE id = 1`
+  ]);
+  return res.json({ reward, phase: phase + 1 });
+}
+
 /* ---------- KYC ---------- */
 async function kycStatus(req, res) {
   const u = await currentUser(req);
@@ -162,90 +235,7 @@ async function kycSubmit(req, res) {
   return res.status(201).json({ status: 'pending' });
 }
 
-async function kycList(req, res) {
-  if (!isAdmin(req)) return res.status(403).json({ error: 'forbidden' });
-  const status = ['pending', 'verified', 'rejected'].includes(req.query?.status) ? req.query.status : 'pending';
-  const rows = await sql`SELECT k.id, k.status, k.full_name, k.doc_number, k.doc_image, k.selfie_image,
-                                k.submitted_at, k.note, u.username
-                         FROM bw_kyc_submissions k JOIN users u ON u.id = k.user_id
-                         WHERE k.status = ${status} ORDER BY k.submitted_at ASC LIMIT 20`;
-  return res.json({ items: rows });
-}
-
-async function kycReview(req, res) {
-  if (!isAdmin(req)) return res.status(403).json({ error: 'forbidden' });
-  const id = Number(req.body?.id);
-  const status = String(req.body?.status || '');
-  const note = String(req.body?.note || '').slice(0, 200);
-  if (!Number.isInteger(id) || !['verified', 'rejected'].includes(status)) return res.status(400).json({ error: 'bad_request' });
-  const rows = await sql`UPDATE bw_kyc_submissions SET status = ${status}, note = ${note || null}, reviewed_at = now()
-                         WHERE id = ${id} RETURNING id`;
-  if (!rows.length) return res.status(404).json({ error: 'not_found' });
-  return res.json({ ok: true });
-}
-
-/* ---------- Mining ---------- */
-async function status(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-
-  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
-  const phase = phaseOf(claimed);
-  const current = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
-                             ORDER BY started_at DESC LIMIT 1`)[0] || null;
-  const startedToday = (await sql`SELECT 1 FROM mining_sessions
-                                  WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`).length > 0;
-  const totals = (await sql`SELECT COALESCE(SUM(reward), 0) AS reward,
-                                   COUNT(*) FILTER (WHERE claimed_at IS NOT NULL) AS sessions
-                            FROM mining_sessions WHERE user_id = ${u.id}`)[0];
-  const history = await sql`SELECT started_at, claimed_at, reward, phase FROM mining_sessions
-                            WHERE user_id = ${u.id} ORDER BY started_at DESC LIMIT 20`;
-
-  return res.json({
-    user: userJson(u),
-    pool: { claimed, total: POOL_TOTAL, phase: phase + 1, rate: RATES[phase] },
-    current: current ? { started_at: current.started_at, end_at: current.end_at, finished: new Date(current.end_at) <= new Date() } : null,
-    started_today: startedToday,
-    totals: { reward: Number(totals.reward), sessions: Number(totals.sessions) },
-    history
-  });
-}
-
-async function start(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const open = await sql`SELECT 1 FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL`;
-  if (open.length) return res.status(409).json({ error: 'claim_first' });
-  const rows = await sql`INSERT INTO mining_sessions (user_id, day, end_at)
-                         VALUES (${u.id}, (now() AT TIME ZONE 'UTC')::date,
-                                 now() + (${SESSION_MS / 1000} * interval '1 second'))
-                         ON CONFLICT (user_id, day) DO NOTHING RETURNING *`;
-  if (!rows.length) return res.status(409).json({ error: 'daily_limit' });
-  return res.status(201).json({ session: rows[0] });
-}
-
-async function claim(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const cur = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
-                         ORDER BY started_at DESC LIMIT 1`)[0];
-  if (!cur) return res.status(404).json({ error: 'no_session' });
-  if (new Date(cur.end_at) > new Date()) return res.status(409).json({ error: 'not_finished' });
-
-  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
-  if (claimed >= POOL_TOTAL) return res.status(409).json({ error: 'pool_empty' });
-  const phase = phaseOf(claimed);
-  const reward = RATES[phase];
-
-  await sql.transaction([
-    sql`UPDATE mining_sessions SET claimed_at = now(), reward = ${reward}, phase = ${phase + 1}
-        WHERE id = ${cur.id} AND claimed_at IS NULL`,
-    sql`UPDATE pool SET claimed = claimed + ${reward} WHERE id = 1`
-  ]);
-  return res.json({ reward, phase: phase + 1 });
-}
-
-/* ---------- Router: /api?a=nama_aksi ---------- */
+/* ---------- Router Utama ---------- */
 const ROUTES = {
   register:   { m: 'POST', fn: register },
   login:      { m: 'POST', fn: login },
@@ -255,15 +245,21 @@ const ROUTES = {
   start:      { m: 'POST', fn: start },
   claim:      { m: 'POST', fn: claim },
   kyc_status: { m: 'GET',  fn: kycStatus },
-  kyc_submit: { m: 'POST', fn: kycSubmit },
-  kyc_list:   { m: 'GET',  fn: kycList },
-  kyc_review: { m: 'POST', fn: kycReview }
+  kyc_submit: { m: 'POST', fn: kycSubmit }
 };
 
 export default async function handler(req, res) {
   try {
     await setup();
-    const r = ROUTES[String(req.query?.a || '')];
+    
+    // Penanganan khusus rute /api/profile
+    if (req.url.includes('/api/profile')) {
+      if (req.method === 'POST') return await updateProfile(req, res);
+      return await status(req, res);
+    }
+
+    const a = String(req.query?.a || '');
+    const r = ROUTES[a];
     if (!r) return res.status(404).json({ error: 'unknown_route' });
     if (req.method !== r.m) return res.status(405).json({ error: 'method_not_allowed' });
     return await r.fn(req, res);
