@@ -3,19 +3,14 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 
-const HOURLY_RATE = 0.004; // Poin per jam
-const DAILY_TOTAL = 0.096; // 0.004 * 24 jam
-const SESSION_MS = 24 * 60 * 60 * 1000; // 24 jam
+const HOURLY_RATE = 0.004; // Rate poin per jam
+const DAILY_TOTAL = 0.096; // Total reward per sesi 24 jam (0.004 * 24)
+const SESSION_MS = 24 * 60 * 60 * 1000; // Durasi 24 jam dalam milidetik
 const COOKIE = 'btw_sess';
 const USER_RE = /^[a-zA-Z0-9_.-]{3,24}$/;
 const WALLET_RE = /^0x[a-fA-F0-9]{40}$/;
 
-/* KYC Constants */
-const DOC_RE = /^[A-Za-z0-9 .\-]{5,32}$/;
-const IMG_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
-const IMG_MAX = 1500000;
-
-/* ---------- Setup Tabel Base ---------- */
+/* Setup Tabel Utama Database Neon */
 let ready = null;
 function setup() {
   if (!ready) ready = (async () => {
@@ -41,23 +36,11 @@ function setup() {
       amount NUMERIC(20,6) NOT NULL, 
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )`;
-    await sql`CREATE TABLE IF NOT EXISTS bw_kyc_submissions (
-      id BIGSERIAL PRIMARY KEY, 
-      user_id BIGINT NOT NULL UNIQUE REFERENCES bw_users(id) ON DELETE CASCADE, 
-      full_name TEXT NOT NULL, 
-      doc_number TEXT NOT NULL, 
-      doc_image TEXT NOT NULL, 
-      selfie_image TEXT NOT NULL, 
-      status TEXT NOT NULL DEFAULT 'pending', 
-      note TEXT, 
-      submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
-      reviewed_at TIMESTAMPTZ
-    )`;
   })().catch(err => { ready = null; throw err; });
   return ready;
 }
 
-/* ---------- Helper ---------- */
+/* Helper Functions */
 function hashPassword(pw, salt) {
   return new Promise((resolve, reject) =>
     crypto.scrypt(pw, salt, 64, (err, key) => (err ? reject(err) : resolve(key.toString('hex'))))
@@ -91,7 +74,7 @@ async function openSession(res, userId) {
   setCookie(res, token);
 }
 
-/* ---------- Auth ---------- */
+/* Auth Handlers */
 async function register(req, res) {
   const name = String(req.body?.name || '').trim();
   const username = String(req.body?.username || '').trim().replace(/^@+/, '');
@@ -116,14 +99,24 @@ async function register(req, res) {
 }
 
 async function login(req, res) {
-  const username = String(req.body?.username || '').trim().replace(/^@+/, '');
+  const input = String(req.body?.username || req.body?.email || '').trim().replace(/^@+/, '');
   const password = String(req.body?.password || '');
-  const user = (await sql`SELECT * FROM bw_users WHERE username = ${username}`)[0];
+
+  if (!input || !password) return res.status(400).json({ error: 'missing_fields' });
+
+  const users = await sql`
+    SELECT * FROM bw_users 
+    WHERE LOWER(username) = LOWER(${input}) OR LOWER(name) = LOWER(${input}) 
+    LIMIT 1
+  `;
+  const user = users[0];
+
   let ok = false;
-  if (user) {
+  if (user && user.pass_salt && user.pass_hash) {
     const hash = await hashPassword(password, user.pass_salt);
     ok = crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(user.pass_hash, 'hex'));
   }
+
   if (!ok) return res.status(401).json({ error: 'bad_credentials' });
   await openSession(res, user.id);
   return res.json({ user: userJson(user) });
@@ -142,7 +135,7 @@ async function me(req, res) {
   return res.json({ user: userJson(u) });
 }
 
-/* ---------- Mining Logic (24-Hour Cycle) ---------- */
+/* Mining Logic (24 Jam) */
 async function status(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
@@ -172,8 +165,16 @@ async function status(req, res) {
       active,
       mine_start: mineStart,
       hourly_rate: HOURLY_RATE,
+      rate_label: "0.004 BTW / jam",
       unclaimed: Number(currentUnclaimed.toFixed(6)),
       duration_ms: SESSION_MS
+    },
+    pool: {
+      rate: HOURLY_RATE,
+      display_rate: "0.004 BTW / jam",
+      claimed: 0,
+      total: 10500000,
+      phase: 1
     },
     history
   });
@@ -212,24 +213,21 @@ async function claim(req, res) {
   return res.json({ ok: true, claimed_amount: reward });
 }
 
-/* ---------- Router Utama ---------- */
+/* API Router */
 const ROUTES = {
-  register:   { m: 'POST', fn: register },
-  login:      { m: 'POST', fn: login },
-  logout:     { m: 'POST', fn: logout },
-  me:         { m: 'GET',  fn: me },
-  status:     { m: 'GET',  fn: status },
-  start:      { m: 'POST', fn: start },
-  claim:      { m: 'POST', fn: claim }
+  register: { m: 'POST', fn: register },
+  login:    { m: 'POST', fn: login },
+  logout:   { m: 'POST', fn: logout },
+  me:       { m: 'GET',  fn: me },
+  status:   { m: 'GET',  fn: status },
+  start:    { m: 'POST', fn: start },
+  claim:    { m: 'POST', fn: claim }
 };
 
 export default async function handler(req, res) {
   try {
     await setup();
-    
-    if (req.url.includes('/api/profile')) {
-      return await status(req, res);
-    }
+    if (req.url.includes('/api/profile')) return await status(req, res);
 
     const a = String(req.query?.a || '');
     const r = ROUTES[a];
