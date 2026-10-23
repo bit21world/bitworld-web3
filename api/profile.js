@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
