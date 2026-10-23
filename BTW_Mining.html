@@ -67,6 +67,23 @@ button:disabled{opacity:.4;cursor:not-allowed}
 </head>
 <body>
 
+<!-- PROTEKSI AKSES INSTAN BILA BELUM LOGIN -->
+<script>
+(function checkAuthGuard() {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
+                     localStorage.getItem('btw_logged') === 'true' || 
+                     localStorage.getItem('user_logged') === 'true';
+  
+  // Ambil data user aktif jika ada
+  const currentUser = localStorage.getItem('btw_username') || localStorage.getItem('username');
+
+  if (!isLoggedIn || !currentUser) {
+    alert('Akses Ditolak!\nAnda telah logout atau belum melakukan login. Silakan login terlebih dahulu.');
+    window.location.href = 'index.html';
+  }
+})();
+</script>
+
 <!-- BILAH MENU NAVIGASI -->
 <nav class="nav-bar">
   <a href="index.html">🏠 Beranda</a>
@@ -141,6 +158,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   const phase = () => Math.min(3, Math.floor(GLOBAL_CLAIMED / PHASE_SIZE));
   const rate = () => RATES[phase()];
+
+  // Update nama user di header
+  const currentUser = localStorage.getItem('btw_username') || localStorage.getItem('username');
+  if (currentUser && $('displayUsername')) {
+    $('displayUsername').textContent = currentUser;
+  }
 
   function toast(msg) {
     const t = $('toast'); if(!t) return;
