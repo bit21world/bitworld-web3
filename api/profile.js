@@ -66,15 +66,25 @@ async function summary(u) {
 }
 
 export default async function handler(req, res) {
+  // Tambahan Header CORS agar API dapat diakses aman dari frontend dApp
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Cache-Control', 'no-store');
+
+  // Menangani preflight request browser
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    // Perbaikan otomatis: izinkan kolom name kosong (aman dijalankan berulang kali)
+    // Migrasi otomatis schema database jika parameter a=migrate dipanggil
     if (req.query && req.query.a === 'migrate') {
       try {
         await sql`ALTER TABLE users ALTER COLUMN name DROP NOT NULL`;
-        return res.json({ ok: true });
+        return res.json({ ok: true, message: 'Schema migration success' });
       } catch (e) {
-        return res.json({ ok: false });
+        return res.json({ ok: false, error: e.message });
       }
     }
 
@@ -101,6 +111,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'server_error' });
+    return res.status(500).json({ error: 'server_error', details: err.message });
   }
 }
