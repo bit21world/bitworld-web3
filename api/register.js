@@ -4,39 +4,23 @@ const { sql, send, jsonOnly, getIp, limit, sendVerifyMail } = require("./_lib");
 module.exports = async (req, res) => {
   try {
     if (!jsonOnly(req, res)) return;
+    if (!(await limit("reg:" + getIp(req), 5, 60))) return send(res, 429, { error: "rate_limited" });
     const b = req.body || {};
-    const name = String(b.name || "").trim();
     const email = String(b.email || "").trim().toLowerCase();
+    const name = String(b.name || "").trim().slice(0, 80);
     const pw = String(b.password || "");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200 || !name) return send(res, 400, { error: "invalid_input" });
+    if (pw.length < 8 || pw.length > 72) return send(res, 400, { error: "weak_password" });
 
-    if (!name || !email || pw.length < 8) {
-      return send(res, 400, { error: "invalid_input" });
-    }
+    const hash = await bcrypt.hash(pw, 10);
+    const rows = await sql`insert into bw_users (email, name, password_hash, email_verified)
+                           values (${email}, ${name}, ${hash}, false)
+                           on conflict (email) do nothing returning id`;
+    if (!rows.length) return send(res, 409, { error: "email_taken" });
 
-    if (!(await limit("register:" + getIp(req), 5, 60))) {
-      return send(res, 429, { error: "rate_limited" });
-    }
-
-    const check = await sql`select id from users where email = ${email}`;
-    if (check.length) {
-      return send(res, 400, { error: "email_exists" });
-    }
-
-    const passwordHash = await bcrypt.hash(pw, 10);
-    
-    // Menyimpan ke kolom 'password' sesuai tabel database Neon Anda
-    const rows = await sql`
-      insert into users (name, email, password, email_verified)
-      values (${name}, ${email}, ${passwordHash}, false)
-      returning id, name, email, email_verified
-    `;
-
-    const user = rows[0];
-    await sendVerifyMail(user);
-
-    send(res, 200, { ok: true, message: "registered" });
-  } catch (e) {
-    console.error("Register error:", e);
-    send(res, 500, { error: "server" });
-  }
+    let mailSent = true;
+    try { await sendVerifyMail({ id: rows[0].id, email, name }); }
+    catch (e) { console.error("Gagal kirim email:", e); mailSent = false; }
+    send(res, 200, { ok: true, mail_sent: mailSent });
+  } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
 };

@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     const email = String((req.body || {}).email || "").trim().toLowerCase();
     if (!(await limit("forgot:ip:" + getIp(req), 10, 60)) || !(await limit("forgot:" + email, 3, 60)))
       return send(res, 429, { error: "rate_limited" });
-    const rows = await sql`select id, email, name from users where email = ${email}`;
+    const rows = await sql`select id, email, name from bw_users where email = ${email}`;
     if (rows.length) {
       try { await sendResetMail(rows[0]); } catch (e) { console.error("Gagal kirim email:", e); }
     }

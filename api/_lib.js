@@ -2,84 +2,62 @@ const { neon } = require("@neondatabase/serverless");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
+const sql = neon(process.env.DATABASE_URL);
 const MAXAGE = 60 * 60 * 24 * 30; // sesi 30 hari
 const SITE_URL = (process.env.SITE_URL || "https://bitworld21.vercel.app").replace(/\/$/, "");
-
-// Helper untuk eksekusi query Neon SQL secara aman
-async function sql(strings, ...values) {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) {
-    throw new Error("DATABASE_URL belum dikonfigurasi di Vercel");
-  }
-  const queryFn = neon(dbUrl);
-  return await queryFn(strings, ...values);
-}
 
 function secret() {
   if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET belum diisi di Vercel");
   return process.env.JWT_SECRET;
 }
-
 function send(res, status, data) {
   res.setHeader("Cache-Control", "no-store");
   res.status(status).json(data);
 }
-
 function setSession(res, uid) {
   const t = jwt.sign({ uid: String(uid) }, secret(), { expiresIn: MAXAGE });
   res.setHeader("Set-Cookie", `session=${t}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAXAGE}`);
 }
-
 function clearSession(res) {
   res.setHeader("Set-Cookie", "session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0");
 }
-
 function getUid(req) {
   const m = (req.headers.cookie || "").match(/(?:^|; )session=([^;]+)/);
   if (!m) return null;
   try { return jwt.verify(m[1], secret()).uid; } catch (e) { return null; }
 }
-
 // Hanya terima POST berformat JSON (membantu mencegah CSRF)
 function jsonOnly(req, res) {
   if (req.method !== "POST") { send(res, 405, { error: "method" }); return false; }
   if (!(req.headers["content-type"] || "").includes("application/json")) { send(res, 415, { error: "invalid_input" }); return false; }
   return true;
 }
-
 function getIp(req) {
   return (String(req.headers["x-forwarded-for"] || "").split(",")[0] || "").trim() || "unknown";
 }
 
 // Pembatasan: maksimal `max` percobaan per `minutes` menit untuk satu key
 async function limit(key, max, minutes) {
-  try {
-    const r = await sql`select count(*)::int as n from auth_attempts
-                        where key = ${key} and created_at > now() - make_interval(mins => ${minutes})`;
-    if (r && r[0] && r[0].n >= max) return false;
-    await sql`insert into auth_attempts (key) values (${key})`;
-    if (Math.random() < 0.02) await sql`delete from auth_attempts where created_at < now() - interval '1 day'`;
-    return true;
-  } catch (e) {
-    console.error("Rate limit error:", e);
-    return true; // Loloskan jika tabel auth_attempts belum ada/error
-  }
+  const r = await sql`select count(*)::int as n from bw_auth_attempts
+                      where key = ${key} and created_at > now() - make_interval(mins => ${minutes})`;
+  if (r[0].n >= max) return false;
+  await sql`insert into bw_auth_attempts (key) values (${key})`;
+  if (Math.random() < 0.02) await sql`delete from bw_auth_attempts where created_at < now() - interval '1 day'`;
+  return true;
 }
 
 // Token sekali pakai (disimpan sebagai hash SHA-256)
 const sha = (t) => crypto.createHash("sha256").update(String(t)).digest("hex");
-
 async function issueToken(userId, type, hours) {
   const token = crypto.randomBytes(32).toString("hex");
-  await sql`update tokens set used_at = now() where user_id = ${userId} and type = ${type} and used_at is null`;
-  await sql`insert into tokens (user_id, type, token_hash, expires_at)
+  await sql`update bw_tokens set used_at = now() where user_id = ${userId} and type = ${type} and used_at is null`;
+  await sql`insert into bw_tokens (user_id, type, token_hash, expires_at)
             values (${userId}, ${type}, ${sha(token)}, now() + make_interval(hours => ${hours}))`;
   return token;
 }
-
 // Atomik: token hanya bisa dipakai sekali
 async function consumeToken(token, type) {
-  const rows = await sql`update tokens set used_at = now()
+  const rows = await sql`update bw_tokens set used_at = now()
                          where token_hash = ${sha(token)} and type = ${type} and used_at is null and expires_at > now()
                          returning user_id`;
   return rows.length ? rows[0].user_id : null;
@@ -87,21 +65,16 @@ async function consumeToken(token, type) {
 
 // Kirim email lewat Resend
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
 async function sendMail(to, subject, html) {
   const key = process.env.RESEND_API_KEY, from = process.env.MAIL_FROM;
-  if (!key || !from) {
-    console.warn("RESEND_API_KEY / MAIL_FROM belum diisi. Email tidak dikirim.");
-    return; // Cegah crash jika API key email belum diset
-  }
+  if (!key || !from) throw new Error("RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
     body: JSON.stringify({ from, to, subject, html })
   });
-  if (!r.ok) console.error("Resend gagal:", await r.text());
+  if (!r.ok) throw new Error("Resend gagal: " + r.status + " " + (await r.text()));
 }
-
 function mailHtml(name, text, link, label) {
   return `<div style="font-family:system-ui,Arial,sans-serif;max-width:480px;margin:auto;padding:20px">
   <h2 style="color:#b7791f">Bitworld (BTW)</h2>
@@ -110,25 +83,15 @@ function mailHtml(name, text, link, label) {
   <p style="font-size:12px;color:#666">Jika tombol tidak berfungsi, salin link ini ke browser:<br>${link}</p>
   <p style="font-size:12px;color:#666">Jika Anda tidak merasa melakukan ini, abaikan email ini.</p></div>`;
 }
-
 async function sendVerifyMail(user) {
-  try {
-    const t = await issueToken(user.id, "verify", 24);
-    await sendMail(user.email, "Verifikasi email Bitworld",
-      mailHtml(user.name, "Klik tombol di bawah untuk memverifikasi email Anda (berlaku 24 jam).", `${SITE_URL}/?verify=${t}`, "Verifikasi Email"));
-  } catch (err) {
-    console.error("Gagal kirim email verifikasi:", err);
-  }
+  const t = await issueToken(user.id, "verify", 24);
+  await sendMail(user.email, "Verifikasi email Bitworld",
+    mailHtml(user.name, "Klik tombol di bawah untuk memverifikasi email Anda (berlaku 24 jam).", `${SITE_URL}/?verify=${t}`, "Verifikasi Email"));
 }
-
 async function sendResetMail(user) {
-  try {
-    const t = await issueToken(user.id, "reset", 1);
-    await sendMail(user.email, "Reset password Bitworld",
-      mailHtml(user.name, "Klik tombol di bawah untuk membuat password baru (berlaku 1 jam).", `${SITE_URL}/?reset=${t}`, "Buat Password Baru"));
-  } catch (err) {
-    console.error("Gagal kirim email reset:", err);
-  }
+  const t = await issueToken(user.id, "reset", 1);
+  await sendMail(user.email, "Reset password Bitworld",
+    mailHtml(user.name, "Klik tombol di bawah untuk membuat password baru (berlaku 1 jam).", `${SITE_URL}/?reset=${t}`, "Buat Password Baru"));
 }
 
 module.exports = { sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, consumeToken, sendVerifyMail, sendResetMail };
