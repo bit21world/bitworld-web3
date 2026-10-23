@@ -7,11 +7,12 @@
 <style>
 :root{--gold:#c99a36;--bg:#10110f;--surface:#191b17;--border:#34362e;--muted:#a7a697;--text:#f7f4ec;--green:#8fd6a1}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:40px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:80px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);background:#151612;flex-wrap:wrap}
 .brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.06em}
 .mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#f5d27d,#a56e19);color:#17140b;font-weight:900}
 .tag{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:7px 11px}
+.btn-home{background:var(--surface);color:var(--gold);border:1px solid var(--border);padding:6px 14px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px}
 main{max-width:1080px;margin:0 auto;padding:24px 16px}
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:16px}
 .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
@@ -40,8 +41,12 @@ button:disabled{opacity:.4;cursor:not-allowed}
 </head>
 <body>
 <header>
-  <div class="brand"><div class="mark">BTW</div><div>BTW MINING<div class="label" style="margin-top:3px">Community mining</div></div></div>
+  <div class="brand">
+    <div class="mark">BTW</div>
+    <div>BTW MINING<div class="label" style="margin-top:3px">Community mining</div></div>
+  </div>
   <div style="display:flex;gap:8px;align-items:center;">
+    <a href="index.html" class="btn-home">🏠 Beranda</a>
     <div id="userHeaderInfo" style="font-size:13px; background:#1f221a; border:1px solid var(--border); padding:6px 12px; border-radius:10px;">
       Halo, <strong id="displayUsername" style="color:var(--gold)">juan17</strong> | KYC: <span id="displayKycStatus" style="color:#8fd6a1">APPROVED</span>
     </div>
@@ -85,6 +90,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 </main>
 <div class="toast" id="toast"></div>
 
+<!-- SKRIP LOGIC MINING -->
 <script>
 window.addEventListener('DOMContentLoaded', () => {
   const SESSION_MS = 24 * 60 * 60 * 1000;
@@ -92,7 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const PHASE_SIZE = POOL_TOTAL / 4;
   const RATES = [0.12, 0.06, 0.03, 0.015];
 
-  // Ambil data tersimpan di localStorage
   let GLOBAL_CLAIMED = Number(localStorage.getItem('btw_global_claimed') || 0);
   let savedEndAt = Number(localStorage.getItem('btw_endAt') || 0);
   let savedBalance = Number(localStorage.getItem('btw_balance') || 0);
@@ -169,7 +174,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // EVENT KLIK TOMBOL START MINING
   $('btnStart').addEventListener('click', () => {
     const now = Date.now();
     savedEndAt = now + SESSION_MS;
@@ -178,7 +182,6 @@ window.addEventListener('DOMContentLoaded', () => {
     toast('⚡ Sesi mining dimulai (24 jam)!');
   });
 
-  // EVENT KLIK TOMBOL CLAIM
   $('btnClaim').addEventListener('click', () => {
     const r = rate();
     savedBalance += r;
@@ -195,10 +198,12 @@ window.addEventListener('DOMContentLoaded', () => {
     toast('🎉 Reward berhasil diklaim!');
   });
 
-  // Jalankan perulangan detik
   updateUI();
   setInterval(updateUI, 1000);
 });
 </script>
+
+<!-- SKRIP AUTH DAN AKUN (MENU/MODAL LOGIN) -->
+<script src="auth.js"></script>
 </body>
 </html>
