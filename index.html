@@ -1,433 +1,304 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bitworld (BTW) - Web3 dApp & Cloud Mining</title>
-<style>
-:root {
-  --bg: #05070d;
-  --fg: #e8ecf5;
-  --muted: #8a94a8;
-  --accent: #f5b82e;
-  --accent2: #22d3ee;
-  --card: rgba(18,24,38,.72);
-  --line: rgba(255,255,255,.1);
-  --spring: cubic-bezier(.34,1.56,.64,1);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-body { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
-#scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-
-/* Header */
-header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 8px; gap: 8px; background: rgba(5,7,13,0.8); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.brand { font-weight: 800; font-size: 17px; color: var(--accent); display: flex; align-items: center; gap: 6px; }
-.brand-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(245,184,46,0.15); border: 1px solid var(--accent); }
-.header-actions { display: flex; align-items: center; gap: 8px; }
-.wallet-btn { background: linear-gradient(180deg, #22d3ee, #0284c7); border: none; color: #021318; font-weight: 700; font-size: 12px; padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: transform 0.2s; }
-.wallet-btn:active { transform: scale(0.95); }
-
-/* Main Content Views */
-main { position: relative; z-index: 1; flex: 1; min-height: 0; overflow: hidden; }
-.view { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: flex-start; padding: 12px 16px; gap: 12px; overflow-y: auto; text-align: center; }
-.view.active { display: flex; animation: fade .4s var(--spring); }
-@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-/* Cards & Components */
-.panel { width: 100%; max-width: 520px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; text-align: left; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-.panel h2 { font-size: 18px; margin-bottom: 8px; color: var(--accent); }
-.panel p { font-size: 13px; line-height: 1.5; color: var(--fg); opacity: .92; margin-bottom: 8px; }
-.muted { color: var(--muted) !important; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; color: var(--accent2); word-break: break-all; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; margin: 8px 0; border: 1px solid rgba(34,211,238,0.2); }
-
-/* Stats Grid Transparan (3 Kolom) */
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 520px; }
-.stat-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; backdrop-filter: blur(8px); }
-.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
-.stat-value { font-size: 14px; font-weight: 800; margin-top: 4px; color: var(--accent); word-break: break-word; }
-
-/* Mining Console */
-.mining-box { text-align: center; border: 1px solid rgba(245,184,46,0.3); background: linear-gradient(180deg, rgba(245,184,46,0.08), rgba(18,24,38,0.8)); }
-.timer-display { font-size: 28px; font-weight: 800; font-family: monospace; color: var(--accent2); margin: 10px 0; letter-spacing: 1px; }
-.btn-mine { background: linear-gradient(180deg, #fde68a, #f5b82e); border: none; color: #1a1400; font-weight: 800; font-size: 15px; padding: 14px 24px; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(245,184,46,0.3); transition: all 0.2s; }
-.btn-mine:active { transform: scale(0.97); }
+<!DOCTYPE html> <html lang="id"> <head> <meta charset="UTF-8"> <meta name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover"> <title>Bitworld (BTW) - Web3
+dApp & Cloud Mining</title> <style> :root { --bg: #05070d; --fg: #e8ecf5; --muted: #8a94a8;
+--accent: #f5b82e; --accent2: #22d3ee; --card: rgba(18,24,38,.72); --line: rgba(255,255,255,.1);
+--spring: cubic-bezier(.34,1.56,.64,1); }
+● { box-sizing: border-box; margin: 0; padding: 0; } html, body { height: 100%; overflow:
+hidden; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system,
+"Segoe UI", Roboto, sans-serif; } body { height: 100vh; height: 100dvh; display: flex;
+flex-direction: column; } #scene { position: fixed; inset: 0; width: 100%; height: 100%;
+z-index: 0; pointer-events: none; }
+/* Header */ header { position: relative; z-index: 2; display: flex; align-items: center;
+justify-content: space-between; padding: calc(env(safe-area-inset-top, 0px) + 10px) 14px 8px;
+gap: 8px; background: rgba(5,7,13,0.8); backdrop-filter: blur(8px); border-bottom: 1px solid
+var(--line); } .brand { font-weight: 800; font-size: 17px; color: var(--accent); display: flex;
+align-items: center; gap: 6px; } .brand-badge { font-size: 10px; padding: 2px 6px; border-radius:
+4px; background: rgba(245,184,46,0.15); border: 1px solid var(--accent); } .header-actions {
+display: flex; align-items: center; gap: 8px; } .wallet-btn { background: linear-gradient(180deg,
+#22d3ee, #0284c7); border: none; color: #021318; font-weight: 700; font-size: 12px; padding:
+8px 14px; border-radius: 999px; cursor: pointer; transition: transform 0.2s; } .wallet-btn:active {
+transform: scale(0.95); }
+/* Main Content Views */ main { position: relative; z-index: 1; flex: 1; min-height: 0; overflow:
+hidden; } .view { position: absolute; inset: 0; display: none; flex-direction: column; align-items:
+center; justify-content: flex-start; padding: 12px 16px; gap: 12px; overflow-y: auto; text-align:
+center; } .view.active { display: flex; animation: fade .4s var(--spring); } @keyframes fade { from {
+opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* Cards & Components */ .panel { width: 100%; max-width: 520px; background: var(--card);
+border: 1px solid var(--line); border-radius: 16px; padding: 16px; text-align: left; backdrop-filter:
+blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); } .panel
+h2 { font-size: 18px; margin-bottom: 8px; color: var(--accent); } .panel p { font-size: 13px;
+line-height: 1.5; color: var(--fg); opacity: .92; margin-bottom: 8px; } .muted { color: var(--muted)
+!important; } .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
+monospace; font-size: 11.5px; color: var(--accent2); word-break: break-all; background:
+rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; margin: 8px 0; border: 1px solid
+rgba(34,211,238,0.2); }
+/* Form Controls */ .form-group { margin-bottom: 12px; } .form-group label { display: block;
+font-size: 12px; color: var(--muted); margin-bottom: 4px; } .form-group input, .form-group select {
+width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background:
+rgba(0,0,0,0.4); color: var(--fg); font-size: 13px; }
+/* Stats Grid Transparan (3 Kolom) */ .stats-grid { display: grid; grid-template-columns: repeat(3,
+1fr); gap: 8px; width: 100%; max-width: 520px; } .stat-card { background: var(--card); border: 1px
+solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; backdrop-filter:
+blur(8px); } .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color:
+var(--muted); } .stat-value { font-size: 14px; font-weight: 800; margin-top: 4px; color:
+var(--accent); word-break: break-word; }
+/* Mining Console */ .mining-box { text-align: center; border: 1px solid rgba(245,184,46,0.3);
+background: linear-gradient(180deg, rgba(245,184,46,0.08), rgba(18,24,38,0.8)); } .timer-display
+{ font-size: 28px; font-weight: 800; font-family: monospace; color: var(--accent2); margin: 10px
+0; letter-spacing: 1px; } .btn-mine { background: linear-gradient(180deg, #fde68a, #f5b82e); border: none; color: #1a1400; font-weight: 800; font-size: 15px; padding: 14px 24px;
+border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px
+rgba(245,184,46,0.3); transition: all 0.2s; } .btn-mine:active { transform: scale(0.97); }
 .btn-mine:disabled { opacity: 0.6; cursor: not-allowed; }
-
-/* General Buttons */
-.btn { display: inline-block; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid var(--line); background: rgba(255,255,255,0.05); color: var(--fg); cursor: pointer; text-align: center; }
-.btn.primary { background: var(--accent); color: #1a1400; border-color: var(--accent); }
-
-/* Navigation Bottom Bar */
-nav.bottom { position: relative; z-index: 2; display: flex; overflow-x: auto; border-top: 1px solid var(--line); background: rgba(6,22,58,0.95); padding: 4px 6px; gap: 4px; flex-shrink: 0; }
-nav.bottom::-webkit-scrollbar { display: none; }
-nav.bottom button, nav.bottom a.pdf-btn { background: transparent; border: 0; color: var(--muted); padding: 8px 10px; min-height: 44px; font-size: 11px; font-weight: 700; white-space: nowrap; flex: 0 0 auto; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; border-radius: 8px; }
-nav.bottom button.on { color: var(--accent); background: rgba(245,184,46,0.1); }
-
-/* Ticker & Toast */
-.ticker { position: relative; z-index: 2; overflow: hidden; border-top: 1px solid var(--line); background: rgba(0,0,0,0.5); padding: 6px 0; flex-shrink: 0; }
-.track { display: flex; width: max-content; animation: marquee 22s linear infinite; }
-.track span { padding: 0 18px; font-size: 11px; font-weight: 600; color: var(--muted); }
-.track span b { color: var(--accent); }
+/* General Buttons */ .btn { display: inline-block; padding: 10px 16px; border-radius: 10px;
+font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid var(--line);
+background: rgba(255,255,255,0.05); color: var(--fg); cursor: pointer; text-align: center; width:
+100%; } .btn.primary { background: var(--accent); color: #1a1400; border-color: var(--accent); }
+/* Navigation Bottom Bar */ nav.bottom { position: relative; z-index: 2; display: flex; overflow-x:
+auto; border-top: 1px solid var(--line); background: rgba(6,22,58,0.95); padding: 4px 6px; gap:
+4px; flex-shrink: 0; } nav.bottom::-webkit-scrollbar { display: none; } nav.bottom button,
+nav.bottom a.pdf-btn { background: transparent; border: 0; color: var(--muted); padding: 8px
+10px; min-height: 44px; font-size: 11px; font-weight: 700; white-space: nowrap; flex: 0 0 auto;
+cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center;
+justify-content: center; text-decoration: none; border-radius: 8px; } nav.bottom button.on { color:
+var(--accent); background: rgba(245,184,46,0.1); }
+/* Ticker & Toast */ .ticker { position: relative; z-index: 2; overflow: hidden; border-top: 1px solid
+var(--line); background: rgba(0,0,0,0.5); padding: 6px 0; flex-shrink: 0; } .track { display: flex;
+width: max-content; animation: marquee 22s linear infinite; } .track span { padding: 0 18px;
+font-size: 11px; font-weight: 600; color: var(--muted); } .track span b { color: var(--accent); }
 @keyframes marquee { to { transform: translateX(-50%); } }
-
-#toast { position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(100px); background: #ffffff; color: #000000; padding: 8px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; transition: transform .4s var(--spring); z-index: 99; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-#toast.show { transform: translateX(-50%) translateY(0); }
-</style>
-</head>
-<body>
-
+#toast { position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(100px);
+background: #ffffff; color: #000000; padding: 8px 18px; border-radius: 8px; font-size: 12px;
+font-weight: 700; transition: transform .4s var(--spring); z-index: 99; white-space: nowrap;
+box-shadow: 0 4px 12px rgba(0,0,0,0.3); } #toast.show { transform: translateX(-50%)
+translateY(0); } </style> </head> <body>
 <canvas id="scene"></canvas>
-
-<header>
-  <div class="brand">
-    Bitworld <span class="brand-badge">$BTW</span>
-  </div>
-  <div class="header-actions">
-    <button class="wallet-btn" id="btnConnectWallet" onclick="connectWallet()">Hubungkan Wallet</button>
-  </div>
-</header>
-
-<main>
-  <!-- BERANDA -->
-  <section class="view active" id="v-home">
-    <div style="margin-top:10px;">
-      <span style="font-size:11px; padding:4px 10px; border-radius:999px; background:rgba(34,211,238,0.1); border:1px solid var(--accent2); color:var(--accent2);">BEP-20 • BNB SMART CHAIN</span>
-    </div>
-    <h1 style="font-size:36px; font-weight:800; color:var(--fg); margin:8px 0;">Bitworld</h1>
-    <p style="font-size:13px; color:var(--muted); max-width:420px; line-height:1.4;">Ekosistem Web3 Layer 2 terdesentralisasi di BNB Smart Chain dengan suplai terbatas 21 Juta $BTW.</p>
-    
-    <!-- Transparan Stats Grid (3 Kolom, Tanpa Harga Spekulatif) -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Pasokan</div>
-        <div class="stat-value">21.000.000</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Penambang Aktif</div>
-        <div class="stat-value" id="activeMinersCount">Memuat...</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Jaringan</div>
-        <div class="stat-value" style="color:var(--accent2);">BSC</div>
-      </div>
-    </div>
-
-    <!-- Quick Mining Box -->
-    <div class="panel mining-box" style="margin-top:10px;">
-      <span style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--accent2);">Web3 Cloud Mining</span>
-      <h3 style="font-size:16px; color:var(--fg); margin:6px 0;">Tambang Bitworld ($BTW)</h3>
-      <p class="muted" style="font-size:12px;">Aktifkan sesi mining setiap 24 jam untuk klaim saldo reward Anda.</p>
-      <div class="timer-display" id="homeTimer">24:00:00</div>
-      <button class="btn-mine" id="btnHomeMine" onclick="startMining()">Mulai Sesi Mining</button>
-    </div>
-  </section>
-
-  <!-- MINING CONSOLE -->
-  <section class="view" id="v-mining">
-    <div class="panel mining-box">
-      <h2>Konsol Penambangan</h2>
-      <p class="muted">Status Sesi: <b id="miningStatus" style="color:var(--accent);">Siap Dimulai</b></p>
-      <div class="timer-display" id="mineTimer">24:00:00</div>
-      <button class="btn-mine" id="btnStartMine" onclick="startMining()">Mulai Sesi Mining (24 Jam)</button>
-      
-      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-size:11px; color:var(--muted);">Estimasi Reward Sesi</div>
-          <div style="font-size:16px; font-weight:800; color:var(--accent);" id="sessionReward">0.00 $BTW</div>
-        </div>
-        <button class="btn primary" onclick="claimReward()" id="btnClaim" disabled>Klaim Saldo</button>
-      </div>
-    </div>
-
-    <!-- Wallet & KYC Card -->
-    <div class="panel">
-      <h2>Status Dompet & Verifikasi</h2>
-      <p>Alamat Dompet: <span class="mono" id="walletAddr">Belum Terhubung</span></p>
-      <p>Status KYC: <span id="kycBadge" style="padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); font-weight:bold; font-size:11px;">UNVERIFIED</span></p>
-      <p>Saldo Terklaim: <b style="color:var(--accent);" id="userBalance">0.00 $BTW</b></p>
-    </div>
-  </section>
-
-  <!-- WHITEPAPER -->
-  <section class="view" id="v-wp">
-    <div class="panel">
-      <h2>Whitepaper Bitworld ($BTW)</h2>
-      <p><b>1. Ringkasan Proyek</b><br>Bitworld adalah proyek Layer 2 yang berjalan di atas BNB Smart Chain (BSC) menggunakan standar token BEP-20. Total suplai ditetapkan secara ketat sebesar 21.000.000 $BTW tanpa fungsi minting tambahan.</p>
-      <p><b>2. Transparansi & Keamanan</b><br>Smart contract resmi tidak memiliki fungsi tersembunyi yang memungkinkan perubahan pasokan token secara sepihak.</p>
-      
-      <div style="margin-top:16px; text-align:center;">
-        <a href="whitepaper-bitworld-btw-publik-id.pdf" target="_blank" class="btn primary" style="display:block; text-decoration:none; padding:12px;">
-          📄 Buka File Whitepaper Resmi (PDF)
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- TOKENOMICS -->
-  <section class="view" id="v-token">
-    <div class="panel">
-      <h2>Tokenomics ($BTW)</h2>
-      <p class="muted">Total Pasokan Resmi: <b>21.000.000 $BTW</b></p>
-      <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-        <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0; color:var(--accent);">Alokasi Komunitas / Mining</td><td style="text-align:right;">50% (10.500.000)</td></tr>
-        <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0; color:#22d3ee;">Tim & Pengembang</td><td style="text-align:right;">15% (3.150.000)</td></tr>
-        <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0; color:#a78bfa;">Pengembangan Ekosistem</td><td style="text-align:right;">10% (2.100.000)</td></tr>
-        <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0; color:#34d399;">Likuiditas DEX/CEX</td><td style="text-align:right;">10% (2.100.000)</td></tr>
-        <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0; color:#fb7185;">Pemasaran & Kemitraan</td><td style="text-align:right;">10% (2.100.000)</td></tr>
-        <tr><td style="padding:8px 0; color:#94a3b8;">Cadangan Ekosistem</td><td style="text-align:right;">5% (1.050.000)</td></tr>
-      </table>
-    </div>
-  </section>
-
-  <!-- SMART CONTRACT -->
-  <section class="view" id="v-contract">
-    <div class="panel">
-      <h2>Alamat Smart Contract</h2>
-      <p>Verifikasi alamat resmi token BTW di BscScan sebelum melakukan transaksi:</p>
-      <div class="mono" id="contractAddress">0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea</div>
-      <div style="display:flex; gap:8px; margin-top:12px;">
-        <button class="btn primary" style="flex:1;" onclick="copyContract()">Salin Alamat</button>
-        <a class="btn" style="flex:1;" href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener">Lihat di BscScan</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- REFERRAL -->
-  <section class="view" id="v-ref">
-    <div class="panel">
-      <h2>Program Referral</h2>
-      <p>Undang teman Anda untuk bergabung dalam jaringan penambangan Bitworld dan dapatkan bonus saldo reward tambahan.</p>
-      <p class="muted">Tautan Referral Anda:</p>
-      <input type="text" id="refLinkInput" readonly value="https://bitworld-web3-two.vercel.app/?ref=BTW1001" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); background:rgba(0,0,0,0.3); color:var(--accent2); font-family:monospace; margin-bottom:10px;">
-      <button class="btn primary" style="width:100%;" onclick="copyRefLink()">Salin Link Undangan</button>
-    </div>
-  </section>
-</main>
-
-<!-- Ticker Bawah -->
-<div class="ticker" aria-hidden="true">
-  <div class="track">
-    <span><b>BTW</b> Bitworld Ecosystem</span>
-    <span>Total Supply: <b>21.000.000 BTW</b></span>
-    <span>Network: <b>BNB Smart Chain</b></span>
-    <span>Contract: <b>BEP-20 Verified</b></span>
-    <span><b>BTW</b> Bitworld Ecosystem</span>
-    <span>Total Supply: <b>21.000.000 BTW</b></span>
-  </div>
+<header> <div class="brand"> Bitworld <span class="brand-badge">$BTW</span> </div> <div
+class="header-actions"> <button class="wallet-btn" id="btnConnectWallet"
+onclick="connectWallet()">Hubungkan Wallet</button> </div> </header>
+<main> <!-- BERANDA --> <section class="view active" id="v-home"> <div
+style="margin-top:10px;"> <span style="font-size:11px; padding:4px 10px; border-radius:999px;
+background:rgba(34,211,238,0.1); border:1px solid var(--accent2);
+color:var(--accent2);">BEP-20 • BNB SMART CHAIN</span> </div> <h1 style="font-size:36px;
+font-weight:800; color:var(--fg); margin:8px 0;">Bitworld</h1> <p style="font-size:13px;
+color:var(--muted); max-width:420px; line-height:1.4;">Ekosistem Web3 Layer 2
+terdesentralisasi di BNB Smart Chain dengan suplai terbatas 21 Juta $BTW.</p>
+<div class="stats-grid"> <div class="stat-card"> <div class="stat-label">Total Pasokan</div>
+<div class="stat-value">21.000.000</div> </div> <div class="stat-card"> <div
+class="stat-label">Penambang Aktif</div> <div class="stat-value"
+id="activeMinersCount">Memuat...</div> </div> <div class="stat-card"> <div
+class="stat-label">Jaringan</div> <div class="stat-value"
+style="color:var(--accent2);">BSC</div> </div> </div>
+<div class="panel mining-box" style="margin-top:10px;"> <span style="font-size:10px;
+text-transform:uppercase; letter-spacing:1px; color:var(--accent2);">Web3 Cloud Mining</span>
+<h3 style="font-size:16px; color:var(--fg); margin:6px 0;">Tambang Bitworld ($BTW)</h3> <p
+class="muted" style="font-size:12px;">Aktifkan sesi mining setiap 24 jam untuk klaim saldo
+reward Anda.</p> <div class="timer-display" id="homeTimer">24:00:00</div> <button class="btn-mine" id="btnHomeMine" onclick="startMining()">Mulai Sesi Mining</button> </div>
+</section>
+<!-- MINING CONSOLE --> <section class="view" id="v-mining"> <div class="panel
+mining-box"> <h2>Konsol Penambangan</h2> <p class="muted">Status Sesi: <b
+id="miningStatus" style="color:var(--accent);">Siap Dimulai</b></p> <div class="timer-display"
+id="mineTimer">24:00:00</div> <button class="btn-mine" id="btnStartMine"
+onclick="startMining()">Mulai Sesi Mining (24 Jam)</button>
+<div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line); display:flex;
+justify-content:space-between; align-items:center; gap:8px;"> <div style="text-align:left;"> <div
+style="font-size:11px; color:var(--muted);">Estimasi Reward Sesi</div> <div
+style="font-size:16px; font-weight:800; color:var(--accent);" id="sessionReward">0.00
+$BTW</div> </div> <button class="btn primary" style="width:auto; padding:10px 18px;"
+onclick="claimReward()" id="btnClaim" disabled>Klaim Saldo</button> </div> </div> </section>
+<!-- PROFIL & LOGIN --> <section class="view" id="v-profile"> <!-- Panel Status Pengguna /
+Login State --> <div class="panel" id="userProfilePanel" style="display:none;"> <h2>Profil
+Pengguna</h2> <p>Email: <b id="userEmailDisplay"
+style="color:var(--accent2);">user@bitworld.io</b></p> <p>Alamat Dompet: <span
+class="mono" id="walletAddr">Belum Terhubung</span></p> <p style="margin-top:8px;">Status
+KYC: <span id="kycBadge" style="padding:4px 8px; border-radius:4px;
+background:rgba(239,68,68,0.2); color:#f87171; font-weight:bold; font-size:11px;">BELUM
+VERIFIKASI</span></p> <p style="margin-top:8px;">Saldo Terklaim: <b
+style="color:var(--accent);" id="userBalance">0.00 $BTW</b></p>
+<button class="btn" style="margin-top:12px; border-color:rgba(239,68,68,0.5); color:#f87171;"
+onclick="handleLogout()">Keluar (Logout)</button> </div>
+<!-- Panel Form Login / Register --> <div class="panel" id="authPanel"> <h2>Akun
+Bitworld</h2> <p class="muted">Masuk atau daftar akun untuk menyimpan progres mining &
+verifikasi KYC.</p>
+<div class="form-group"> <label>Email / Username</label> <input type="email" id="authEmail"
+placeholder="nama@email.com"> </div> <div class="form-group"> <label>Kata Sandi</label>
+<input type="password" id="authPassword" placeholder="••••••••"> </div>
+<div style="display:flex; gap:8px; margin-top:12px;"> <button class="btn primary"
+onclick="handleLogin()">Masuk (Login)</button> <button class="btn"
+onclick="handleRegister()">Daftar</button> </div> </div>
+<!-- Panel Verifikasi KYC --> <div class="panel" id="kycFormPanel"> <h2>Verifikasi KYC
+Identitas</h2> <p class="muted">Lengkapi verifikasi identitas untuk membuka fitur penarikan
+token ($BTW).</p>
+<div class="form-group"> <label>Nama Lengkap (Sesuai KTP/Paspor)</label> <input
+type="text" id="kycFullName" placeholder="Nama Lengkap"> </div> <div class="form-group">
+<label>Jenis Identitas</label> <select id="kycDocType"> <option value="KTP">KTP (Kartu
+Tanda Penduduk)</option> <option value="PASSPORT">Paspor</option> <option
+value="SIM">SIM</option> </select> </div> <div class="form-group"> <label>Nomor Dokumen
+Identitas</label> <input type="text" id="kycDocNum" placeholder="3171xxxxxxxxxxxx"> </div>
+<button class="btn primary" onclick="submitKYC()" id="btnSubmitKyc">Kirim Dokumen
+KYC</button> </div> </section>
+<!-- WHITEPAPER --> <section class="view" id="v-wp"> <div class="panel"> <h2>Whitepaper
+Bitworld ($BTW)</h2> <p><b>1. Ringkasan Proyek</b> Bitworld adalah proyek Layer 2 yang
+berjalan di atas BNB Smart Chain (BSC) menggunakan standar token BEP-20. Total suplai
+ditetapkan secara ketat sebesar 21.000.000 $BTW tanpa fungsi minting tambahan.</p> <p><b>2. Transparansi & Keamanan</b> Smart contract resmi tidak memiliki fungsi
+tersembunyi yang memungkinkan perubahan pasokan token secara sepihak.</p>
+<div style="margin-top:16px; text-align:center;"> <a href="whitepaper-bitworld-btw-publik-id.pdf"
+target="_blank" class="btn primary" style="display:block; text-decoration:none; padding:12px;">
+📄 Buka File Whitepaper Resmi (PDF) </a> </div> </div> </section>
+<!-- TOKENOMICS --> <section class="view" id="v-token"> <div class="panel">
+<h2>Tokenomics ($BTW)</h2> <p class="muted">Total Pasokan Resmi: <b>21.000.000
+$BTW</b></p> <table style="width:100%; border-collapse:collapse; margin-top:10px;"> <tr
+style="border-bottom:1px solid var(--line);"><td style="padding:8px 0;
+color:var(--accent);">Alokasi Komunitas / Mining</td><td style="text-align:right;">50%
+(10.500.000)</td></tr> <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0;
+color:#22d3ee;">Tim & Pengembang</td><td style="text-align:right;">15% (3.150.000)</td></tr>
+<tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0;
+color:#a78bfa;">Pengembangan Ekosistem</td><td style="text-align:right;">10%
+(2.100.000)</td></tr> <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0;
+color:#34d399;">Likuiditas DEX/CEX</td><td style="text-align:right;">10%
+(2.100.000)</td></tr> <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 0;
+color:#fb7185;">Pemasaran & Kemitraan</td><td style="text-align:right;">10%
+(2.100.000)</td></tr> <tr><td style="padding:8px 0; color:#94a3b8;">Cadangan
+Ekosistem</td><td style="text-align:right;">5% (1.050.000)</td></tr> </table> </div> </section>
+<!-- SMART CONTRACT --> <section class="view" id="v-contract"> <div class="panel">
+<h2>Alamat Smart Contract</h2> <p>Verifikasi alamat resmi token BTW di BscScan sebelum
+melakukan transaksi:</p> <div class="mono"
+id="contractAddress">0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea</div> <div
+style="display:flex; gap:8px; margin-top:12px;"> <button class="btn primary"
+onclick="copyContract()">Salin Alamat</button> <a class="btn"
+href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea"
+target="_blank" rel="noopener">BscScan</a> </div> </div> </section>
+<!-- REFERRAL --> <section class="view" id="v-ref"> <div class="panel"> <h2>Program
+Referral</h2> <p>Undang teman Anda untuk bergabung dalam jaringan penambangan Bitworld
+dan dapatkan bonus saldo reward tambahan.</p> <p class="muted">Tautan Referral Anda:</p>
+<input type="text" id="refLinkInput" readonly
+value="https://bitworld-web3-two.vercel.app/?ref=BTW1001" style="width:100%; padding:10px;
+border-radius:8px; border:1px solid var(--line); background:rgba(0,0,0,0.3); color:var(--accent2);
+font-family:monospace; margin-bottom:10px;"> <button class="btn primary"
+onclick="copyRefLink()">Salin Link Undangan</button> </div> </section> </main>
+<div class="ticker" aria-hidden="true"> <div class="track"> <span><b>BTW</b> Bitworld
+Ecosystem</span> <span>Total Supply: <b>21.000.000 BTW</b></span> <span>Network:
+<b>BNB Smart Chain</b></span> <span>Contract: <b>BEP-20 Verified</b></span> </div>
 </div>
-
-<!-- Navigasi Bawah -->
-<nav class="bottom">
-  <button class="on" onclick="switchTab('home')" id="tab-home">🏠 Beranda</button>
-  <button onclick="switchTab('mining')" id="tab-mining">⛏️ Mining</button>
-  <button onclick="switchTab('wp')" id="tab-wp">📖 Whitepaper</button>
-  <button onclick="switchTab('token')" id="tab-token">📊 Tokenomics</button>
-  <button onclick="switchTab('contract')" id="tab-contract">📑 Kontrak</button>
-  <button onclick="switchTab('ref')" id="tab-ref">👥 Referral</button>
-  <a href="whitepaper-bitworld-btw-publik-id.pdf" target="_blank" class="pdf-btn" style="color:var(--accent);">📄 PDF</a>
-</nav>
-
+<nav class="bottom"> <button class="on" onclick="switchTab('home')" id="tab-home">🏠
+Beranda</button> <button onclick="switchTab('mining')" id="tab-mining">⛏️ Mining</button>
+<button onclick="switchTab('profile')" id="tab-profile">👤 Profil / KYC</button> <button
+onclick="switchTab('wp')" id="tab-wp">📖 Whitepaper</button> <button
+onclick="switchTab('token')" id="tab-token">📊 Tokenomics</button> <button
+onclick="switchTab('contract')" id="tab-contract">📑 Kontrak</button> <button
+onclick="switchTab('ref')" id="tab-ref">👥 Referral</button> <a
+href="whitepaper-bitworld-btw-publik-id.pdf" target="_blank" class="pdf-btn" style="color:var(--accent);">📄 PDF</a> </nav>
 <div id="toast"></div>
-
-<!-- Three.js Visual Engine -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
-<script>
-const CONTRACT_ADDR = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
-let isMining = false;
-let miningEndTime = 0;
-let minedBalance = parseFloat(localStorage.getItem('btw_balance') || '0.00');
-let timerInterval = null;
-
-// Tab Switcher
-function switchTab(tabId) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('nav.bottom button').forEach(b => b.classList.remove('on'));
-  
-  const targetView = document.getElementById('v-' + tabId);
-  const targetTab = document.getElementById('tab-' + tabId);
-  if (targetView) targetView.classList.add('active');
-  if (targetTab) targetTab.classList.add('on');
-}
-
-// Toast Notifikasi
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// Copy Handlers
-function copyContract() {
-  navigator.clipboard.writeText(CONTRACT_ADDR);
-  showToast("Alamat Kontrak Disalin!");
-}
-function copyRefLink() {
-  const input = document.getElementById('refLinkInput');
-  navigator.clipboard.writeText(input.value);
-  showToast("Link Referral Disalin!");
-}
-
-// Wallet Connection Simulator / Real Web3
-function connectWallet() {
-  const btn = document.getElementById('btnConnectWallet');
-  const addrDisplay = document.getElementById('walletAddr');
-  const kycBadge = document.getElementById('kycBadge');
-  
-  if (window.ethereum) {
-    window.ethereum.request({ method: 'eth_requestAccounts' })
-      .then(accounts => {
-        const acc = accounts[0];
-        btn.textContent = acc.substring(0,6) + "..." + acc.substring(acc.length-4);
-        addrDisplay.textContent = acc;
-        kycBadge.textContent = "VERIFIED";
-        kycBadge.style.background = "rgba(34,211,238,0.2)";
-        kycBadge.style.color = "var(--accent2)";
-        showToast("Wallet Terhubung!");
-      })
-      .catch(() => showToast("Koneksi Batal"));
-  } else {
-    // Fallback Simulated Address
-    const simAddr = "0x71C..." + Math.floor(1000 + Math.random() * 9000);
-    btn.textContent = simAddr;
-    addrDisplay.textContent = simAddr;
-    kycBadge.textContent = "VERIFIED (Lokal)";
-    kycBadge.style.background = "rgba(34,211,238,0.2)";
-    kycBadge.style.color = "var(--accent2)";
-    showToast("Wallet Terhubung!");
-  }
-}
-
-// Mining Logic
-function startMining() {
-  if (isMining) return;
-  
-  isMining = true;
-  miningEndTime = Date.now() + (24 * 60 * 60 * 1000); // 24 jam
-  localStorage.setItem('btw_mining_end', miningEndTime);
-  
-  document.getElementById('btnHomeMine').disabled = true;
-  document.getElementById('btnStartMine').disabled = true;
-  document.getElementById('miningStatus').textContent = "Aktif Menambang";
-  document.getElementById('miningStatus').style.color = "var(--accent2)";
-  
-  runTimer();
-  showToast("Sesi Mining 24 Jam Dimulai!");
-}
-
-function runTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const now = Date.now();
-    const diff = miningEndTime - now;
-    
-    if (diff <= 0) {
-      clearInterval(timerInterval);
-      isMining = false;
-      document.getElementById('homeTimer').textContent = "00:00:00";
-      document.getElementById('mineTimer').textContent = "00:00:00";
-      document.getElementById('sessionReward').textContent = "2.40 $BTW";
-      document.getElementById('btnClaim').disabled = false;
-      document.getElementById('btnHomeMine').disabled = false;
-      document.getElementById('btnStartMine').disabled = false;
-      document.getElementById('miningStatus').textContent = "Sesi Selesai (Siap Klaim)";
-      return;
-    }
-    
-    const h = Math.floor(diff / (1000 * 60 * 60));
-    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    const formatted = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    document.getElementById('homeTimer').textContent = formatted;
-    document.getElementById('mineTimer').textContent = formatted;
-    
-    // Increment Reward Progressively
-    const elapsedHrs = (24 * 60 * 60 * 1000 - diff) / (1000 * 60 * 60);
-    const rewardProgress = (elapsedHrs * 0.1).toFixed(2);
-    document.getElementById('sessionReward').textContent = `${rewardProgress} $BTW`;
-  }, 1000);
-}
-
-function claimReward() {
-  minedBalance += 2.40;
-  localStorage.setItem('btw_balance', minedBalance.toFixed(2));
-  document.getElementById('userBalance').textContent = minedBalance.toFixed(2) + " $BTW";
-  document.getElementById('btnClaim').disabled = true;
-  document.getElementById('sessionReward').textContent = "0.00 $BTW";
-  showToast("2.40 $BTW Berhasil Diklaim!");
-}
-
-// Fetch Active Miners Transparan dari Backend
-async function fetchActiveMiners() {
-  const display = document.getElementById('activeMinersCount');
-  try {
-    const res = await fetch('/api/stats');
-    if (res.ok) {
-      const data = await res.json();
-      display.textContent = data.active_miners ? data.active_miners.toLocaleString('id-ID') : '1 (Node Utama)';
-    } else {
-      display.textContent = 'Terhubung';
-    }
-  } catch (err) {
-    display.textContent = 'Terhubung';
-  }
-}
-
-// Init State & 3D Background
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script> <script>
+const CONTRACT_ADDR = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea"; let isMining =
+false; let miningEndTime = 0; let minedBalance =
+parseFloat(localStorage.getItem('btw_balance') || '0.00'); let timerInterval = null;
+// User & Auth State let currentUser = JSON.parse(localStorage.getItem('btw_user') || 'null');
+function switchTab(tabId) { document.querySelectorAll('.view').forEach(v =>
+v.classList.remove('active')); document.querySelectorAll('nav.bottom button').forEach(b =>
+b.classList.remove('on'));
+const targetView = document.getElementById('v-' + tabId); const targetTab =
+document.getElementById('tab-' + tabId); if (targetView) targetView.classList.add('active'); if
+(targetTab) targetTab.classList.add('on'); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg;
+t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+function copyContract() { navigator.clipboard.writeText(CONTRACT_ADDR); showToast("Alamat
+Kontrak Disalin!"); } function copyRefLink() { const input =
+document.getElementById('refLinkInput'); navigator.clipboard.writeText(input.value);
+showToast("Link Referral Disalin!"); }
+// Auth & KYC Handlers function updateAuthUI() { const authPanel =
+document.getElementById('authPanel'); const userProfilePanel =
+document.getElementById('userProfilePanel'); const kycBadge =
+document.getElementById('kycBadge');
+if (currentUser) { authPanel.style.display = 'none'; userProfilePanel.style.display = 'block';
+document.getElementById('userEmailDisplay').textContent = currentUser.email;
+if (currentUser.kycStatus === 'VERIFIED') { kycBadge.textContent = 'VERIFIED';
+kycBadge.style.background = 'rgba(34,211,238,0.2)'; kycBadge.style.color = 'var(--accent2)'; }
+else if (currentUser.kycStatus === 'PENDING') { kycBadge.textContent = 'PROSES
+VERIFIKASI'; kycBadge.style.background = 'rgba(245,184,46,0.2)'; kycBadge.style.color =
+'var(--accent)'; } else { kycBadge.textContent = 'BELUM VERIFIKASI';
+kycBadge.style.background = 'rgba(239,68,68,0.2)'; kycBadge.style.color = '#f87171'; } } else {
+authPanel.style.display = 'block'; userProfilePanel.style.display = 'none'; } }
+function handleLogin() { const email = document.getElementById('authEmail').value; if (!email) {
+showToast("Masukkan Email!"); return; }
+currentUser = { email, kycStatus: 'UNVERIFIED' }; localStorage.setItem('btw_user',
+JSON.stringify(currentUser)); updateAuthUI(); showToast("Berhasil Login!"); }
+function handleRegister() { const email = document.getElementById('authEmail').value; if
+(!email) { showToast("Masukkan Email!"); return; }
+currentUser = { email, kycStatus: 'UNVERIFIED' }; localStorage.setItem('btw_user',
+JSON.stringify(currentUser)); updateAuthUI(); showToast("Pendaftaran Berhasil!"); }
+function handleLogout() { currentUser = null; localStorage.removeItem('btw_user');
+updateAuthUI(); showToast("Berhasil Logout!"); }
+function submitKYC() { if (!currentUser) { showToast("Silakan Login Terlebih Dahulu!");
+switchTab('profile'); return; } const name = document.getElementById('kycFullName').value;
+const num = document.getElementById('kycDocNum').value;
+if (!name || !num) { showToast("Isi Lengkap Form KYC!"); return; }
+currentUser.kycStatus = 'VERIFIED'; localStorage.setItem('btw_user',
+JSON.stringify(currentUser)); updateAuthUI(); showToast("KYC Berhasil Terverifikasi!"); } function connectWallet() { const btn = document.getElementById('btnConnectWallet'); const
+addrDisplay = document.getElementById('walletAddr');
+if (window.ethereum) { window.ethereum.request({ method: 'eth_requestAccounts' })
+.then(accounts => { const acc = accounts[0]; btn.textContent = acc.substring(0,6) + "..." +
+acc.substring(acc.length-4); if (addrDisplay) addrDisplay.textContent = acc; showToast("Wallet
+Terhubung!"); }) .catch(() => showToast("Koneksi Batal")); } else { const simAddr = "0x71C..." +
+Math.floor(1000 + Math.random() * 9000); btn.textContent = simAddr; if (addrDisplay)
+addrDisplay.textContent = simAddr; showToast("Wallet Terhubung!"); } }
+function startMining() { if (isMining) return;
+isMining = true; miningEndTime = Date.now() + (24 * 60 * 60 * 1000);
+localStorage.setItem('btw_mining_end', miningEndTime);
+document.getElementById('btnHomeMine').disabled = true;
+document.getElementById('btnStartMine').disabled = true;
+document.getElementById('miningStatus').textContent = "Aktif Menambang";
+document.getElementById('miningStatus').style.color = "var(--accent2)";
+runTimer(); showToast("Sesi Mining 24 Jam Dimulai!"); }
+function runTimer() { clearInterval(timerInterval); timerInterval = setInterval(() => { const now =
+Date.now(); const diff = miningEndTime - now;
+if (diff <= 0) { clearInterval(timerInterval); isMining = false;
+document.getElementById('homeTimer').textContent = "00:00:00";
+document.getElementById('mineTimer').textContent = "00:00:00";
+document.getElementById('sessionReward').textContent = "2.40 $BTW";
+document.getElementById('btnClaim').disabled = false;
+document.getElementById('btnHomeMine').disabled = false;
+document.getElementById('btnStartMine').disabled = false;
+document.getElementById('miningStatus').textContent = "Sesi Selesai (Siap Klaim)"; return; }
+const h = Math.floor(diff / (1000 * 60 * 60)); const m = Math.floor((diff % (1000 * 60 * 60)) / (1000
+* 60)); const s = Math.floor((diff % (1000 * 60)) / 1000);
+const formatted = 𝑆𝑡𝑟𝑖𝑛𝑔(ℎ). 𝑝𝑎𝑑𝑆𝑡𝑎𝑟𝑡(2, '0'):
+{String(m).padStart(2,'0')}:${String(s).padStart(2,'0')};
+document.getElementById('homeTimer').textContent = formatted;
+document.getElementById('mineTimer').textContent = formatted;
+const elapsedHrs = (24 * 60 * 60 * 1000 - diff) / (1000 * 60 * 60); const rewardProgress =
+(elapsedHrs * 0.1).toFixed(2); document.getElementById('sessionReward').textContent =
+${rewardProgress} $BTW; }, 1000); }
+function claimReward() { minedBalance += 2.40; localStorage.setItem('btw_balance',
+minedBalance.toFixed(2)); document.getElementById('userBalance').textContent =
+minedBalance.toFixed(2) + " $BTW"; document.getElementById('btnClaim').disabled = true;
+document.getElementById('sessionReward').textContent = "0.00 $BTW"; showToast("2.40
+$BTW Berhasil Diklaim!"); }
+async function fetchActiveMiners() { const display =
+document.getElementById('activeMinersCount'); try { const res = await fetch('/api/stats'); if
+(res.ok) { const data = await res.json(); display.textContent = data.active_miners ?
+data.active_miners.toLocaleString('id-ID') : 'Terhubung'; } else { display.textContent =
+'Terhubung'; } } catch (err) { display.textContent = 'Terhubung'; } }
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('userBalance').textContent = minedBalance.toFixed(2) + " $BTW";
-  fetchActiveMiners();
-  
-  const savedEndTime = localStorage.getItem('btw_mining_end');
-  if (savedEndTime && parseInt(savedEndTime) > Date.now()) {
-    miningEndTime = parseInt(savedEndTime);
-    isMining = true;
-    document.getElementById('btnHomeMine').disabled = true;
-    document.getElementById('btnStartMine').disabled = true;
-    document.getElementById('miningStatus').textContent = "Aktif Menambang";
-    runTimer();
-  }
-  
-  // Three.js Background Rendering
-  const canvas = document.getElementById('scene');
-  if (typeof THREE !== 'undefined') {
-    try {
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 5;
-
-      const light = new THREE.DirectionalLight(0xf5b82e, 1.5);
-      light.position.set(2, 2, 5);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-
-      const geometry = new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32);
-      const material = new THREE.MeshStandardMaterial({ color: 0xf5b82e, metalness: 0.8, roughness: 0.2 });
-      const coin = new THREE.Mesh(geometry, material);
-      coin.rotation.x = Math.PI / 3;
-      scene.add(coin);
-
-      function animate() {
-        requestAnimationFrame(animate);
-        coin.rotation.z += 0.008;
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      window.addEventListener('resize', () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-      });
-    } catch (e) {
-      canvas.style.display = 'none';
-    }
-  }
-});
-</script>
+document.getElementById('userBalance').textContent = minedBalance.toFixed(2) + " $BTW";
+updateAuthUI(); fetchActiveMiners(); const savedEndTime = localStorage.getItem('btw_mining_end'); if (savedEndTime &&
+parseInt(savedEndTime) > Date.now()) { miningEndTime = parseInt(savedEndTime); isMining =
+true; document.getElementById('btnHomeMine').disabled = true;
+document.getElementById('btnStartMine').disabled = true;
+document.getElementById('miningStatus').textContent = "Aktif Menambang"; runTimer(); }
+const canvas = document.getElementById('scene'); if (typeof THREE !== 'undefined') { try {
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight); const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight,
+0.1, 1000); camera.position.z = 5;
+const light = new THREE.DirectionalLight(0xf5b82e, 1.5); light.position.set(2, 2, 5);
+scene.add(light); scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+const geometry = new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32); const material = new
+THREE.MeshStandardMaterial({ color: 0xf5b82e, metalness: 0.8, roughness: 0.2 }); const coin
+= new THREE.Mesh(geometry, material); coin.rotation.x = Math.PI / 3; scene.add(coin);
+function animate() { requestAnimationFrame(animate); coin.rotation.z += 0.008;
+renderer.render(scene, camera); } animate();
+window.addEventListener('resize', () => { renderer.setSize(window.innerWidth,
+window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix(); }); } catch (e) { canvas.style.display = 'none'; } } }); </script>
 </body>
 </html>
