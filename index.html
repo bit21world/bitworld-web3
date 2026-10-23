@@ -157,12 +157,62 @@ main{overflow:hidden}
 .mst b{display:block;font-size:16px;color:#fff;margin-top:2px}
 .note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
 </style>
-</head>
+<meta name="theme-color" content="#0b0e14">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style id="dapp-theme">
+/* ===== Tema dApp: gelap, rata, minimalis ===== */
+html:root{--bg:#0b0e14;--fg:#e8ebf2;--muted:#8a93a6;--accent:#f0b90b;--accent2:#6ea8ff;--card:#121823;--line:rgba(255,255,255,.08);--surface2:#1a2233}
+html body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif!important;background-color:#0b0e14!important;background-image:radial-gradient(900px 420px at 50% -140px,rgba(240,185,11,.08),transparent 70%)!important;background-attachment:fixed}
+html body::before,html #scene,html .ticker{display:none!important}
+html header{background:rgba(11,14,20,.94);border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px}
+html .brand{display:flex;align-items:center;gap:8px;color:#fff;font-size:17px;font-weight:700;letter-spacing:-.2px}
+html .brand img{border-radius:6px}
+html .accbtn{background:var(--accent)!important;color:#111!important;box-shadow:none!important;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700}
+html .accbtn:active{transform:scale(.97)}
+html .lang{border-radius:10px;border:1px solid var(--line)}
+html .lang button{padding:7px 11px;font-weight:600}
+html .lang button.on{background:var(--surface2);color:#fff}
+/* menu: tab horizontal */
+html nav.bottom{display:flex!important;flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto;gap:0!important;padding:0 8px!important;background:rgba(11,14,20,.94)!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html nav.bottom::-webkit-scrollbar{display:none}
+html nav.bottom button{background:transparent!important;box-shadow:none!important;border-radius:0!important;margin:0!important;color:var(--muted)!important;font-size:13.5px;font-weight:600;padding:12px 12px!important;border-bottom:2px solid transparent;transition:color .2s!important}
+html nav.bottom button.on,html nav.bottom button.locked{background:transparent!important;box-shadow:none!important}
+html nav.bottom button.on{color:#fff!important;border-bottom-color:var(--accent)}
+html nav.bottom button.locked{color:#586177!important}
+html nav.bottom button:active{transform:none!important;box-shadow:none!important}
+/* kartu & panel */
+html .card,html .panel,html .contract,html .lockcard{background:var(--card)!important;border:1px solid var(--line)!important;box-shadow:none!important;border-radius:16px!important;backdrop-filter:none;-webkit-backdrop-filter:none;transform:none!important}
+html .card:hover{transform:none!important;border-color:rgba(255,255,255,.16)!important}
+html .stats .card .value{text-shadow:none;white-space:nowrap;word-break:normal;font-size:clamp(13px,3.7vw,17px)}
+html .panel h2{color:#fff;font-weight:700}
+html .lockcard{border-style:dashed!important;border-color:rgba(240,185,11,.3)!important}
+html .mono{background:#0e141e;color:#a9bddb;border:1px solid var(--line)}
+/* tombol */
+html .btn{background:transparent!important;border:1px solid rgba(255,255,255,.14)!important;box-shadow:none!important;border-radius:12px!important;color:var(--fg)!important;padding:11px 18px;font-weight:600;transform:none}
+html .btn:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.28)!important;transform:none}
+html .btn.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#111!important}
+html .btn.primary,html .btn.primary:active{box-shadow:none!important}
+html .btn.primary:hover{background:#ffc928!important}
+html .btn:active,html .btn.primary:active{transform:scale(.98)!important;box-shadow:none!important}
+html .btn:disabled{opacity:.45}
+html .wpmenu button{background:transparent!important;border:1px solid var(--line)!important;box-shadow:none!important;color:var(--muted)!important;padding:6px 12px!important}
+html .wpmenu button.on{background:rgba(240,185,11,.12)!important;border-color:rgba(240,185,11,.5)!important;color:var(--accent)!important;transform:none}
+html .wpmenu button:active{transform:none!important}
+/* beranda */
+html h1{font-size:clamp(34px,10vw,54px);letter-spacing:-1.2px}
+html .ch{background:none;-webkit-background-clip:initial;background-clip:initial;color:#fff;animation:none}
+html .badge{border:1px solid rgba(240,185,11,.35);background:rgba(240,185,11,.08);color:var(--accent);font-weight:600;letter-spacing:.8px}
+/* akun & mining */
+html .fm input,html .mst div{background:#0e141e;border-color:var(--line)}
+html .bal .n{color:#fff}
+html .tabs2 button.on{color:#111}
+</style>
 <body>
 <canvas id="scene"></canvas>
 
 <header>
-  <div class="brand">BTW</div>
+  <div class="brand"><img src="bitworld-btw-logo-32.svg" alt="" width="24" height="24" onerror="this.style.display='none'"><span>Bitworld</span></div>
   <div class="hright">
     <button id="acc-btn" class="accbtn" type="button">Masuk</button>
     <div class="lang" role="group" aria-label="Bahasa">
@@ -172,22 +222,22 @@ main{overflow:hidden}
   </div>
 </header>
 <nav class="bottom" aria-label="Menu utama">
-  <button type="button" data-go="home" id="n-home"></button>
-  <button type="button" data-go="mine" id="n-mine">&#9935; Mining</button>
-  <button type="button" data-go="wp" id="n-wp"></button>
-  <button type="button" data-go="vision" id="n-vision"></button>
-  <button type="button" data-go="token" id="n-token"></button>
-  <button type="button" data-go="contract" id="n-contract"></button>
-  <button type="button" data-go="faq" id="n-faq"></button>
-  <button type="button" data-go="news" id="n-news">&#128240; Berita</button>
-  <button type="button" data-go="team" id="n-team">&#128101; Tim</button>
-  <button type="button" data-go="docs" id="n-docs">&#128196; Dokumen</button>
-  <button type="button" data-go="security" id="n-sec">&#128737; Keamanan</button>
-  <button type="button" data-go="roadmap" id="n-road">&#128739; Roadmap</button>
-  <button type="button" data-go="alloc" id="n-alloc">&#128202; Alokasi</button>
-  <button type="button" data-go="dist" id="n-dist">&#128230; Distribusi</button>
-  <button type="button" data-go="gloss" id="n-gloss">&#128218; Glosarium</button>
-  <button type="button" data-go="channels" id="n-chan">&#128279; Tim Support</button>
+  <button type="button" data-go="home" id="n-home">Beranda</button>
+  <button type="button" data-go="mine" id="n-mine">Mining</button>
+  <button type="button" data-go="token" id="n-token">Token</button>
+  <button type="button" data-go="alloc" id="n-alloc">Alokasi</button>
+  <button type="button" data-go="dist" id="n-dist">Distribusi</button>
+  <button type="button" data-go="roadmap" id="n-road">Roadmap</button>
+  <button type="button" data-go="wp" id="n-wp">Whitepaper</button>
+  <button type="button" data-go="vision" id="n-vision">Visi</button>
+  <button type="button" data-go="contract" id="n-contract">Kontrak</button>
+  <button type="button" data-go="security" id="n-sec">Keamanan</button>
+  <button type="button" data-go="docs" id="n-docs">Dokumen</button>
+  <button type="button" data-go="team" id="n-team">Tim</button>
+  <button type="button" data-go="news" id="n-news">Berita</button>
+  <button type="button" data-go="faq" id="n-faq">FAQ</button>
+  <button type="button" data-go="gloss" id="n-gloss">Glosarium</button>
+  <button type="button" data-go="channels" id="n-chan">Support</button>
 </nav>
 
 <main>
@@ -367,15 +417,15 @@ function applyUI(){
   $("n-token").textContent = u.n_token;
   $("n-contract").textContent = u.n_contract;
   $("n-faq").textContent = u.n_faq;
-  $("n-news").innerHTML = "&#128240; " + (lang === "id" ? "Berita" : "News");
-  $("n-docs").innerHTML = "&#128196; " + (lang === "id" ? "Dokumen" : "Documents");
-  $("n-sec").innerHTML = "&#128737; " + (lang === "id" ? "Keamanan" : "Security");
-  $("n-alloc").innerHTML = "&#128202; " + (lang === "id" ? "Alokasi" : "Allocation");
-  $("n-dist").innerHTML = "&#128230; " + (lang === "id" ? "Distribusi" : "Distribution");
-  $("n-gloss").innerHTML = "&#128218; " + (lang === "id" ? "Glosarium" : "Glossary");
-  $("n-road").innerHTML = "&#128739; " + (lang === "id" ? "Roadmap" : "Roadmap");
-  $("n-team").innerHTML = "&#128101; " + (lang === "id" ? "Tim" : "Team");
-  $("n-chan").innerHTML = "&#128279; " + (lang === "id" ? "Tim Support" : "Support");
+  $("n-news").innerHTML = (lang === "id" ? "Berita" : "News");
+  $("n-docs").innerHTML = (lang === "id" ? "Dokumen" : "Documents");
+  $("n-sec").innerHTML = (lang === "id" ? "Keamanan" : "Security");
+  $("n-alloc").innerHTML = (lang === "id" ? "Alokasi" : "Allocation");
+  $("n-dist").innerHTML = (lang === "id" ? "Distribusi" : "Distribution");
+  $("n-gloss").innerHTML = (lang === "id" ? "Glosarium" : "Glossary");
+  $("n-road").innerHTML = (lang === "id" ? "Roadmap" : "Roadmap");
+  $("n-team").innerHTML = (lang === "id" ? "Tim" : "Team");
+  $("n-chan").innerHTML = (lang === "id" ? "Tim Support" : "Support");
   $("lang-id").classList.toggle("on", lang === "id");
   $("lang-en").classList.toggle("on", lang === "en");
   $("track").innerHTML = (function(){
@@ -812,7 +862,7 @@ go(VIEWS[initial] ? initial : "home");
     if (c === "email_taken") return T("Email sudah terdaftar.", "Email already registered.");
     if (c === "weak_password") return T("Password minimal 8 karakter.", "Password must be at least 8 characters.");
     if (c === "invalid_input") return T("Data tidak valid. Periksa email dan nama.", "Invalid data. Check email and name.");
-    if (c === "cooldown") return T("Belum waktunya klaim. Tunggu hitung mundur selesai.", "Not ready yet. Wait for the countdown.");
+    if (c === "cooldown") return T("Sesi mining masih berjalan.", "Mining session is still running.");
     if (c === "not_verified") return T("Email belum diverifikasi. Cek inbox/spam Anda.", "Email not verified. Check your inbox/spam.");
     if (c === "rate_limited") return T("Terlalu banyak percobaan. Coba lagi beberapa menit lagi.", "Too many attempts. Try again in a few minutes.");
     if (c === "token_invalid") return T("Link tidak valid atau sudah kedaluwarsa. Minta link baru.", "Link is invalid or expired. Request a new one.");
@@ -845,7 +895,7 @@ go(VIEWS[initial] ? initial : "home");
     }
     if (user) {
       b.innerHTML = '<h2>' + T("Akun Saya", "My Account") + '</h2><p class="sub" id="aEmail"></p>' +
-        '<button class="btn primary" type="button" id="aMine">&#9935; Mining</button>' +
+        '<button class="btn primary" type="button" id="aMine">Mining</button>' +
         '<button class="btn" type="button" id="aOut">' + T("Keluar", "Log out") + '</button>';
       g("aEmail").textContent = (user.name ? user.name + " \u2022 " : "") + user.email;
       g("aMine").onclick = function(){ go("mine"); };
@@ -942,23 +992,30 @@ go(VIEWS[initial] ? initial : "home");
     if (!user) { b.innerHTML = '<h2>Mining</h2><p class="sub">' + T("Masuk dulu untuk mulai mining.", "Log in to start mining.") +
       '</p><button class="btn primary" type="button" id="mGo">' + T("Masuk / Daftar", "Log in / Sign up") + '</button>';
       g("mGo").onclick = function(){ go("auth"); }; return; }
-    b.innerHTML = '<h2>&#9935; Mining</h2><p class="sub">' + T("Klaim reward harian Anda.", "Claim your daily reward.") + '</p>' +
-      '<div class="bal"><div class="n">' + fmt(user.balance) + '</div><div class="u">' + T("POIN BTW (INTERNAL)", "BTW POINTS (INTERNAL)") + '</div></div>' +
-      '<div class="mst"><div>Streak<b>' + user.streak + ' ' + T("hari", "days") + '</b></div>' +
+    var RATE = user.rate || 0.004, DUR = (user.session_hours || 24) * 3600 * 1000;
+    var skew = user.server_now ? new Date(user.server_now).getTime() - Date.now() : 0;
+    var start = user.mine_start ? new Date(user.mine_start).getTime() : 0;
+    b.innerHTML = '<h2>Mining</h2><p class="sub">' + T("Mulai sesi mining 24 jam, poin bertambah setiap jam.", "Start a 24-hour mining session, points grow every hour.") + '</p>' +
+      '<div class="bal"><div class="n" id="mBal">0</div><div class="u">' + T("POIN BTW (INTERNAL)", "BTW POINTS (INTERNAL)") + '</div></div>' +
+      '<div class="mst"><div>Rate<b>' + String(RATE).replace(".", ",") + ' / ' + T("jam", "hr") + '</b></div>' +
       '<div>Status<b id="mStat">-</b></div></div>' +
-      '<button class="btn primary" type="button" id="mBtn" disabled>-</button><div class="fmsg" id="fmsg"></div>' +
-      '<p class="note">' + T(
-        "Poin internal adalah catatan reward di dalam aplikasi ini, bukan token BTW on-chain, dan tidak ada jaminan dapat ditukar atau bernilai uang. Bukan ajakan investasi.",
-        "Internal points are in-app reward records, not on-chain BTW tokens, with no guarantee of conversion or monetary value. Not investment advice.") + '</p>';
+      '<button class="btn primary" type="button" id="mBtn" disabled>-</button><div class="fmsg" id="fmsg"></div>';
     g("mBtn").onclick = claim;
-    var next = user.last_claim ? new Date(user.last_claim).getTime() + COOLDOWN_MS : 0;
     function upd(){
-      var left = next - Date.now(), btn = g("mBtn"); if (!btn) return clearInterval(tick);
-      if (left <= 0) { btn.disabled = false; btn.textContent = T("Klaim Mining", "Claim Mining"); g("mStat").textContent = T("Siap", "Ready"); }
-      else {
+      var btn = g("mBtn"); if (!btn) return clearInterval(tick);
+      var now = Date.now() + skew;
+      var elapsed = start ? Math.max(0, Math.min(now - start, DUR)) : 0;
+      var total = user.balance + RATE * (elapsed / 3600000);
+      g("mBal").textContent = total.toLocaleString("id-ID", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+      var left = start ? start + DUR - now : 0;
+      if (start && left > 0) {
         var s = Math.ceil(left / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), c = s % 60;
         btn.disabled = true; btn.textContent = [h, m, c].map(function(x){ return String(x).padStart(2, "0"); }).join(":");
-        g("mStat").textContent = T("Menunggu", "Waiting");
+        g("mStat").textContent = T("Mining", "Mining");
+      } else {
+        btn.disabled = false;
+        btn.textContent = start ? T("Mulai Sesi Baru", "Start New Session") : T("Mulai Mining", "Start Mining");
+        g("mStat").textContent = start ? T("Selesai", "Done") : T("Siap", "Ready");
       }
     }
     upd(); tick = setInterval(upd, 1000);
@@ -968,7 +1025,7 @@ go(VIEWS[initial] ? initial : "home");
     api("claim", {}).then(function(r){
       loadMe().then(function(){
         renderMine();
-        if (r.ok) msg("+" + fmt(r.data.reward) + " " + T("poin berhasil diklaim!", "points claimed!"), true);
+        if (r.ok) msg(T("Sesi mining 24 jam dimulai!", "24-hour mining session started!"), true);
         else msg(errText(r.data.error));
       });
     });
@@ -977,7 +1034,7 @@ go(VIEWS[initial] ? initial : "home");
   /* ---------- tombol akun, gate, sinkron status ---------- */
   function updAcc(){
     var b = g("acc-btn"); if (!b) return;
-    b.textContent = user ? "\uD83D\uDC64 " + T("Akun", "Account") : T("Masuk", "Log in");
+    b.textContent = user ? T("Akun", "Account") : T("Masuk", "Log in");
   }
   function refreshAll(){ updAcc(); renderAuth(); renderMine(); }
 
@@ -988,6 +1045,8 @@ go(VIEWS[initial] ? initial : "home");
   go = function(n){
     if (n === "mine" && !user) { toast(T("Masuk dulu untuk mining", "Log in to mine")); n = "auth"; }
     _go(n);
+    var ab = document.querySelector("nav.bottom button.on");
+    if (ab && ab.scrollIntoView) ab.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
     if (n === "mine") loadMe().then(renderMine);
   };
 
