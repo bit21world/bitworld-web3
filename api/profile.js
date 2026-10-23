@@ -28,7 +28,6 @@ async function currentUser(req) {
 async function summary(u) {
   let refCode = u.referral_code;
   if (!refCode) {
-    // Membuat referral code unik yang aman tanpa fungsi crypto random bytes
     refCode = 'REF' + u.id + Math.random().toString(36).substring(2, 6).toUpperCase();
     await sql`UPDATE users SET referral_code = ${refCode} WHERE id = ${u.id}`;
   }
