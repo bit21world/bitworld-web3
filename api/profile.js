@@ -1,5 +1,5 @@
-import crypto from 'crypto';
 import { neon } from '@neondatabase/serverless';
+import crypto from 'crypto';
 
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 const COOKIE = 'btw_sess';
@@ -26,10 +26,10 @@ async function currentUser(req) {
 }
 
 async function summary(u) {
-  // Generate referral code otomatis jika user belum memilikinya
   let refCode = u.referral_code;
   if (!refCode) {
-    refCode = 'REF' + u.id + crypto.randomBytes(2).toString('hex').toUpperCase();
+    // Membuat referral code unik yang aman tanpa fungsi crypto random bytes
+    refCode = 'REF' + u.id + Math.random().toString(36).substring(2, 6).toUpperCase();
     await sql`UPDATE users SET referral_code = ${refCode} WHERE id = ${u.id}`;
   }
 
@@ -55,7 +55,6 @@ async function summary(u) {
     SELECT 1 FROM mining_sessions
     WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`)[0];
 
-  // Hitung jumlah teman yang berhasil diundang
   const refStats = (await sql`
     SELECT COUNT(*) AS total_invited FROM users WHERE referred_by = ${u.id}`)[0];
 
