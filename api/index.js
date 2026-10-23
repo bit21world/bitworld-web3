@@ -3,29 +3,56 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 
-const POOL_TOTAL = 10500000;
-const PHASE_SIZE = POOL_TOTAL / 4;
-const RATES = [0.12, 0.06, 0.03, 0.015];
-const SESSION_MS = 24 * 60 * 60 * 1000;
+const HOURLY_RATE = 0.004; // Poin per jam
+const DAILY_TOTAL = 0.096; // 0.004 * 24 jam
+const SESSION_MS = 24 * 60 * 60 * 1000; // 24 jam
 const COOKIE = 'btw_sess';
 const USER_RE = /^[a-zA-Z0-9_.-]{3,24}$/;
 const WALLET_RE = /^0x[a-fA-F0-9]{40}$/;
 
-/* KYC */
+/* KYC Constants */
 const DOC_RE = /^[A-Za-z0-9 .\-]{5,32}$/;
 const IMG_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 const IMG_MAX = 1500000;
 
-/* ---------- Tabel database (dibuat otomatis) ---------- */
+/* ---------- Setup Tabel Base ---------- */
 let ready = null;
 function setup() {
   if (!ready) ready = (async () => {
-    await sql`CREATE TABLE IF NOT EXISTS users (id BIGSERIAL PRIMARY KEY, username TEXT UNIQUE NOT NULL, name TEXT NOT NULL, wallet TEXT, pass_salt TEXT NOT NULL, pass_hash TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`;
-    await sql`CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires_at TIMESTAMPTZ NOT NULL)`;
-    await sql`CREATE TABLE IF NOT EXISTS pool (id INT PRIMARY KEY, claimed NUMERIC(30,8) NOT NULL DEFAULT 0)`;
-    await sql`INSERT INTO pool (id, claimed) VALUES (1, 0) ON CONFLICT (id) DO NOTHING`;
-    await sql`CREATE TABLE IF NOT EXISTS mining_sessions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, day DATE NOT NULL, started_at TIMESTAMPTZ NOT NULL DEFAULT now(), end_at TIMESTAMPTZ NOT NULL, claimed_at TIMESTAMPTZ, reward NUMERIC(30,8), phase INT, UNIQUE (user_id, day))`;
-    await sql`CREATE TABLE IF NOT EXISTS bw_kyc_submissions (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, full_name TEXT NOT NULL, doc_number TEXT NOT NULL, doc_image TEXT NOT NULL, selfie_image TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', note TEXT, submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), reviewed_at TIMESTAMPTZ)`;
+    await sql`CREATE TABLE IF NOT EXISTS bw_users (
+      id BIGSERIAL PRIMARY KEY, 
+      username TEXT UNIQUE NOT NULL, 
+      name TEXT NOT NULL, 
+      wallet TEXT, 
+      pass_salt TEXT NOT NULL, 
+      pass_hash TEXT NOT NULL, 
+      balance NUMERIC(20,6) NOT NULL DEFAULT 0,
+      mine_start TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS bw_sessions (
+      token_hash TEXT PRIMARY KEY, 
+      user_id BIGINT NOT NULL REFERENCES bw_users(id) ON DELETE CASCADE, 
+      expires_at TIMESTAMPTZ NOT NULL
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS bw_mining_log (
+      id BIGSERIAL PRIMARY KEY, 
+      user_id BIGINT NOT NULL REFERENCES bw_users(id) ON DELETE CASCADE, 
+      amount NUMERIC(20,6) NOT NULL, 
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`;
+    await sql`CREATE TABLE IF NOT EXISTS bw_kyc_submissions (
+      id BIGSERIAL PRIMARY KEY, 
+      user_id BIGINT NOT NULL UNIQUE REFERENCES bw_users(id) ON DELETE CASCADE, 
+      full_name TEXT NOT NULL, 
+      doc_number TEXT NOT NULL, 
+      doc_image TEXT NOT NULL, 
+      selfie_image TEXT NOT NULL, 
+      status TEXT NOT NULL DEFAULT 'pending', 
+      note TEXT, 
+      submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(), 
+      reviewed_at TIMESTAMPTZ
+    )`;
   })().catch(err => { ready = null; throw err; });
   return ready;
 }
@@ -50,26 +77,18 @@ function clearCookie(res) {
 async function currentUser(req) {
   const t = readCookie(req);
   if (!t) return null;
-  const rows = await sql`SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id
+  const rows = await sql`SELECT u.* FROM bw_sessions s JOIN bw_users u ON u.id = s.user_id
                          WHERE s.token_hash = ${sha256(t)} AND s.expires_at > now()`;
   return rows[0] || null;
 }
 function userJson(u) {
-  return { id: u.id, username: u.username, name: u.name, wallet: u.wallet || '', joined: u.created_at };
+  return { id: u.id, username: u.username, name: u.name, wallet: u.wallet || '', joined: u.created_at, balance: Number(u.balance || 0) };
 }
-function phaseOf(claimed) { return Math.min(3, Math.floor(Number(claimed) / PHASE_SIZE)); }
 async function openSession(res, userId) {
   const token = crypto.randomBytes(32).toString('hex');
-  await sql`INSERT INTO sessions (token_hash, user_id, expires_at)
+  await sql`INSERT INTO bw_sessions (token_hash, user_id, expires_at)
             VALUES (${sha256(token)}, ${userId}, now() + interval '30 days')`;
   setCookie(res, token);
-}
-
-function isAdmin(req) {
-  const key = process.env.ADMIN_KEY;
-  if (!key || key.length < 12) return false;
-  const got = String(req.headers['x-admin-key'] || '');
-  return crypto.timingSafeEqual(Buffer.from(sha256(got), 'hex'), Buffer.from(sha256(key), 'hex'));
 }
 
 /* ---------- Auth ---------- */
@@ -86,7 +105,7 @@ async function register(req, res) {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = await hashPassword(password, salt);
   try {
-    const rows = await sql`INSERT INTO users (username, name, wallet, pass_salt, pass_hash)
+    const rows = await sql`INSERT INTO bw_users (username, name, wallet, pass_salt, pass_hash)
                            VALUES (${username}, ${name}, ${wallet || null}, ${salt}, ${hash}) RETURNING *`;
     await openSession(res, rows[0].id);
     return res.status(201).json({ user: userJson(rows[0]) });
@@ -99,7 +118,7 @@ async function register(req, res) {
 async function login(req, res) {
   const username = String(req.body?.username || '').trim().replace(/^@+/, '');
   const password = String(req.body?.password || '');
-  const user = (await sql`SELECT * FROM users WHERE username = ${username}`)[0];
+  const user = (await sql`SELECT * FROM bw_users WHERE username = ${username}`)[0];
   let ok = false;
   if (user) {
     const hash = await hashPassword(password, user.pass_salt);
@@ -112,7 +131,7 @@ async function login(req, res) {
 
 async function logout(req, res) {
   const t = readCookie(req);
-  if (t) await sql`DELETE FROM sessions WHERE token_hash = ${sha256(t)}`;
+  if (t) await sql`DELETE FROM bw_sessions WHERE token_hash = ${sha256(t)}`;
   clearCookie(res);
   return res.json({ ok: true });
 }
@@ -123,116 +142,74 @@ async function me(req, res) {
   return res.json({ user: userJson(u) });
 }
 
-/* ---------- Profile & Mining ---------- */
+/* ---------- Mining Logic (24-Hour Cycle) ---------- */
 async function status(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
 
-  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
-  const phase = phaseOf(claimed);
-  const current = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
-                             ORDER BY started_at DESC LIMIT 1`)[0] || null;
-  const startedToday = (await sql`SELECT 1 FROM mining_sessions
-                                  WHERE user_id = ${u.id} AND day = (now() AT TIME ZONE 'UTC')::date`).length > 0;
-  const totals = (await sql`SELECT COALESCE(SUM(reward), 0) AS reward,
-                                   COUNT(*) FILTER (WHERE claimed_at IS NOT NULL) AS sessions
-                            FROM mining_sessions WHERE user_id = ${u.id}`)[0];
-  const history = await sql`SELECT started_at, claimed_at, reward, phase FROM mining_sessions
-                            WHERE user_id = ${u.id} ORDER BY started_at DESC LIMIT 20`;
+  let mineStart = u.mine_start ? new Date(u.mine_start) : null;
+  let active = false;
+  let elapsedMs = 0;
+  let currentUnclaimed = 0;
+
+  if (mineStart) {
+    const now = new Date();
+    elapsedMs = now - mineStart;
+    if (elapsedMs < SESSION_MS) {
+      active = true;
+      const hours = elapsedMs / (1000 * 60 * 60);
+      currentUnclaimed = Math.min(DAILY_TOTAL, hours * HOURLY_RATE);
+    }
+  }
+
+  const history = await sql`SELECT created_at, amount FROM bw_mining_log
+                            WHERE user_id = ${u.id} ORDER BY created_at DESC LIMIT 20`;
 
   return res.json({
     user: userJson(u),
-    balance: Number(totals.reward),
-    sessions: Number(totals.sessions),
-    active: current ? { started_at: current.started_at, end_at: current.end_at } : null,
-    today_done: startedToday,
-    pool: { claimed, total: POOL_TOTAL, phase: phase + 1, rate: RATES[phase] },
+    balance: Number(u.balance || 0),
+    mining: {
+      active,
+      mine_start: mineStart,
+      hourly_rate: HOURLY_RATE,
+      unclaimed: Number(currentUnclaimed.toFixed(6)),
+      duration_ms: SESSION_MS
+    },
     history
   });
-}
-
-async function updateProfile(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-
-  const name = String(req.body?.name || '').trim();
-  const wallet = String(req.body?.wallet || '').trim();
-  if (wallet && !WALLET_RE.test(wallet)) return res.status(400).json({ error: 'wallet_invalid' });
-
-  await sql`UPDATE users SET name = COALESCE(${name || null}, name), wallet = ${wallet || null} WHERE id = ${u.id}`;
-  return status(req, res);
 }
 
 async function start(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const open = await sql`SELECT 1 FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL`;
-  if (open.length) return res.status(409).json({ error: 'claim_first' });
-  const rows = await sql`INSERT INTO mining_sessions (user_id, day, end_at)
-                         VALUES (${u.id}, (now() AT TIME ZONE 'UTC')::date,
-                                 now() + (${SESSION_MS / 1000} * interval '1 second'))
-                         ON CONFLICT (user_id, day) DO NOTHING RETURNING *`;
-  if (!rows.length) return res.status(409).json({ error: 'daily_limit' });
-  return res.status(201).json({ session: rows[0] });
+
+  if (u.mine_start) {
+    const elapsed = new Date() - new Date(u.mine_start);
+    if (elapsed < SESSION_MS) return res.status(409).json({ error: 'session_already_active' });
+  }
+
+  const now = new Date();
+  await sql`UPDATE bw_users SET mine_start = ${now.toISOString()} WHERE id = ${u.id}`;
+  return res.json({ ok: true, mine_start: now });
 }
 
 async function claim(req, res) {
   const u = await currentUser(req);
   if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const cur = (await sql`SELECT * FROM mining_sessions WHERE user_id = ${u.id} AND claimed_at IS NULL
-                         ORDER BY started_at DESC LIMIT 1`)[0];
-  if (!cur) return res.status(404).json({ error: 'no_session' });
-  if (new Date(cur.end_at) > new Date()) return res.status(409).json({ error: 'not_finished' });
+  if (!u.mine_start) return res.status(400).json({ error: 'no_active_session' });
 
-  const claimed = Number((await sql`SELECT claimed FROM pool WHERE id = 1`)[0].claimed);
-  if (claimed >= POOL_TOTAL) return res.status(409).json({ error: 'pool_empty' });
-  const phase = phaseOf(claimed);
-  const reward = RATES[phase];
+  const now = new Date();
+  const elapsedMs = now - new Date(u.mine_start);
+  if (elapsedMs < SESSION_MS) return res.status(409).json({ error: 'session_not_finished' });
+
+  const reward = DAILY_TOTAL;
 
   await sql.transaction([
-    sql`UPDATE mining_sessions SET claimed_at = now(), reward = ${reward}, phase = ${phase + 1}
-        WHERE id = ${cur.id} AND claimed_at IS NULL`,
-    sql`UPDATE pool SET claimed = claimed + ${reward} WHERE id = 1`
+    sql`UPDATE bw_users SET balance = balance + ${reward}, mine_start = NULL WHERE id = ${u.id}`,
+    sql`INSERT INTO bw_mining_log (user_id, amount) VALUES (${u.id}, ${reward})`
   ]);
-  return res.json({ reward, phase: phase + 1 });
-}
 
-/* ---------- KYC ---------- */
-async function kycStatus(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-  const r = (await sql`SELECT status, note, submitted_at, reviewed_at FROM bw_kyc_submissions WHERE user_id = ${u.id}`)[0];
-  if (!r) return res.json({ status: 'none' });
-  return res.json({ status: r.status, note: r.note || '', submitted_at: r.submitted_at, reviewed_at: r.reviewed_at });
-}
-
-async function kycSubmit(req, res) {
-  const u = await currentUser(req);
-  if (!u) return res.status(401).json({ error: 'not_logged_in' });
-
-  const fullName = String(req.body?.fullName || '').trim();
-  const docNumber = String(req.body?.docNumber || '').trim();
-  const docImage = String(req.body?.docImage || '');
-  const selfieImage = String(req.body?.selfieImage || '');
-
-  if (fullName.length < 3 || fullName.length > 80) return res.status(400).json({ error: 'name_invalid' });
-  if (!DOC_RE.test(docNumber)) return res.status(400).json({ error: 'doc_invalid' });
-  if (docImage.length > IMG_MAX || !IMG_RE.test(docImage)) return res.status(400).json({ error: 'doc_image_invalid' });
-  if (selfieImage.length > IMG_MAX || !IMG_RE.test(selfieImage)) return res.status(400).json({ error: 'selfie_image_invalid' });
-
-  const rows = await sql`INSERT INTO bw_kyc_submissions (user_id, full_name, doc_number, doc_image, selfie_image)
-                         VALUES (${u.id}, ${fullName}, ${docNumber}, ${docImage}, ${selfieImage})
-                         ON CONFLICT (user_id) DO UPDATE SET
-                           full_name = EXCLUDED.full_name, doc_number = EXCLUDED.doc_number,
-                           doc_image = EXCLUDED.doc_image, selfie_image = EXCLUDED.selfie_image,
-                           status = 'pending', note = NULL, submitted_at = now(), reviewed_at = NULL
-                         WHERE bw_kyc_submissions.status = 'rejected'
-                         RETURNING id`;
-  if (!rows.length) {
-    const ex = (await sql`SELECT status FROM bw_kyc_submissions WHERE user_id = ${u.id}`)[0];
-    return res.status(409).json({ error: ex && ex.status === 'verified' ? 'already_verified' : 'already_pending' });
-  }
-  return res.status(201).json({ status: 'pending' });
+  return res.json({ ok: true, claimed_amount: reward });
 }
 
 /* ---------- Router Utama ---------- */
@@ -243,18 +220,14 @@ const ROUTES = {
   me:         { m: 'GET',  fn: me },
   status:     { m: 'GET',  fn: status },
   start:      { m: 'POST', fn: start },
-  claim:      { m: 'POST', fn: claim },
-  kyc_status: { m: 'GET',  fn: kycStatus },
-  kyc_submit: { m: 'POST', fn: kycSubmit }
+  claim:      { m: 'POST', fn: claim }
 };
 
 export default async function handler(req, res) {
   try {
     await setup();
     
-    // Penanganan khusus rute /api/profile
     if (req.url.includes('/api/profile')) {
-      if (req.method === 'POST') return await updateProfile(req, res);
       return await status(req, res);
     }
 
