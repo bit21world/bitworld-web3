@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const sql = neon(process.env.DATABASE_URL);
-const MAXAGE = 60 * 60 * 24 * 30; // sesi 30 hari
+const MAXAGE = 60 * 60 * 24 * 30; // sesi login 30 hari
+const RATE = 0.004; // poin per jam
+const HOURS = 24;   // lama 1 sesi mining (jam)
 const SITE_URL = (process.env.SITE_URL || "https://bitworld21.vercel.app").replace(/\/$/, "");
 
 function secret() {
@@ -94,4 +96,4 @@ async function sendResetMail(user) {
     mailHtml(user.name, "Klik tombol di bawah untuk membuat password baru (berlaku 1 jam).", `${SITE_URL}/?reset=${t}`, "Buat Password Baru"));
 }
 
-module.exports = { sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, consumeToken, sendVerifyMail, sendResetMail };
+module.exports = { RATE, HOURS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, consumeToken, sendVerifyMail, sendResetMail };
