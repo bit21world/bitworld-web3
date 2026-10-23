@@ -1,4 +1,4 @@
-hereconst crypto = require("crypto");
+const crypto = require("crypto");
 const { neon } = require("@neondatabase/serverless");
 
 // Ambil URL Database dari Environment Variables Vercel
