@@ -1,1 +1,258 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="description" content="Bitworld (BTW) — Community Mining DApp on BNB Smart Chain">
+<meta name="theme-color" content="#070b14">
+<meta name="color-scheme" content="dark">
+<title>Bitworld (BTW) — Mining DApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070b14;--bg2:#0c1220;--card:rgba(16,24,42,.75);--card-solid:#111827;
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --text:#eef2ff;--muted:#8b95b0;--gold:#f5b82e;--gold2:#ffd66b;
+  --cyan:#22d3ee;--green:#34d399;--red:#f87171;
+  --radius:16px;--radius-sm:12px;--spring:cubic-bezier(.34,1.56,.64,1);--ease:.22s ease;
+  --nav-h:64px;--header-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;min-height:100dvh;overflow:hidden}
+.bg-glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(245,184,46,.12),transparent 55%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(34,211,238,.06),transparent 50%),radial-gradient(ellipse 50% 30% at 0% 80%,rgba(99,102,241,.05),transparent 45%)}
+header{position:relative;z-index:20;height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(7,11,20,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;letter-spacing:.02em}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,var(--gold2),var(--gold));color:#1a1400;display:grid;place-items:center;font-size:12px;font-weight:900;box-shadow:0 4px 14px rgba(245,184,46,.3)}
+.header-actions{display:flex;align-items:center;gap:8px}
+.lang-switch{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang-switch button{background:transparent;border:0;color:var(--muted);padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.lang-switch button.on{background:var(--gold);color:#1a1400}
+.wallet-btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;border-radius:999px;padding:8px 14px;border:1px solid var(--line2);background:var(--card-solid);color:var(--text);transition:all var(--ease);min-height:36px;white-space:nowrap}
+.wallet-btn:hover{border-color:var(--gold);color:var(--gold)}
+.wallet-btn.connected{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.35);color:var(--green)}
+.wallet-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.wallet-btn .spin{width:12px;height:12px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+main{position:relative;z-index:1;flex:1;min-height:0;overflow:hidden}
+.view{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 14px calc(var(--nav-h) + 20px)}
+.view.active{display:flex;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card+.card{margin-top:12px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px}
+.hero{text-align:center;padding:12px 0 8px}
+.hero h1{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.hero h1 span{background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:13.5px;line-height:1.55;max-width:340px;margin:0 auto 16px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:600;color:var(--cyan);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);margin-bottom:14px}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-box{text-align:center;padding:12px 6px;border-radius:var(--radius-sm);background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.stat-box .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.stat-box .val{font-size:15px;font-weight:800;margin-top:4px;color:var(--gold);font-variant-numeric:tabular-nums}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.q-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 10px;border-radius:var(--radius);border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all var(--ease);text-decoration:none}
+.q-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.q-btn .ico{font-size:22px}
+.q-btn.primary{background:linear-gradient(135deg,rgba(245,184,46,.2),rgba(245,184,46,.08));border-color:rgba(245,184,46,.35)}
+.mine-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mine-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:rgba(0,0,0,.2)}
+.mine-status.on{color:var(--green);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.1)}
+.mine-status.done{color:var(--gold);border-color:rgba(245,184,46,.3);background:rgba(245,184,46,.1)}
+.mine-balance{font-size:clamp(36px,10vw,48px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:8px 0 4px;line-height:1}
+.mine-balance small{font-size:15px;color:var(--gold);font-weight:700}
+.progress-bar{height:8px;background:rgba(0,0,0,.35);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+.progress-bar>div{height:100%;width:0%;background:linear-gradient(90deg,#a67c2a,var(--gold2));border-radius:99px;transition:width .45s ease;position:relative}
+.progress-bar>div::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);background-size:200% 100%;animation:shimmer 2s infinite}
+@keyframes shimmer{to{background-position:200% 0}}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.mine-timer{font-size:clamp(26px,7vw,32px);font-weight:800;font-variant-numeric:tabular-nums;margin:12px 0 4px;letter-spacing:.03em}
+.btn-row{display:flex;gap:8px;margin-top:14px}
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;border-radius:var(--radius-sm);padding:14px 16px;min-height:48px;border:1px solid var(--line2);background:var(--card-solid);color:var(--text);transition:all var(--ease)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1400;border-color:transparent;box-shadow:0 4px 18px rgba(245,184,46,.3)}
+.btn-primary:hover:not(:disabled){box-shadow:0 6px 24px rgba(245,184,46,.4)}
+.mine-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.mine-stat{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px}
+.mine-stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.mine-stat .val{font-size:17px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.stage{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:rgba(0,0,0,.2);margin-top:8px;font-size:13px;transition:all var(--ease)}
+.stage.on{border-color:rgba(245,184,46,.4);background:rgba(245,184,46,.08)}
+.stage small{display:block;color:var(--muted);margin-top:2px;font-size:11px}
+.stage b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.panel-body{font-size:13.5px;line-height:1.65;color:var(--text)}
+.panel-body h2{font-size:18px;color:var(--gold);margin-bottom:10px;font-weight:800}
+.panel-body p{margin-bottom:10px;opacity:.9}
+.panel-body .muted{color:var(--muted)!important}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--cyan);word-break:break-all;background:rgba(0,0,0,.35);padding:10px 12px;border-radius:10px;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--muted);width:40%}
+.wp-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.wp-tabs button{background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all var(--ease)}
+.wp-tabs button.on{background:var(--cyan);border-color:var(--cyan);color:#021318;font-weight:700}
+.wp-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}
+.wp-nav span{font-size:12px;color:var(--muted)}
+.token-chart{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.donut{width:110px;height:110px;border-radius:50%;position:relative;flex-shrink:0}
+.donut-inner{position:absolute;inset:24px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--muted)}
+.donut-inner b{font-size:13px;color:var(--gold)}
+.chan-link{display:block;padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:8px;text-decoration:none;color:var(--text);transition:border-color var(--ease);background:rgba(0,0,0,.15)}
+.chan-link:hover{border-color:var(--gold)}
+.chan-link strong{color:var(--gold);font-size:14px}
+.chan-link span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+nav.bottom{position:relative;z-index:20;height:var(--nav-h);display:flex;align-items:stretch;justify-content:space-around;background:rgba(12,18,32,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);flex-shrink:0;padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0)}
+nav.bottom button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:0;color:var(--muted);font:inherit;font-size:10px;font-weight:600;cursor:pointer;padding:6px 2px;transition:color var(--ease);min-width:0}
+nav.bottom button .ico{font-size:20px;line-height:1;transition:transform var(--ease)}
+nav.bottom button.on{color:var(--gold)}
+nav.bottom button.on .ico{transform:scale(1.1)}
+nav.bottom button:active .ico{transform:scale(.9)}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px);transform:translateX(-50%) translateY(80px) scale(.9);background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1400;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;z-index:100;opacity:0;visibility:hidden;transition:all .35s var(--spring);max-width:90%;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+#toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0) scale(1)}
+@media(min-width:600px){main,header,nav.bottom{max-width:520px;margin:0 auto;width:100%}}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<header>
+  <div class="brand"><div class="brand-mark">BTW</div><span>Bitworld</span></div>
+  <div class="header-actions">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" id="lang-id" class="on">ID</button>
+      <button type="button" id="lang-en">EN</button>
+    </div>
+    <button type="button" class="wallet-btn" id="btnWallet"><span id="walletLabel">Connect</span></button>
+  </div>
+</header>
+<main>
+  <section class="view active" id="v-home">
+    <div class="hero">
+      <div class="badge">BEP-20 · BNB Smart Chain</div>
+      <h1>Mine together.<br><span>Build the future.</span></h1>
+      <p id="homeTagline">Community mining 0,12 BTW per sesi 24 jam. Alokasi komunitas 10.500.000 BTW.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="lbl">Symbol</div><div class="val">BTW</div></div>
+      <div class="stat-box"><div class="lbl">Supply</div><div class="val">21M</div></div>
+      <div class="stat-box"><div class="lbl">Network</div><div class="val">BSC</div></div>
+    </div>
+    <div class="quick-actions">
+      <button type="button" class="q-btn primary" data-go="mining"><span class="ico">⚡</span>Start Mining</button>
+      <button type="button" class="q-btn" data-go="token"><span class="ico">📊</span>Tokenomics</button>
+      <button type="button" class="q-btn" data-go="contract"><span class="ico">📄</span>Contract</button>
+      <button type="button" class="q-btn" data-go="docs"><span class="ico">📖</span>Whitepaper</button>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="section-title" id="lblOfficial">Kanal Resmi</div>
+      <a class="chan-link" href="https://x.com/bitworld_btw" target="_blank" rel="noopener"><strong>X (Twitter)</strong><span>Pengumuman resmi</span></a>
+      <a class="chan-link" href="https://t.me/bitworld_btw" target="_blank" rel="noopener"><strong>Telegram</strong><span>Komunitas & diskusi</span></a>
+    </div>
+  </section>
+  <section class="view" id="v-mining">
+    <div class="card">
+      <div class="mine-header">
+        <span class="section-title" style="margin:0" id="lblReward">Reward tersimpan</span>
+        <span class="mine-status" id="mineStatus">Belum aktif</span>
+      </div>
+      <div class="mine-balance"><span id="mineBal">0.00</span> <small>BTW</small></div>
+      <div class="progress-bar"><div id="mineBar"></div></div>
+      <div class="progress-meta"><span id="mineLabel">Sesi belum dimulai</span><span id="minePct">0%</span></div>
+      <div class="mine-timer" id="mineTimer">24:00:00</div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="btnStart">▶ Start Mining</button>
+        <button type="button" class="btn" id="btnClaim" disabled>Claim</button>
+      </div>
+      <div class="mine-grid">
+        <div class="mine-stat"><div class="lbl" id="lblClaimed">Total diklaim</div><div class="val" id="mineClaimed">0.00</div></div>
+        <div class="mine-stat"><div class="lbl" id="lblRate">Reward / sesi</div><div class="val" id="mineRate">0.120</div></div>
+        <div class="mine-stat"><div class="lbl" id="lblPhase">Fase</div><div class="val" id="minePhase">1 / 4</div></div>
+        <div class="mine-stat"><div class="lbl" id="lblPool">Pool terpakai</div><div class="val" id="minePool">0%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title" id="lblRoadmap">Roadmap halving · 10.500.000 BTW</div>
+      <div id="mineStages"></div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px" id="mineWalletInfo"></p>
+  </section>
+  <section class="view" id="v-token"><div class="card panel-body" id="tokenBody"></div></section>
+  <section class="view" id="v-contract">
+    <div class="card panel-body" id="contractBody"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button type="button" class="btn btn-primary" id="btnCopy">Salin Alamat</button>
+      <a class="btn" id="btnBsc" href="https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea" target="_blank" rel="noopener">BscScan ↗</a>
+    </div>
+  </section>
+  <section class="view" id="v-docs">
+    <div class="wp-tabs" id="wpTabs"></div>
+    <div class="card panel-body" id="wpBody"></div>
+    <div class="wp-nav">
+      <button type="button" class="btn" id="wpPrev">← Prev</button>
+      <span id="wpCount">1 / 9</span>
+      <button type="button" class="btn btn-primary" id="wpNext">Next →</button>
+    </div>
+  </section>
+  <section class="view" id="v-more"><div class="card panel-body" id="moreBody"></div></section>
+</main>
+<nav class="bottom" aria-label="Main menu">
+  <button type="button" data-go="home" class="on"><span class="ico">🏠</span><span data-n="home">Home</span></button>
+  <button type="button" data-go="mining"><span class="ico">⚡</span><span data-n="mining">Mining</span></button>
+  <button type="button" data-go="token"><span class="ico">📊</span><span data-n="token">Token</span></button>
+  <button type="button" data-go="contract"><span class="ico">📄</span><span data-n="contract">Contract</span></button>
+  <button type="button" data-go="docs"><span class="ico">📖</span><span data-n="docs">Docs</span></button>
+  <button type="button" data-go="more"><span class="ico">⋯</span><span data-n="more">More</span></button>
+</nav>
+<div id="toast" role="status"></div>
+<script>
+(function(){
+"use strict";
+const CONTRACT="0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea",BSC_ID="0x38";
+const $=id=>document.getElementById(id),$$=sel=>document.querySelectorAll(sel);
+let lang="id",provider=null,signer=null,userAddress=null,wpIndex=0;
+const UI={
+  id:{home:"Home",mining:"Mining",token:"Token",contract:"Contract",docs:"Docs",more:"Lainnya",tagline:"Community mining 0,12 BTW per sesi 24 jam. Alokasi komunitas 10.500.000 BTW.",official:"Kanal Resmi",reward:"Reward tersimpan",claimed:"Total diklaim",rate:"Reward / sesi",phase:"Fase",pool:"Pool terpakai",roadmap:"Roadmap halving · 10.500.000 BTW",notActive:"Belum aktif",active:"Mining aktif",done:"Sesi selesai",notStarted:"Sesi belum dimulai",running:"Sesi berjalan",ready:"Siap diklaim",start:"▶ Start Mining",starting:"Berjalan…",claim:"Claim",copy:"Salin Alamat",copied:"Alamat disalin",copyFail:"Gagal salin",connect:"Connect",connected:"Wallet terhubung",disconnected:"Wallet diputus",noWallet:"Wallet tidak ditemukan",phases:["Genesis","Halving I","Halving II","Halving III"]},
+  en:{home:"Home",mining:"Mining",token:"Token",contract:"Contract",docs:"Docs",more:"More",tagline:"Community mining 0.12 BTW per 24h session. Community allocation 10,500,000 BTW.",official:"Official Channels",reward:"Stored reward",claimed:"Total claimed",rate:"Reward / session",phase:"Phase",pool:"Pool used",roadmap:"Halving roadmap · 10,500,000 BTW",notActive:"Not active",active:"Mining active",done:"Session done",notStarted:"Not started",running:"Session running",ready:"Ready to claim",start:"▶ Start Mining",starting:"Running…",claim:"Claim",copy:"Copy Address",copied:"Address copied",copyFail:"Copy failed",connect:"Connect",connected:"Wallet connected",disconnected:"Wallet disconnected",noWallet:"Wallet not found",phases:["Genesis","Halving I","Halving II","Halving III"]}
+};
+const WP=[
+  {t:{id:"Ringkasan",en:"Summary"},b:{id:["Bitworld (BTW) adalah token BEP-20 di BNB Smart Chain. Dirancang sebagai solusi Layer 2 untuk transaksi lebih cepat dan biaya terjangkau.","Whitepaper ini menjelaskan masalah, pendekatan teknis, struktur token, dan orientasi jangka panjang.","Nama Bitworld: \"Bit\" = data digital, \"World\" = ekosistem pengguna & pengembang. Tidak terkait Bitcoin."],en:["Bitworld (BTW) is a BEP-20 token on BNB Smart Chain, designed as a Layer 2 solution for faster and cheaper transactions.","This whitepaper covers the problem, technical approach, token structure, and long-term direction.","Bitworld: \"Bit\" = digital data, \"World\" = ecosystem of users & developers. Not related to Bitcoin."]}},
+  {t:{id:"Masalah",en:"Problem"},b:{id:["Biaya transaksi tidak stabil dan proses rumit saat berinteraksi dengan dApp.","Dibutuhkan infrastruktur sederhana, transparan, dan andal."],en:["Unstable fees and complex processes when using dApps.","Simple, transparent, and reliable infrastructure is needed."]}},
+  {t:{id:"Solusi",en:"Solution"},b:{id:["Bitworld menyediakan lapisan kedua di atas BSC untuk pengalaman yang lebih sederhana.","Utilitas token BTW akan dijelaskan seiring perkembangan proyek."],en:["Bitworld provides a second layer on BSC for a simpler experience.","BTW utility details will expand as the project develops."]}},
+  {t:{id:"Teknologi",en:"Technology"},b:{id:["Token BTW mengikuti standar BEP-20 di BNB Smart Chain.","Alamat smart contract resmi:"],en:["BTW follows BEP-20 standard on BNB Smart Chain.","Official smart contract address:"]},code:true},
+  {t:{id:"Detail Token",en:"Token Details"},table:true},
+  {t:{id:"Tokenomics",en:"Tokenomics"},b:{id:["Total suplai tetap 21.000.000 BTW.","Alokasi, vesting, dan distribusi akan diumumkan di kanal resmi.","Kontrak tidak punya mint, burn, atau pause. Supply tetap sejak deploy."],en:["Fixed total supply: 21,000,000 BTW.","Allocation, vesting, and distribution will be announced officially.","No mint, burn, or pause. Supply fixed since deployment."]}},
+  {t:{id:"Tata Kelola",en:"Governance"},b:{id:["Keputusan penting dikomunikasikan lewat kanal resmi.","Tata kelola formal akan dikembangkan bertahap."],en:["Key decisions communicated via official channels.","Formal governance will develop gradually."]}},
+  {t:{id:"Roadmap",en:"Roadmap"},b:{id:["Fase 1 Fondasi: token, kontrak, dokumentasi.","Fase 2 Pertumbuhan: aplikasi & kemitraan.","Fase 3 Keberlanjutan: tata kelola & utilitas jangka panjang.","Tanggal belum ditetapkan."],en:["Phase 1 Foundation: token, contract, docs.","Phase 2 Growth: apps & partnerships.","Phase 3 Sustainability: governance & long-term utility.","Dates not set yet."]}},
+  {t:{id:"Risiko",en:"Risks"},b:{id:["Kripto berisiko tinggi, termasuk kehilangan nilai total.","Bukan nasihat keuangan. Tim tidak pernah meminta seed phrase."],en:["Crypto is high risk, including total loss.","Not financial advice. Team never asks for seed phrases."]}}
+];
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2600)}
+function fmt(n,d=2){return Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function shortAddr(a){return a?a.slice(0,6)+"…"+a.slice(-4):""}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+const VIEWS=["home","mining","token","contract","docs","more"];
+function go(name){if(!VIEWS.includes(name))name="home";$$(".view").forEach(v=>v.classList.toggle("active",v.id==="v-"+name));$$("nav.bottom button").forEach(b=>b.classList.toggle("on",b.getAttribute("data-go")===name));if(history.replaceState)history.replaceState(null,"","#"+name);const el=$("v-"+name);if(el)el.scrollTop=0}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-go]");if(t){e.preventDefault();go(t.getAttribute("data-go"))}});
+function applyLang(){const u=UI[lang];$("homeTagline").textContent=u.tagline;$("lblOfficial").textContent=u.official;$("lblReward").textContent=u.reward;$("lblClaimed").textContent=u.claimed;$("lblRate").textContent=u.rate;$("lblPhase").textContent=u.phase;$("lblPool").textContent=u.pool;$("lblRoadmap").textContent=u.roadmap;$("btnCopy").textContent=u.copy;$$("nav.bottom [data-n]").forEach(el=>{const k=el.getAttribute("data-n");if(u[k])el.textContent=u[k]});$("lang-id").classList.toggle("on",lang==="id");$("lang-en").classList.toggle("on",lang==="en");document.documentElement.lang=lang;renderToken();renderContract();renderWP();renderMore();if(window._mineUpdate)window._mineUpdate()}
+$("lang-id").onclick=()=>{lang="id";applyLang()};$("lang-en").onclick=()=>{lang="en";applyLang()};
+async function switchBSC(){try{await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:BSC_ID}]})}catch(err){if(err.code===4902){await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:BSC_ID,chainName:"BNB Smart Chain",nativeCurrency:{name:"BNB",symbol:"BNB",decimals:18},rpcUrls:["https://bsc-dataseed.binance.org/"],blockExplorerUrls:["https://bscscan.com/"]}]})}else throw err}}
+async function connectWallet(){if(!window.ethereum){toast(UI[lang].noWallet);return}const lbl=$("walletLabel"),btn=$("btnWallet");try{lbl.innerHTML='<span class="spin"></span>';btn.disabled=true;await switchBSC();provider=new ethers.BrowserProvider(window.ethereum);await provider.send("eth_requestAccounts",[]);signer=await provider.getSigner();userAddress=await signer.getAddress();lbl.innerHTML='<span class="dot"></span> '+shortAddr(userAddress);btn.classList.add("connected");localStorage.setItem("btw_wallet",userAddress);const info=$("mineWalletInfo");if(info)info.innerHTML='Wallet: <a href="https://bscscan.com/address/'+userAddress+'" target="_blank" rel="noopener" style="color:var(--gold)">'+shortAddr(userAddress)+"</a>";toast(UI[lang].connected)}catch(e){lbl.textContent=UI[lang].connect;toast(e.message?e.message.slice(0,50):"Failed")}finally{btn.disabled=false}}
+function disconnectWallet(){provider=signer=userAddress=null;localStorage.removeItem("btw_wallet");$("walletLabel").textContent=UI[lang].connect;$("btnWallet").classList.remove("connected");$("mineWalletInfo").textContent="";toast(UI[lang].disconnected)}
+$("btnWallet").onclick=()=>userAddress?disconnectWallet():connectWallet();
+if(window.ethereum&&localStorage.getItem("btw_wallet"))connectWallet().catch(()=>{});
+if(window.ethereum){window.ethereum.on?.("accountsChanged",accs=>{if(!accs.length)disconnectWallet();else connectWallet()});window.ethereum.on?.("chainChanged",()=>location.reload())}
+(function(){const SESSION=24*60*60*1000,POOL=10500000,PSIZE=POOL/4,RATES=[0.12,0.06,0.03,0.015];let gClaimed=Number(localStorage.getItem("btw_global_claimed")||0),endAt=Number(localStorage.getItem("btw_endAt")||0),bal=Number(localStorage.getItem("btw_balance")||0),claimed=Number(localStorage.getItem("btw_claimed")||0);const phase=()=>Math.min(3,Math.floor(gClaimed/PSIZE)),rate=()=>RATES[phase()];function renderStages(){const box=$("mineStages");if(!box)return;const p=phase(),names=UI[lang].phases;box.innerHTML="";RATES.forEach((r,i)=>{const d=document.createElement("div");d.className="stage"+(i===p?" on":"");d.innerHTML="<div><strong>"+names[i]+"</strong><small>Alokasi "+fmt(PSIZE,0)+" BTW</small></div><b>"+fmt(r,3)+" BTW</b>";box.appendChild(d)})}function update(){const now=Date.now(),running=endAt>now,done=!running&&endAt>0,u=UI[lang];$("mineBal").textContent=fmt(bal);$("mineClaimed").textContent=fmt(claimed);$("mineRate").textContent=fmt(rate(),3);$("minePhase").textContent=(phase()+1)+" / 4";$("minePool").textContent=fmt(Math.min(100,gClaimed/POOL*100),2)+"%";const st=$("mineStatus");st.textContent=running?u.active:done?u.done:u.notActive;st.className="mine-status"+(running?" on":done?" done":"");$("btnStart").disabled=running||done;$("btnStart").textContent=done?"✓ Done":running?u.starting:u.start;$("btnClaim").disabled=!done;$("mineLabel").textContent=running?u.running:done?u.ready:u.notStarted;renderStages();const bar=$("mineBar");if(running){const left=Math.max(0,endAt-now),pct=Math.min(100,(SESSION-left)/SESSION*100),s=Math.ceil(left/1000);$("mineTimer").textContent=[Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(n=>String(n).padStart(2,"0")).join(":");bar.style.width=pct+"%";$("minePct").textContent=Math.floor(pct)+"%"}else if(done){$("mineTimer").textContent="00:00:00";bar.style.width="100%";$("minePct").textContent="100%"}else{$("mineTimer").textContent="24:00:00";bar.style.width="0%";$("minePct").textContent="0%"}}window._mineUpdate=update;$("btnStart").onclick=()=>{if(endAt>Date.now())return;endAt=Date.now()+SESSION;localStorage.setItem("btw_endAt",String(endAt));update();toast("⚡ "+(lang==="id"?"Mining dimulai (24 jam)":"Mining started (24h)"))};$("btnClaim").onclick=()=>{if(endAt===0||endAt>Date.now())return;const r=rate();bal+=r;claimed+=r;gClaimed+=r;endAt=0;localStorage.setItem("btw_balance",String(bal));localStorage.setItem("btw_claimed",String(claimed));localStorage.setItem("btw_global_claimed",String(gClaimed));localStorage.removeItem("btw_endAt");update();toast("🎉 "+(lang==="id"?"Reward diklaim!":"Reward claimed!"))};update();setInterval(update,1000)})();
+function renderToken(){const isId=lang==="id";const cats=[{n:isId?"Komunitas":"Community",p:50,c:"#f5b82e"},{n:isId?"Tim":"Team",p:15,c:"#22d3ee"},{n:isId?"Pengembangan":"Development",p:10,c:"#a78bfa"},{n:isId?"Likuiditas":"Liquidity",p:10,c:"#34d399"},{n:isId?"Pemasaran":"Marketing",p:10,c:"#fb7185"},{n:isId?"Cadangan":"Reserve",p:5,c:"#94a3b8"}];let acc=0,grad=[];cats.forEach(c=>{const f=acc;acc+=c.p;grad.push(c.c+" "+f+"% "+acc+"%")});let h="<h2>Tokenomics</h2><div class='token-chart'><div class='donut' style='background:conic-gradient("+grad.join(",")+")'><div class='donut-inner'><b>21M</b>BTW</div></div><table style='width:auto;flex:1;min-width:180px'>";cats.forEach(c=>{h+="<tr><td style='color:"+c.c+";font-weight:700'>"+esc(c.n)+"</td><td>"+c.p+"%</td><td>"+Math.round(21000000*c.p/100).toLocaleString(isId?"id-ID":"en-US")+"</td></tr>"});h+="</table></div><p class='muted' style='font-size:12px'>"+(isId?"Total supply tetap 21.000.000 BTW. Detail vesting diumumkan di kanal resmi.":"Fixed supply 21,000,000 BTW. Vesting details via official channels.")+"</p>";$("tokenBody").innerHTML=h}
+function renderContract(){const isId=lang==="id";$("contractBody").innerHTML="<h2>Smart Contract</h2><p>"+(isId?"Alamat resmi token BTW di BNB Smart Chain:":"Official BTW token address on BNB Smart Chain:")+"</p><div class='mono'>"+CONTRACT+"</div><p class='muted'>"+(isId?"Cocokkan alamat ini dengan BscScan sebelum berinteraksi. Jangan pernah bagikan seed phrase.":"Match this address on BscScan before interacting. Never share your seed phrase.")+"</p>"}
+$("btnCopy").onclick=()=>{const u=UI[lang];if(navigator.clipboard?.writeText){navigator.clipboard.writeText(CONTRACT).then(()=>toast(u.copied)).catch(()=>toast(u.copyFail))}else{const ta=document.createElement("textarea");ta.value=CONTRACT;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast(u.copied)}catch(_){toast(u.copyFail)}ta.remove()}};
+function renderWP(){const tabs=$("wpTabs");tabs.innerHTML=WP.map((s,i)=>'<button type="button" data-wp="'+i+'" class="'+(i===wpIndex?"on":"")+'">'+esc(s.t[lang])+"</button>").join("");const s=WP[wpIndex];let body="<h2>"+esc(s.t[lang])+"</h2>";if(s.table){const rows=lang==="id"?[["Nama","Bitworld"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain"],["Total supply","21.000.000 BTW"],["Contract",CONTRACT]]:[["Name","Bitworld"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain"],["Total supply","21,000,000 BTW"],["Contract",CONTRACT]];body+="<table>"+rows.map(r=>"<tr><td>"+esc(r[0])+"</td><td>"+esc(r[1])+"</td></tr>").join("")+"</table>"}else{(s.b[lang]||[]).forEach(p=>body+="<p>"+esc(p)+"</p>");if(s.code)body+="<div class='mono'>"+CONTRACT+"</div>"}$("wpBody").innerHTML=body;$("wpCount").textContent=(wpIndex+1)+" / "+WP.length;$("wpPrev").disabled=wpIndex===0;$("wpNext").disabled=wpIndex===WP.length-1}
+document.addEventListener("click",e=>{const w=e.target.closest("[data-wp]");if(w){wpIndex=parseInt(w.getAttribute("data-wp"),10)||0;renderWP()}});
+$("wpPrev").onclick=()=>{if(wpIndex>0){wpIndex--;renderWP()}};$("wpNext").onclick=()=>{if(wpIndex<WP.length-1){wpIndex++;renderWP()}};
+function renderMore(){const isId=lang==="id";let h="<h2>"+(isId?"Lainnya":"More")+"</h2><p><strong>"+(isId?"Visi":"Vision")+"</strong><br><span class='muted'>"+(isId?"Menjadi infrastruktur Layer 2 terpercaya di BSC dengan pengalaman sederhana.":"To become a trusted Layer 2 infrastructure on BSC with a simple experience.")+"</span></p><p><strong>FAQ</strong></p>";[{q:isId?"Apa itu BTW?":"What is BTW?",a:isId?"Token BEP-20 di BSC untuk ekosistem Bitworld.":"BEP-20 token on BSC for the Bitworld ecosystem."},{q:isId?"Ada airdrop?":"Is there an airdrop?",a:isId?"Belum ada pengumuman resmi.":"No official announcement yet."},{q:isId?"Ini nasihat investasi?":"Is this investment advice?",a:isId?"Tidak. DYOR.":"No. DYOR."}].forEach(f=>h+="<p><strong>"+esc(f.q)+"</strong><br><span class='muted'>"+esc(f.a)+"</span></p>");h+="<p style='margin-top:14px'><strong>"+(isId?"Kanal Resmi":"Official Channels")+"</strong></p>";[{n:"Website",u:"https://bitworld-web3.vercel.app"},{n:"X (Twitter)",u:"https://x.com/bitworld_btw"},{n:"Telegram",u:"https://t.me/bitworld_btw"},{n:"Facebook",u:"https://www.facebook.com/share/1CEsm6LNAK/"}].forEach(c=>h+="<a class='chan-link' href='"+c.u+"' target='_blank' rel='noopener'><strong>"+c.n+"</strong></a>");h+="<p class='muted' style='font-size:11px;margin-top:12px'>"+(isId?"Program Ambassador segera hadir.":"Ambassador program coming soon.")+"</p>";$("moreBody").innerHTML=h}
+applyLang();const initial=(location.hash||"#home").replace("#","");go(VIEWS.includes(initial)?initial:"home");
+})();
+</script>
+</body>
+</html>
