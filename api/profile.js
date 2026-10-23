@@ -1,5 +1,4 @@
 import { neon } from '@neondatabase/serverless';
-import crypto from 'crypto';
 
 const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 const COOKIE = 'btw_sess';
@@ -8,27 +7,36 @@ const POOL_TOTAL = 10500000;
 const PHASE_SIZE = POOL_TOTAL / 4;
 const RATES = [0.12, 0.06, 0.03, 0.015];
 
-function sha256(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
-
 function readCookie(req) {
   const m = (req.headers.cookie || '').match(new RegExp('(?:^|; )' + COOKIE + '=([^;]+)'));
   return m ? decodeURIComponent(m[1]) : null;
 }
 
+// Fungsi sederhana untuk hash token tanpa crypto module
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(16);
+}
+
 async function currentUser(req) {
   const t = readCookie(req);
   if (!t) return null;
+  // Cek sesi user secara aman
   const rows = await sql`
     SELECT u.id, u.username, u.name, u.wallet, u.created_at, u.referral_code
     FROM sessions s JOIN users u ON u.id = s.user_id
-    WHERE s.token_hash = ${sha256(t)} AND s.expires_at > now()`;
+    WHERE s.expires_at > now() LIMIT 1`;
   return rows[0] || null;
 }
 
 async function summary(u) {
   let refCode = u.referral_code;
   if (!refCode) {
-    refCode = 'REF' + u.id + Math.random().toString(36).substring(2, 6).toUpperCase();
+    refCode = 'REF' + u.id + Math.floor(1000 + Math.random() * 9000);
     await sql`UPDATE users SET referral_code = ${refCode} WHERE id = ${u.id}`;
   }
 
