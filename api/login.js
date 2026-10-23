@@ -10,8 +10,8 @@ module.exports = async (req, res) => {
     const pw = String(b.password || "");
     if (!(await limit("login:" + getIp(req) + ":" + email, 10, 15))) return send(res, 429, { error: "rate_limited" });
 
-    const rows = await sql`select id, password_hash, email_verified from users where email = ${email}`;
-    const ok = await bcrypt.compare(pw, rows.length ? rows[0].password_hash : DUMMY);
+    const rows = await sql`select id, password, email_verified from users where email = ${email}`;
+    const ok = await bcrypt.compare(pw, rows.length ? rows[0].password : DUMMY);
     if (!rows.length || !ok) return send(res, 401, { error: "invalid_credentials" });
     if (!rows[0].email_verified) return send(res, 403, { error: "not_verified" });
     setSession(res, rows[0].id);
