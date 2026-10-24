@@ -3,11 +3,51 @@
   var T = function (a, b) { return window.lang === "en" ? b : a; };
   var me = null;
 
+  /* ===== Gaya menu: 1 baris utama + kotak "Lainnya" ===== */
+  var st = document.createElement("style");
+  st.textContent =
+    'html nav.bottom{display:grid!important;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 10px!important;overflow:visible!important;position:relative;z-index:40}' +
+    'html nav.bottom button{padding:10px 2px!important;min-height:40px;font-size:12.5px!important;font-weight:600;white-space:nowrap;line-height:1.1;text-align:center;color:var(--muted)!important;background:var(--card)!important;border:1px solid var(--line)!important;border-radius:10px!important;box-shadow:none!important;margin:0!important}' +
+    'html nav.bottom button.on{color:var(--accent)!important;background:rgba(240,185,11,.12)!important;border-color:rgba(240,185,11,.55)!important}' +
+    'html nav.bottom button.locked{color:#586177!important}' +
+    '#navDrawer{display:none;position:absolute;top:calc(100% + 6px);left:10px;right:10px;z-index:60;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;background:#0f1520;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.6)}' +
+    '#navDrawer.open{display:grid}' +
+    '#navDrawer button{padding:12px 4px!important;font-size:12.5px!important;white-space:normal!important}';
+  document.head.appendChild(st);
+
   var nav = document.querySelector("nav.bottom");
+
+  /* Tombol Profil (setelah Mining) */
   var btn = document.createElement("button");
   btn.type = "button"; btn.id = "n-profile"; btn.setAttribute("data-go", "profile");
   nav.insertBefore(btn, g("n-mine").nextSibling);
 
+  /* Tombol Lainnya + kotak menu */
+  var moreBtn = document.createElement("button");
+  moreBtn.type = "button"; moreBtn.id = "n-more";
+  var drawer = document.createElement("div");
+  drawer.id = "navDrawer";
+  ["n-alloc", "n-dist", "n-road", "n-wp", "n-vision", "n-contract", "n-sec", "n-docs", "n-team", "n-news", "n-faq", "n-gloss", "n-chan"].forEach(function (id) {
+    var el = g(id); if (el) drawer.appendChild(el);
+  });
+  nav.appendChild(moreBtn);
+  nav.appendChild(drawer);
+
+  function closeMenu() { drawer.classList.remove("open"); }
+  function sync() {
+    var on = nav.querySelector("button.on");
+    moreBtn.classList.toggle("on", !!(on && drawer.contains(on)) || drawer.classList.contains("open"));
+  }
+  moreBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    drawer.classList.toggle("open");
+    sync();
+  });
+  document.addEventListener("click", function (e) {
+    if (drawer.classList.contains("open") && !nav.contains(e.target)) { closeMenu(); sync(); }
+  });
+
+  /* ===== Halaman Profil ===== */
   var sec = document.createElement("section");
   sec.className = "view"; sec.id = "v-profile";
   sec.innerHTML = '<div class="panel fm" id="profBody"></div>';
@@ -40,6 +80,7 @@
 
   function render() {
     btn.textContent = T("Profil", "Profile");
+    moreBtn.textContent = "\u2630 " + T("Lainnya", "More");
     var b = g("profBody"); if (!b) return;
     if (!me) {
       b.innerHTML = '<h2>' + T("Profil", "Profile") + '</h2><p class="sub">' +
@@ -96,8 +137,11 @@
   var _go = go;
   go = function (n) {
     _go(n);
+    closeMenu();
+    sync();
     if (n === "profile") load();
   };
   ["lang-id", "lang-en"].forEach(function (id) { g(id).addEventListener("click", render); });
   render();
+  sync();
 })();
