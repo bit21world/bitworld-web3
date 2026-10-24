@@ -1138,6 +1138,54 @@ go(VIEWS[initial] ? initial : "home");
       loginForm.onsubmit = submitLogin;
     }
   });
+    // Paksa tombol Masuk agar interaktif dan tidak macet
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.querySelector('button, .btn, #login-btn');
+    // Cari elemen berdasarkan teks "Masuk"
+    const allButtons = document.querySelectorAll('button, a');
+    allButtons.forEach(el => {
+      if (el.innerText && el.innerText.trim() === 'Masuk') {
+        el.addEventListener('click', (e) => {
+          // Jika modal login bawaan ada, buka modalnya. Jika belum ada, buat prompt input sederhana.
+          const modal = document.getElementById('loginModal') || document.getElementById('auth-modal');
+          if (modal) {
+            modal.style.display = 'block';
+          } else {
+            // Prompt darurat agar Mas Juan tetap bisa login & masuk ke sistem sekarang juga
+            const email = prompt("Masukkan Email Anda:");
+            if (!email) return;
+            const password = prompt("Masukkan Password Anda:");
+            if (!password) return;
+            submitLoginCustom(email, password);
+          }
+        });
+      }
+    });
+  });
+
+  // Fungsi darurat penghubung langsung ke API login backend
+  async function submitLoginCustom(email, password) {
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.success || data.ok) {
+        localStorage.setItem('token', data.token || data.access_token);
+        localStorage.setItem('bw_token', data.token || data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user || data.data));
+        localStorage.setItem('bw_user', JSON.stringify(data.user || data.data));
+        alert("Login Berhasil!");
+        window.location.reload();
+      } else {
+        alert(data.message || "Gagal masuk.");
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan koneksi.");
+    }
+  }
 </script>
 </body>
 </html>
