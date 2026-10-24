@@ -1,4 +1,4 @@
-/* Bitworld auth layer v2.2 (+KYC): login/daftar, proteksi Ambassador & Mining,
+//* Bitworld auth layer v2.2 (+KYC): login/daftar, proteksi Ambassador & Mining,
    profil pengguna, saldo mining, dan perbaikan posisi tampilan.
    Perbaikan v2.1:
    - UI dibuat setelah DOM siap (tidak crash walau script dimuat di <head>)
