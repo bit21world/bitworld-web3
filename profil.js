@@ -2,12 +2,22 @@
   var g = function (id) { return document.getElementById(id); };
   var T = function (a, b) { return window.lang === "en" ? b : a; };
   var me = null;
+  var editing = false;
   var f6 = function (n) { return Number(n || 0).toLocaleString("id-ID", { minimumFractionDigits: 6, maximumFractionDigits: 6 }); };
+
+  /* saldo langsung = saldo + poin sesi yang sedang berjalan */
+  function liveBalance() {
+    if (!me) return 0;
+    var RATE = me.rate || 0.004, DUR = (me.session_hours || 24) * 3600000;
+    var skew = me.server_now ? new Date(me.server_now).getTime() - Date.now() : 0;
+    var start = me.mine_start ? new Date(me.mine_start).getTime() : 0;
+    var elapsed = start ? Math.max(0, Math.min(Date.now() + skew - start, DUR)) : 0;
+    return Number(me.balance || 0) + RATE * (elapsed / 3600000);
+  }
 
   /* ===== Gaya ===== */
   var st = document.createElement("style");
   st.textContent =
-    /* menu atas: 1 baris + Lainnya */
     'html nav.bottom{display:grid!important;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 10px!important;overflow:visible!important;position:relative;z-index:40}' +
     'html nav.bottom button{padding:10px 2px!important;min-height:40px;font-size:12.5px!important;font-weight:600;white-space:nowrap;line-height:1.1;text-align:center;color:var(--muted)!important;background:var(--card)!important;border:1px solid var(--line)!important;border-radius:10px!important;box-shadow:none!important;margin:0!important}' +
     'html nav.bottom button.on{color:var(--accent)!important;background:rgba(240,185,11,.12)!important;border-color:rgba(240,185,11,.55)!important}' +
@@ -15,7 +25,8 @@
     '#navDrawer{display:none;position:absolute;top:calc(100% + 6px);left:10px;right:10px;z-index:60;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;background:#0f1520;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.6)}' +
     '#navDrawer.open{display:grid}' +
     '#navDrawer button{padding:12px 4px!important;font-size:12.5px!important;white-space:normal!important}' +
-    /* halaman Mining: terang + indigo */
+    '.pbadge{display:inline-block;margin:12px 0 0;padding:7px 14px;border-radius:999px;background:rgba(34,197,94,.18);color:#86efac;font-size:13px;font-weight:700}' +
+    '.fm input[readonly]{opacity:.65}' +
     '#v-mine2{background:#f4f5fb;color:#1b1d3a;justify-content:flex-start}' +
     '.mn-wrap{width:100%;max-width:520px;margin:0 auto;text-align:center}' +
     '.mn-orb{width:164px;height:164px;border-radius:50%;margin:10px auto 14px;position:relative;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#fff 0%,#eceefc 48%,#c7cbf5 100%);box-shadow:0 18px 38px rgba(107,95,240,.28),inset -10px -14px 26px rgba(107,95,240,.18)}' +
@@ -127,28 +138,38 @@
       g("pGo").onclick = function () { go("auth"); };
       return;
     }
+    var locked = !!me.wallet && !editing;
     b.innerHTML =
       '<h2>' + T("Profil", "Profile") + '</h2><p class="sub" id="pWho"></p>' +
       '<div class="mst"><div>' + T("Saldo poin", "Points") + '<b id="pBal"></b></div>' +
       '<div>Wallet<b id="pStat"></b></div></div>' +
       '<label for="pWallet">' + T("Alamat wallet BSC (BEP-20)", "BSC wallet address (BEP-20)") + '</label>' +
       '<input id="pWallet" placeholder="0x..." autocomplete="off" autocapitalize="off" spellcheck="false">' +
-      '<button class="btn primary" type="button" id="pSave">' + T("Simpan Wallet", "Save Wallet") + '</button>' +
+      (locked ? '<div class="pbadge">\u2713 ' + T("Wallet tersimpan", "Wallet saved") + '</div>' : '') +
+      '<button class="btn' + (locked ? '' : ' primary') + '" type="button" id="pSave">' +
+        (locked ? T("Ubah Wallet", "Change Wallet") : T("Simpan Wallet", "Save Wallet")) + '</button>' +
+      (me.wallet && editing ? '<button class="btn" type="button" id="pCancel">' + T("Batal", "Cancel") + '</button>' : '') +
       '<div class="fmsg" id="pMsg"></div><div class="lnk" id="pLink"></div>' +
       '<p class="note">' + T("Jangan pernah memasukkan seed phrase atau private key. Cukup alamat publik (0x...).", "Never enter your seed phrase or private key. Only the public address (0x...).") + '</p>' +
       '<button class="btn" type="button" id="pOut">' + T("Keluar", "Log out") + '</button>';
     g("pWho").textContent = (me.name ? me.name + " \u2022 " : "") + me.email;
-    g("pBal").textContent = f6(me.balance);
-    g("pStat").textContent = me.wallet ? T("Tersimpan", "Saved") : T("Belum diisi", "Not set");
+    g("pBal").textContent = f6(liveBalance());
+    g("pStat").textContent = me.wallet ? "\u2713 " + T("Tersimpan", "Saved") : T("Belum diisi", "Not set");
+    var inp = g("pWallet");
+    if (me.wallet && !editing) inp.value = me.wallet;
+    inp.readOnly = locked;
     if (me.wallet) {
-      g("pWallet").value = me.wallet;
       var a = document.createElement("a");
       a.href = "https://bscscan.com/address/" + me.wallet;
       a.target = "_blank"; a.rel = "noopener noreferrer";
       a.textContent = T("Lihat di BscScan", "View on BscScan");
       g("pLink").appendChild(a);
     }
-    g("pSave").onclick = saveWallet;
+    g("pSave").onclick = function () {
+      if (locked) { editing = true; renderProfile(); var i = g("pWallet"); i.readOnly = false; i.focus(); i.select(); }
+      else saveWallet();
+    };
+    if (g("pCancel")) g("pCancel").onclick = function () { editing = false; renderProfile(); };
     g("pOut").onclick = function () { api("logout", {}).then(function () { location.reload(); }); };
   }
   function saveWallet() {
@@ -159,8 +180,9 @@
       if (g("pSave")) g("pSave").disabled = false;
       if (!r.ok) return msg(errText(r.data.error));
       me.wallet = r.data.wallet || w.toLowerCase();
+      editing = false;
       renderProfile();
-      msg(T("Wallet tersimpan.", "Wallet saved."), true);
+      msg(T("Wallet berhasil disimpan \u2713", "Wallet saved successfully \u2713"), true);
     });
   }
 
@@ -248,6 +270,7 @@
     _go(n);
     closeMenu();
     sync();
+    if (n === "profile") editing = false;
     if (n === "profile" || n === "mine") load();
   };
   ["lang-id", "lang-en"].forEach(function (id) {
