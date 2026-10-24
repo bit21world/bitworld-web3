@@ -1,0 +1,12 @@
+{
+  "name": "Bitworld",
+  "symbol": "BTW",
+  "standard": "BEP-20",
+  "network": "BNB Smart Chain (BSC)",
+  "total_supply": 21000000,
+  "contract": "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea",
+  "explorer": "https://bscscan.com/token/0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea",
+  "website": "https://bitworld-btw.vercel.app",
+  "x": "https://x.com/bitworld_btw",
+  "telegram": "https://t.me/bitworld_btw"
+}
