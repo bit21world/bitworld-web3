@@ -1065,6 +1065,79 @@ go(VIEWS[initial] ? initial : "home");
     if (!user && location.hash === "#mine") go("auth");
   });
 })();
+  <script>
+  // Cek otomatis saat halaman dimuat
+  document.addEventListener("DOMContentLoaded", () => {
+    const token = localStorage.getItem('token') || localStorage.getItem('bw_token');
+    const user = localStorage.getItem('user') || localStorage.getItem('bw_user');
+    
+    if (token && user) {
+      // Jika sudah login, sembunyikan tombol login atau arahkan ke panel mining
+      const loginBtn = document.querySelector('.btn-login, #login-btn, button[onclick*="login"]');
+      if (loginBtn) loginBtn.innerText = "Akun Aktif";
+      
+      console.log("User sudah login:", JSON.parse(user));
+    }
+  });
+
+  // Fungsi penangkap tombol Masuk / Login
+  async function submitLogin(event) {
+    if (event) event.preventDefault();
+    
+    // Sesuaikan ID input email & password di HTML Mas Juan jika berbeda
+    const emailInput = document.getElementById('email') || document.getElementById('login-email') || document.querySelector('input[type="email"]');
+    const passwordInput = document.getElementById('password') || document.getElementById('login-password') || document.querySelector('input[type="password"]');
+
+    if (!emailInput || !passwordInput) {
+      alert("Form input email atau password tidak ditemukan di halaman.");
+      return;
+    }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      alert("Email dan password wajib diisi!");
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (data.success || data.ok) {
+        const token = data.token || data.access_token;
+        const user = data.user || data.data;
+
+        // Simpan sesi ke browser
+        localStorage.setItem('token', token);
+        localStorage.setItem('bw_token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('bw_user', JSON.stringify(user));
+
+        alert("Login Berhasil!");
+        window.location.reload();
+      } else {
+        alert(data.message || "Gagal masuk. Periksa kembali email dan password.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Terjadi kesalahan koneksi ke server.");
+    }
+  }
+
+  // Auto-bind ke semua form login yang ada di halaman
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.querySelector('form#login-form, form.login-form, form');
+    if (loginForm && !loginForm.onsubmit) {
+      loginForm.onsubmit = submitLogin;
+    }
+  });
 </script>
 </body>
 </html>
