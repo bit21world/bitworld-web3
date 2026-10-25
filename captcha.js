@@ -18,6 +18,13 @@
     try {
       var u = typeof url === "string" ? url : (url && url.url) || "";
       if (opts && opts.method === "POST" && opts.body && PATHS.indexOf(u.split("?")[0]) > -1) {
+        /* widget sudah tampil tapi belum diselesaikan: tolak di sisi klien,
+           jangan menghabiskan jatah rate limit server dengan permintaan yang pasti gagal */
+        if (tsWidget !== null && g("tsBox") && !tsToken) {
+          capFail = true;
+          return Promise.resolve(new Response(JSON.stringify({ error: "captcha" }),
+            { status: 400, headers: { "Content-Type": "application/json" } }));
+        }
         var body = JSON.parse(opts.body);
         body.turnstile = tsToken;
         var o2 = Object.assign({}, opts, { body: JSON.stringify(body) });
@@ -33,10 +40,15 @@
     return _fetch.apply(window, arguments);
   };
 
-  /* tampilkan widget di dalam form */
+  /* tampilkan widget di form masuk/daftar/lupa password.
+     - hanya saat halaman akun terlihat (widget di area tersembunyi bisa salah ukuran / tantangan tak terlihat)
+     - tidak di form password baru (/api/reset tidak memakai captcha, jadi widget di sana sia-sia) */
   function mount() {
+    var v = g("v-auth");
+    if (v && !v.classList.contains("active")) return;
     var form = g("aForm"), fb = g("fBtn");
-    if (!form || !fb || g("tsBox") || !window.turnstile) return;
+    if (!form || !fb || !g("fEmail") || g("tsBox") || !window.turnstile) return;
+    if (tsWidget !== null) { try { window.turnstile.remove(tsWidget); } catch (e) {} tsWidget = null; }
     var box = document.createElement("div");
     box.id = "tsBox";
     box.style.cssText = "margin-top:14px;min-height:65px";
@@ -55,20 +67,16 @@
   s.async = true; s.defer = true; s.onload = mount;
   document.head.appendChild(s);
 
-  var ab = g("authBody");
+  var ab = g("authBody"), av = g("v-auth");
   if (ab) new MutationObserver(mount).observe(ab, { childList: true, subtree: true });
+  if (av) new MutationObserver(mount).observe(av, { attributes: true, attributeFilter: ["class"] });
 
-  /* pesan yang jelas kalau verifikasi gagal */
-  var ownMsg = "";
-  new MutationObserver(function (list) {
+  /* pesan yang jelas kalau verifikasi gagal (hanya memantau panel akun, bukan seluruh halaman) */
+  if (ab) new MutationObserver(function () {
     if (!capFail) return;
     var m = g("fmsg");
-    var hit = list.some(function (x) {
-      return x.target === m || (x.target.parentNode && x.target.parentNode === m);
-    });
-    if (!hit || !m.classList.contains("err")) return;
-    ownMsg = T("Selesaikan verifikasi \"Saya manusia\" dulu, lalu coba lagi.", "Please complete the human verification, then try again.");
+    if (!m || !m.classList.contains("err")) return;
     capFail = false;
-    m.textContent = ownMsg;
-  }).observe(document.body, { childList: true, attributes: true, characterData: true, subtree: true });
+    m.textContent = T("Selesaikan verifikasi \"Saya manusia\" dulu, lalu coba lagi.", "Please complete the human verification, then try again.");
+  }).observe(ab, { childList: true, attributes: true, characterData: true, subtree: true });
 })();
