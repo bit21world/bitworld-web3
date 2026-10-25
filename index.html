@@ -257,6 +257,7 @@ html .tabs2 button.on{color:#111}
       <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
     </div>
     <p class="warnhome tagline muted" data-i18n="warn_short"></p>
+    <div id="homeSocial" style="margin-top:14px;text-align:center"></div>
   </section>
 
   <!-- WHITEPAPER -->
@@ -514,7 +515,7 @@ function renderContract(){
 function renderTeam(){
   var isId = lang === "id";
   var roles = [
-    {r: isId ? "Founder & Developer" : "Founder & Developer", n: "Juan", photo: true}
+    {r: isId ? "CEO & Developer" : "CEO & Developer", n: "Juan", photo: true}
   ];
   var h = "<h2>" + (isId ? "Tim" : "Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
@@ -661,7 +662,7 @@ function renderChannels(){
   var list = [
     {n: "Website", u: "https://bitworld-btw.vercel.app", d: isId ? "Whitepaper, tokenomics, dan kontrak" : "Whitepaper, tokenomics, and contract"},
     {n: "X (Twitter)", u: "https://x.com/bitworld_btw", d: isId ? "Pengumuman singkat" : "Short announcements"},
-    {n: "Facebook", u: "https://www.facebook.com/share/1CEsm6LNAK/", d: isId ? "Halaman resmi Bitworld - BTW" : "Official Bitworld - BTW page"},
+    {n: "Facebook", u: "https://www.facebook.com/share/1FKuR8i7rT/", d: isId ? "Halaman resmi Bitworld - BTW" : "Official Bitworld - BTW page"},
     {n: "Telegram", u: "https://t.me/bitworld_btw", d: isId ? "Pengumuman dan diskusi resmi" : "Official announcements and discussion"}
   ];
   var h = "<h2>" + (isId ? "Tim Support" : "Support Team") + "</h2>";
@@ -672,6 +673,12 @@ function renderChannels(){
     h += "<p style='margin-bottom:10px'><a href='" + c.u + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent);font-weight:700'>" + esc(c.n) + "</a><br><span class='muted' style='font-size:12px'>" + esc(c.d) + "</span></p>";
   });
   $("chanBody").innerHTML = h;
+  var hs = $("homeSocial");
+  if (hs) {
+    var sh = "<p class='muted' style='font-size:12px;margin-bottom:8px'>" + (isId ? "Kanal resmi Bitworld" : "Official Bitworld channels") + "</p><div class='actions'>";
+    list.slice(1).forEach(function(c){ sh += "<a class='btn' href='" + c.u + "' target='_blank' rel='noopener noreferrer'>" + esc(c.n) + "</a>"; });
+    hs.innerHTML = sh + "</div>";
+  }
 }
 
 function renderNews(){
