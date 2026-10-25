@@ -3,293 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bitworld (BTW) - Portal KYC Ketat & Biometrik</title>
+  <title>Bitworld (BTW) - Verifikasi KYC</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            bg: '#09070d',
-            fg: '#e2e1e5',
-            muted: '#6a64a0',
-            accent: '#f5b02a',
-            accent2: '#22d3ee',
-            card: 'rgba(18, 14, 28, 0.78)',
-            line: 'rgba(255, 255, 255, 0.08)'
-          }
-        }
-      }
-    }
-  </script>
   <style>
     body { background-color: #09070d; color: #e2e1e5; font-family: system-ui, -apple-system, sans-serif; }
     .glass-card { background: rgba(18, 14, 28, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    @keyframes scanline {
-      0% { top: 0%; opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { top: 100%; opacity: 0.8; }
-    }
-    .scanner-beam { position: absolute; left: 0; right: 0; height: 3px; background: #22d3ee; box-shadow: 0 0 15px #22d3ee; animation: scanline 2.5s infinite ease-in-out; }
+    button:focus-visible, a:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- Header -->
   <header class="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-[#09070d]/90 backdrop-blur-md border-b border-white/10">
     <a href="index.html" class="font-extrabold text-lg text-[#f5b02a] flex items-center gap-2">
-      <span>Bitworld</span> <span class="text-xs px-2 py-0.5 rounded-full bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/30">Portal KYC</span>
+      <span>Bitworld</span>
+      <span class="text-xs px-2 py-0.5 rounded-full bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/30">Portal KYC</span>
     </a>
-    <a href="index.html" class="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
-      ← Kembali ke Utama
-    </a>
+    <a href="index.html" class="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">← Kembali ke Utama</a>
   </header>
 
-  <!-- Main Container -->
   <main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col gap-5">
-    
-    <!-- Hero Section -->
+
     <div class="text-center mt-2">
-      <div class="inline-block px-3 py-1 rounded-full border border-white/10 text-xs text-[#22d3ee] uppercase tracking-wider mb-2">
-        Verifikasi Ketat BEP-20 • Jaringan BSC
-      </div>
       <h1 class="text-2xl font-black tracking-tight mb-1">Verifikasi Identitas KYC</h1>
       <p class="text-xs text-[#6a64a0] leading-relaxed">
-        Lengkapi verifikasi dokumen resmi dan pemindaian biometrik wajah untuk membuka fitur penuh penarikan dan staking token BTW.
+        Verifikasi dokumen resmi dan pemindaian wajah dilakukan langsung oleh Didit, penyedia verifikasi identitas. Bitworld hanya menerima hasilnya.
       </p>
     </div>
 
-    <!-- Progress Indicator -->
-    <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold uppercase tracking-wider">
-      <div id="stepIndicator1" class="py-2 rounded-lg bg-[#f5b02a] text-[#1a1400]">1. Data Diri</div>
-      <div id="stepIndicator2" class="py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5">2. Dokumen ID</div>
-      <div id="stepIndicator3" class="py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5">3. Biometrik</div>
+    <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-bold">
+      <div id="ind1" class="py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5">1. Mulai</div>
+      <div id="ind2" class="py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5">2. Diproses</div>
+      <div id="ind3" class="py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5">3. Hasil</div>
     </div>
 
-    <!-- Step 1: Form Data Diri & Wallet -->
-    <div id="step1Card" class="glass-card rounded-2xl p-5 shadow-2xl">
-      <h2 class="text-base font-bold text-[#f5b02a] mb-4 flex items-center gap-2">
-        <span>Langkah 1: Informasi Pribadi & Dompet</span>
-      </h2>
-      <form id="formStep1" onsubmit="handleStep1Submit(event)" class="space-y-3">
-        <div>
-          <label class="block text-xs text-[#6a64a0] mb-1">Nama Lengkap (Sesuai KTP/Paspor)</label>
-          <input type="text" id="fullName" required placeholder="Contoh: Juan Astra" class="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-[#f5b02a] outline-none">
-        </div>
-        <div>
-          <label class="block text-xs text-[#6a64a0] mb-1">Nomor Identitas (NIK KTP / Paspor)</label>
-          <input type="text" id="idNumber" required placeholder="Masukkan 16 digit NIK" class="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-[#f5b02a] outline-none">
-        </div>
-        <div>
-          <label class="block text-xs text-[#6a64a0] mb-1">Alamat Wallet BSC (BEP-20)</label>
-          <input type="text" id="walletAddress" required placeholder="0xeceb436... atau hubungkan wallet" class="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:border-[#f5b02a] outline-none">
-        </div>
-        <button type="submit" class="w-full py-3 mt-2 bg-[#f5b02a] text-[#1a1400] font-extrabold rounded-xl text-sm active:scale-95 transition-transform">
-          Lanjut ke Unggah Dokumen
-        </button>
-      </form>
-    </div>
-
-    <!-- Step 2: Upload Dokumen Ketat -->
-    <div id="step2Card" class="glass-card rounded-2xl p-5 shadow-2xl hidden">
-      <h2 class="text-base font-bold text-[#f5b02a] mb-2 flex items-center gap-2">
-        <span>Langkah 2: Unggah Dokumen Resmi</span>
-      </h2>
-      <p class="text-xs text-[#6a64a0] mb-4">Pastikan foto KTP/Paspor jelas, tidak buram, dan seluruh sudut terlihat.</p>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs text-[#22d3ee] mb-1 font-semibold">Foto KTP / Paspor Bagian DEPAN</label>
-          <div class="border-2 border-dashed border-white/10 rounded-xl p-4 text-center relative bg-white/[0.02]">
-            <input type="file" id="frontIdInput" accept="image/*" onchange="previewImage(event, 'frontPreview', 'frontPlaceholder')" class="absolute inset-0 opacity-0 cursor-pointer">
-            <div id="frontPlaceholder" class="space-y-1">
-              <p class="text-xs text-gray-300 font-medium">Ketuk untuk unggah foto depan</p>
-              <p class="text-[10px] text-[#6a64a0]">Format: JPG, PNG (Maks. 5MB)</p>
-            </div>
-            <img id="frontPreview" class="max-h-32 mx-auto rounded-lg hidden object-cover" alt="Preview Depan">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs text-[#22d3ee] mb-1 font-semibold">Foto Selfie Memegang KTP (Liveness Dokumen)</label>
-          <div class="border-2 border-dashed border-white/10 rounded-xl p-4 text-center relative bg-white/[0.02]">
-            <input type="file" id="selfieIdInput" accept="image/*" onchange="previewImage(event, 'selfiePreview', 'selfiePlaceholder')" class="absolute inset-0 opacity-0 cursor-pointer">
-            <div id="selfiePlaceholder" class="space-y-1">
-              <p class="text-xs text-gray-300 font-medium">Ketuk untuk unggah selfie dengan KTP</p>
-              <p class="text-[10px] text-[#6a64a0]">Wajah dan teks KTP harus terbaca jelas</p>
-            </div>
-            <img id="selfiePreview" class="max-h-32 mx-auto rounded-lg hidden object-cover" alt="Preview Selfie">
-          </div>
-        </div>
+    <div class="glass-card rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="text-center">
+        <div id="icon" class="w-14 h-14 rounded-full border flex items-center justify-center mx-auto text-2xl font-bold border-white/10 text-[#6a64a0]">…</div>
+      </div>
+      <div class="text-center">
+        <h2 id="title" class="text-lg font-black text-white">Memuat status…</h2>
+        <p id="desc" class="text-xs text-[#6a64a0] mt-1"></p>
       </div>
 
-      <div class="flex gap-2 mt-5">
-        <button type="button" onclick="goToStep(1)" class="w-1/3 py-3 bg-white/5 border border-white/10 text-gray-300 font-bold rounded-xl text-sm">Kembali</button>
-        <button type="button" onclick="handleStep2Submit()" class="w-2/3 py-3 bg-[#f5b02a] text-[#1a1400] font-extrabold rounded-xl text-sm">Lanjut Biometrik</button>
-      </div>
-    </div>
+      <ul id="tips" class="hidden text-xs text-[#6a64a0] space-y-1 list-disc pl-5">
+        <li>Siapkan KTP, paspor, atau SIM asli.</li>
+        <li>Cari tempat yang terang untuk foto dokumen dan swafoto.</li>
+        <li>Prosesnya sekitar 2 menit.</li>
+      </ul>
 
-    <!-- Step 3: Biometric & Facial Scan -->
-    <div id="step3Card" class="glass-card rounded-2xl p-5 shadow-2xl hidden">
-      <h2 class="text-base font-bold text-[#f5b02a] mb-2 flex items-center gap-2">
-        <span>Langkah 3: Pemindaian Biometrik Wajah</span>
-      </h2>
-      <p class="text-xs text-[#6a64a0] mb-4">Posisikan wajah Anda di dalam bingkai pemindai untuk verifikasi liveness anti-spoofing.</p>
-
-      <div class="relative w-48 h-48 mx-auto rounded-full border-2 border-[#22d3ee] overflow-hidden bg-black/50 flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.2)]">
-        <div class="scanner-beam"></div>
-        <div class="text-center p-4 z-10">
-          <svg class="w-16 h-16 mx-auto text-[#22d3ee] opacity-80 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          <span id="scanStatusText" class="text-[11px] font-bold text-[#22d3ee] tracking-wider uppercase">Memindai Wajah...</span>
-        </div>
+      <div id="statusBox" class="hidden bg-white/[0.03] border border-white/10 rounded-xl p-3 text-xs flex justify-between">
+        <span class="text-[#6a64a0]">Status:</span>
+        <span id="statusVal" class="font-bold"></span>
       </div>
 
-      <div class="mt-5 flex gap-2">
-        <button type="button" onclick="goToStep(2)" class="w-1/3 py-3 bg-white/5 border border-white/10 text-gray-300 font-bold rounded-xl text-sm">Kembali</button>
-        <button type="button" id="submitKycBtn" onclick="finalizeKycSubmission()" class="w-2/3 py-3 bg-[#22d3ee] text-[#09070d] font-extrabold rounded-xl text-sm opacity-50 cursor-not-allowed" disabled>Kirim Verifikasi KYC</button>
-      </div>
-    </div>
-
-    <!-- Step 4: Status Dashboard (Result) -->
-    <div id="step4Card" class="glass-card rounded-2xl p-5 shadow-2xl hidden text-center space-y-4">
-      <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-      <div>
-        <h2 class="text-lg font-black text-white">KYC Berhasil Dikirim!</h2>
-        <p class="text-xs text-[#6a64a0] mt-1">Data biometrik & dokumen Anda sedang dalam antrean validasi ketat protokol Bitworld.</p>
-      </div>
-
-      <div class="bg-white/[0.03] border border-white/10 rounded-xl p-3 text-left space-y-2 text-xs">
-        <div class="flex justify-between"><span class="text-[#6a64a0]">Status:</span> <span class="text-amber-400 font-bold" id="resStatus">Pending Review</span></div>
-        <div class="flex justify-between"><span class="text-[#6a64a0]">Nama:</span> <span class="text-white font-medium" id="resName">-</span></div>
-        <div class="flex justify-between"><span class="text-[#6a64a0]">ID Hash:</span> <span class="text-[#22d3ee] font-mono" id="resHash">-</span></div>
-      </div>
-
-      <button type="button" onclick="resetKyc()" class="w-full py-3 bg-white/5 border border-white/10 text-gray-300 font-bold rounded-xl text-sm">Reset / Ulangi Pengujian</button>
+      <button id="go" type="button" class="hidden w-full py-3 bg-[#f5b02a] text-[#1a1400] font-extrabold rounded-xl text-sm active:scale-95 transition-transform disabled:opacity-60">Mulai verifikasi</button>
+      <p id="err" role="alert" class="text-xs text-red-400 text-center min-h-[1rem]"></p>
     </div>
 
   </main>
 
   <script>
-    let kycData = {
-      fullName: '',
-      idNumber: '',
-      walletAddress: '',
-      frontImage: null,
-      selfieImage: null,
-      timestamp: null
-    };
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var api = "/api/me?kyc=";
+      var timer = null, tries = 0;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSavedKyc();
-    });
-
-    function goToStep(step) {
-      document.getElementById('step1Card').classList.add('hidden');
-      document.getElementById('step2Card').classList.add('hidden');
-      document.getElementById('step3Card').classList.add('hidden');
-      document.getElementById('step4Card').classList.add('hidden');
-
-      for(let i=1; i<=3; i++) {
-        const ind = document.getElementById(`stepIndicator${i}`);
-        ind.className = "py-2 rounded-lg bg-white/5 text-[#6a64a0] border border-white/5";
-      }
-
-      document.getElementById(`step${step}Card`).classList.remove('hidden');
-      document.getElementById(`stepIndicator${step}`).className = "py-2 rounded-lg bg-[#f5b02a] text-[#1a1400]";
-
-      if(step === 3) {
-        startBiometricSimulation();
-      }
-    }
-
-    function handleStep1Submit(e) {
-      e.preventDefault();
-      kycData.fullName = document.getElementById('fullName').value.trim();
-      kycData.idNumber = document.getElementById('idNumber').value.trim();
-      kycData.walletAddress = document.getElementById('walletAddress').value.trim();
-
-      if(!kycData.fullName || !kycData.idNumber || !kycData.walletAddress) {
-        alert("Semua field wajib diisi!");
-        return;
-      }
-      goToStep(2);
-    }
-
-    function previewImage(event, previewId, placeholderId) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const preview = document.getElementById(previewId);
-          preview.src = e.target.result;
-          preview.classList.remove('hidden');
-          document.getElementById(placeholderId).classList.add('hidden');
+      function setStep(n) {
+        for (var i = 1; i <= 3; i++) {
+          $("ind" + i).className = "py-2 rounded-lg border " + (i === n
+            ? "bg-[#f5b02a] text-[#1a1400] border-transparent"
+            : "bg-white/5 text-[#6a64a0] border-white/5");
         }
-        reader.readAsDataURL(file);
       }
-    }
 
-    function handleStep2Submit() {
-      const front = document.getElementById('frontPreview').src;
-      const selfie = document.getElementById('selfiePreview').src;
-
-      if(front.includes('placeholder') || selfie.includes('placeholder') || !document.getElementById('frontPreview').classList.contains('hidden')) {
-        alert("Harap unggah Foto KTP dan Foto Selfie dengan lengkap!");
-        return;
+      function icon(sym, cls) {
+        var el = $("icon");
+        el.textContent = sym;
+        el.className = "w-14 h-14 rounded-full border flex items-center justify-center mx-auto text-2xl font-bold " + cls;
       }
-      kycData.frontImage = front;
-      kycData.selfieImage = selfie;
-      goToStep(3);
-    }
 
-    function startBiometricSimulation() {
-      const statusText = document.getElementById('scanStatusText');
-      const submitBtn = document.getElementById('submitKycBtn');
-      
-      statusText.innerText = "Memindai Titik Wajah...";
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      function render(status) {
+        $("go").classList.add("hidden");
+        $("tips").classList.add("hidden");
+        $("statusBox").classList.add("hidden");
+        $("err").textContent = "";
 
-      setTimeout(() => {
-        statusText.innerText = "Analisis Liveness Berhasil!";
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }, 3000);
-    }
-
-    function finalizeKycSubmission() {
-      kycData.timestamp = new Date().toISOString();
-      const hashID = 'BTW-KYC-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      
-      localStorage.setItem('bw_kyc_data', JSON.stringify(kycData));
-      localStorage.setItem('bw_kyc_status', 'Pending');
-
-      document.getElementById('step3Card').classList.add('hidden');
-      document.getElementById('step4Card').classList.remove('hidden');
-
-      document.getElementById('resName').innerText = kycData.fullName;
-      document.getElementById('resHash').innerText = hashID;
-    }
-
-    function loadSavedKyc() {
-      const saved = localStorage.getItem('bw_kyc_data');
-      if(saved) {
-        try {
-          const data = JSON.parse(saved);
-          document.getElementById('fullName').value = data.fullName || '';
-          document.getElementById('idNumber').value = data.idNumber || '';
-          document.getElementById('walletAddress').value = data.walletAddress || '';
-        } catch(e) {}
+        if (status === "approved") {
+          setStep(3);
+          icon("✓", "bg-emerald-500/10 border-emerald-500/30 text-emerald-400");
+          $("title").textContent = "KYC Terverifikasi";
+          $("desc").textContent = "Identitas Anda sudah disetujui. Fitur penarikan dan staking BTW terbuka.";
+          showStatus("Disetujui", "text-emerald-400");
+        } else if (status === "pending") {
+          setStep(2);
+          icon("⏳", "bg-amber-500/10 border-amber-500/30 text-amber-400");
+          $("title").textContent = "Verifikasi Sedang Diproses";
+          $("desc").textContent = "Hasil biasanya muncul dalam beberapa menit. Halaman ini diperbarui otomatis.";
+          showStatus("Menunggu hasil", "text-amber-400");
+          $("go").textContent = "Ulangi verifikasi";
+          $("go").classList.remove("hidden");
+          poll();
+        } else if (status === "rejected") {
+          setStep(3);
+          icon("✕", "bg-red-500/10 border-red-500/30 text-red-400");
+          $("title").textContent = "Verifikasi Ditolak";
+          $("desc").textContent = "Dokumen atau swafoto belum bisa diterima. Coba lagi dengan dokumen asli dan foto yang jelas.";
+          showStatus("Ditolak", "text-red-400");
+          $("go").textContent = "Coba lagi";
+          $("go").classList.remove("hidden");
+          $("tips").classList.remove("hidden");
+        } else {
+          setStep(1);
+          icon("◉", "bg-[#22d3ee]/10 border-[#22d3ee]/30 text-[#22d3ee]");
+          $("title").textContent = "Belum Terverifikasi";
+          $("desc").textContent = "Verifikasi satu kali untuk membuka penarikan dan staking token BTW.";
+          $("go").textContent = "Mulai verifikasi";
+          $("go").classList.remove("hidden");
+          $("tips").classList.remove("hidden");
+        }
       }
-    }
 
-    function resetKyc() {
-      localStorage.removeItem('bw_kyc_data');
-      localStorage.removeItem('bw_kyc_status');
-      location.reload();
-    }
+      function showStatus(text, cls) {
+        $("statusVal").textContent = text;
+        $("statusVal").className = "font-bold " + cls;
+        $("statusBox").classList.remove("hidden");
+      }
+
+      function needLogin() {
+        setStep(1);
+        icon("🔒", "border-white/10 text-gray-300");
+        $("title").textContent = "Masuk dulu";
+        $("desc").innerHTML = 'Anda harus login sebelum verifikasi. <a href="index.html" class="text-[#22d3ee] underline">Ke halaman utama</a>';
+        $("go").classList.add("hidden");
+        $("tips").classList.add("hidden");
+      }
+
+      function load() {
+        fetch(api + "status", { credentials: "same-origin" })
+          .then(function (r) {
+            if (r.status === 401) { needLogin(); return null; }
+            if (!r.ok) throw new Error("status");
+            return r.json();
+          })
+          .then(function (d) { if (d) render(d.status); })
+          .catch(function () {
+            $("title").textContent = "Status tidak bisa dimuat";
+            $("err").textContent = "Periksa koneksi lalu muat ulang halaman.";
+          });
+      }
+
+      function poll() {
+        clearTimeout(timer);
+        if (++tries > 30) return;
+        timer = setTimeout(function () {
+          fetch(api + "status", { credentials: "same-origin" })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { if (d && d.status !== "pending") render(d.status); else poll(); })
+            .catch(poll);
+        }, 4000);
+      }
+
+      $("go").addEventListener("click", function () {
+        var b = this, label = b.textContent;
+        $("err").textContent = "";
+        b.disabled = true; b.textContent = "Membuka verifikasi…";
+        fetch(api + "start", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        })
+          .then(function (r) {
+            if (r.status === 401) { needLogin(); return null; }
+            return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+          })
+          .then(function (x) {
+            if (!x) return;
+            if (x.ok && x.d.url) { location.href = x.d.url; return; }
+            if (x.ok && x.d.status === "approved") { render("approved"); return; }
+            throw new Error("start");
+          })
+          .catch(function () {
+            b.disabled = false; b.textContent = label;
+            $("err").textContent = "Verifikasi tidak bisa dimulai. Coba lagi beberapa saat lagi.";
+          });
+      });
+
+      load();
+    })();
   </script>
 </body>
 </html>
