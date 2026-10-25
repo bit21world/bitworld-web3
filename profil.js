@@ -83,12 +83,14 @@
   function sync() {
     var on = nav.querySelector("button.on");
     moreBtn.classList.toggle("on", !!(on && drawer.contains(on)) || drawer.classList.contains("open"));
+    moreBtn.setAttribute("aria-expanded", drawer.classList.contains("open") ? "true" : "false");
   }
   moreBtn.addEventListener("click", function (e) {
     e.stopPropagation();
     drawer.classList.toggle("open");
     sync();
   });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && drawer.classList.contains("open")) { closeMenu(); sync(); moreBtn.focus(); } });
   document.addEventListener("click", function (e) {
     if (drawer.classList.contains("open") && !nav.contains(e.target)) { closeMenu(); sync(); }
   });
@@ -123,6 +125,7 @@
     if (c === "unauthorized") return T("Sesi habis. Silakan masuk lagi.", "Session expired. Please log in again.");
     if (c === "cooldown") return T("Sesi mining masih berjalan.", "Mining session is still running.");
     if (c === "rate_limited") return T("Terlalu banyak percobaan. Coba lagi nanti.", "Too many attempts. Try again later.");
+    if (c === "captcha") return T("Verifikasi keamanan gagal. Muat ulang halaman lalu coba lagi.", "Security check failed. Reload the page and try again.");
     if (c === "network") return T("Koneksi bermasalah.", "Connection problem.");
     return T("Terjadi kesalahan di server. Coba lagi.", "Server error. Try again.");
   }
@@ -232,7 +235,7 @@
       var now = Date.now() + skew;
       var elapsed = start ? Math.max(0, Math.min(now - start, DUR)) : 0;
       var earned = RATE * (elapsed / 3600000);
-      g("mnBal").textContent = f6(me.balance + earned);
+      g("mnBal").textContent = f6(Number(me.balance || 0) + earned);
       g("mnEarn").textContent = f6(earned);
       g("mnBar").style.width = (start ? Math.round(elapsed / DUR * 100) : 0) + "%";
       var left = start ? start + DUR - now : 0;
