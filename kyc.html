@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>Verifikasi Identitas - Bitworld (BTW)</title>
+<meta name="description" content="Verifikasi identitas akun Bitworld (BTW).">
+<link rel="icon" type="image/svg+xml" href="bitworld-btw-logo-32.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
@@ -12,6 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
 svg{display:block}
+[hidden]{display:none!important}
 header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px}
 .brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-.3px;color:var(--ink);text-decoration:none}
 .brand img{width:34px;height:34px;border-radius:50%}
@@ -151,7 +154,7 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
   function needLogin() {
     steps(1); btn("");
     box("", "🔒", "Masuk dulu", "Anda harus login sebelum verifikasi.");
-    $("desc").innerHTML = 'Anda harus login sebelum verifikasi. <a class="lnk" href="index.html">Masuk di halaman utama</a>';
+    $("desc").innerHTML = 'Anda harus login sebelum verifikasi. <a class="lnk" href="index.html#auth">Masuk di halaman utama</a>';
   }
   function load() {
     fetch(api + "status", { credentials: "same-origin" })
@@ -161,7 +164,7 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
   }
   function poll() {
     clearTimeout(timer);
-    if (++tries > 30) return;
+    if (++tries > 30) { $("err").textContent = "Masih diproses. Muat ulang halaman ini beberapa menit lagi untuk melihat hasilnya."; return; }
     timer = setTimeout(function () {
       fetch(api + "status", { credentials: "same-origin" })
         .then(function (r) { return r.ok ? r.json() : null; })
