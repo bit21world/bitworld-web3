@@ -4,6 +4,7 @@ const { sql, send, getUid, jsonOnly, RATE, HOURS } = require("./_lib");
 const DIDIT = "https://verification.didit.me/v3";
 const SITE = "https://bitworld-web3-phi.vercel.app";
 
+// Memulai verifikasi KYC: membuat sesi di Didit lalu mengembalikan link-nya
 async function kycStart(req, res) {
   try {
     if (!jsonOnly(req, res)) return;
@@ -32,6 +33,7 @@ async function kycStart(req, res) {
   } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
 }
 
+// Menerima hasil verifikasi dari Didit (webhook)
 async function kycWebhook(req, res) {
   try {
     const chunks = [];
@@ -46,6 +48,9 @@ async function kycWebhook(req, res) {
       .update([ts, b.session_id, b.status, b.webhook_type].join(":")).digest("hex");
     const a = Buffer.from(sig), e = Buffer.from(expected);
     if (a.length !== e.length || !crypto.timingSafeEqual(a, e)) return res.status(401).end("invalid");
+
+    // Tombol "Uji Webhook" di Didit: tanda tangan sudah benar, tidak perlu proses lanjut
+    if (req.headers["x-didit-test-webhook"] === "true") return res.status(200).end("test ok");
 
     // Konfirmasi hasil langsung ke Didit (tidak percaya isi webhook begitu saja)
     const r = await fetch(`${DIDIT}/session/${encodeURIComponent(b.session_id)}/decision/`, {
