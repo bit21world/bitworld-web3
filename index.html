@@ -485,7 +485,7 @@ function renderToken(){
   h += "<div style='display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap'>";
   h += "<div style='width:120px;height:120px;border-radius:50%;background:conic-gradient(" + grad.join(",") + ");position:relative;flex-shrink:0'>";
   h += "<div style='position:absolute;inset:26px;border-radius:50%;background:#0c1120;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#8a94a8'>";
-  h += "<b style='font-size:13px;color:#f5b82e'>21 JT</b>BTW</div></div>";
+  h += "<b style='font-size:13px;color:#f5b82e'>" + (isId ? "21 JT" : "21M") + "</b>BTW</div></div>";
   h += "<table style='width:auto;flex:1;min-width:200px'>";
   cats.forEach(function(c){
     var amt = Math.round(total * c.p / 100).toLocaleString(isId ? "id-ID" : "en-US");
