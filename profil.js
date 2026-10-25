@@ -66,7 +66,14 @@
   moreBtn.type = "button"; moreBtn.id = "n-more";
   var drawer = document.createElement("div");
   drawer.id = "navDrawer";
-  ["n-alloc", "n-dist", "n-road", "n-wp", "n-vision", "n-contract", "n-sec", "n-docs", "n-team", "n-news", "n-faq", "n-gloss", "n-chan"].forEach(function (id) {
+  /* Tombol KYC: dibuat di sini bila belum ada di index.html, lalu masuk ke menu Lainnya */
+  if (!g("n-kyc")) {
+    var kycBtn = document.createElement("button");
+    kycBtn.type = "button"; kycBtn.id = "n-kyc"; kycBtn.textContent = "KYC";
+    kycBtn.addEventListener("click", function () { location.href = "kyc.html"; });
+    nav.appendChild(kycBtn);
+  }
+  ["n-kyc", "n-alloc", "n-dist", "n-road", "n-wp", "n-vision", "n-contract", "n-sec", "n-docs", "n-team", "n-news", "n-faq", "n-gloss", "n-chan"].forEach(function (id) {
     var el = g(id); if (el) drawer.appendChild(el);
   });
   nav.appendChild(moreBtn);
