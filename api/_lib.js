@@ -6,8 +6,10 @@ const sql = neon(process.env.DATABASE_URL);
 const MAXAGE = 60 * 60 * 24 * 30; // sesi login 30 hari
 const RATE = 0.004; // poin per jam
 const HOURS = 24;   // lama 1 sesi mining (jam)
+const REF_BONUS = 0.05;      // +5% per teman aktif
+const REF_MAX = 10;          // maksimal 10 teman dihitung (+50%)
+const REF_MIN_SESSIONS = 3;  // teman aktif setelah 3x selesai mining
 const SITE_URL = (process.env.SITE_URL || "https://bitworld21.vercel.app").replace(/\/$/, "");
-
 function secret() {
   if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET belum diisi di Vercel");
   return process.env.JWT_SECRET;
