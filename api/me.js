@@ -1,5 +1,10 @@
 const crypto = require("crypto");
-const { sql, send, getUid, jsonOnly, RATE, HOURS } = require("./_lib");
+const lib = require("./_lib");
+const { sql, send, getUid, jsonOnly, RATE, HOURS } = lib;
+
+// Bonus referral. Bila REF_BONUS / REF_MAX belum diekspor oleh _lib.js, nilainya 0 (tanpa bonus).
+const REF_BONUS = Number(lib.REF_BONUS) || 0;
+const REF_MAX = Number(lib.REF_MAX) || 0;
 
 const DIDIT = "https://verification.didit.me/v3";
 const SITE = "https://bitworld-web3-phi.vercel.app";
@@ -89,10 +94,19 @@ module.exports = async (req, res) => {
     const r = await sql`select email, name, balance, mine_start, is_admin, wallet, now() as server_now from bw_users where id = ${uid}`;
     if (!r.length) return send(res, 200, { user: null });
     const u = r[0];
+
+    // Rate sudah termasuk bonus referral (sama dengan hitungan di claim.js).
+    // Bila gagal dibaca, bonus dianggap 0 supaya halaman tidak ikut error.
+    let mult = 1;
+    try {
+      const ra = await sql`select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'`;
+      mult = 1 + Math.min(ra[0].n, REF_MAX) * REF_BONUS;
+    } catch (e) { console.error("referral bonus:", e); }
+
     send(res, 200, { user: {
       email: u.email, name: u.name, balance: Number(u.balance),
       mine_start: u.mine_start, server_now: u.server_now,
-      rate: RATE, session_hours: HOURS, is_admin: !!u.is_admin,
+      rate: Number((RATE * mult).toFixed(8)), session_hours: HOURS, is_admin: !!u.is_admin,
       wallet: u.wallet || null
     } });
   } catch (e) { console.error(e); send(res, 500, { error: "server" }); }

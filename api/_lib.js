@@ -98,17 +98,33 @@ async function sendResetMail(user) {
     mailHtml(user.name, "Klik tombol di bawah untuk membuat password baru (berlaku 1 jam).", `${SITE_URL}/?reset=${t}`, "Buat Password Baru"));
 }
 
-// Masukkan poin sesi mining yang sudah selesai ke saldo (atomik, tidak bisa ganda).
-// Dipakai oleh api/app.js sebelum membaca saldo/dompet.
-async function settle(uid) {
-  const rows = await sql`
-    with old as (select id, mine_start from bw_users where id = ${uid} for update)
-    update bw_users u set balance = u.balance + ${RATE}::numeric * ${HOURS}::numeric, mine_start = null
-    from old
-    where u.id = old.id and old.mine_start is not null
-      and now() >= old.mine_start + make_interval(hours => ${HOURS}::int)
-    returning u.id`;
-  if (rows.length) await sql`insert into bw_mining_log (user_id, amount) values (${uid}, ${RATE * HOURS})`;
+// Teman yang diundang menjadi "active" setelah REF_MIN_SESSIONS sesi mining selesai.
+// Gagal di sini tidak boleh mengganggu proses utama.
+async function activateReferral(uid) {
+  try {
+    const c = await sql`select count(*)::int as n from bw_mining_log where user_id = ${uid}`;
+    if (c[0].n >= REF_MIN_SESSIONS) {
+      await sql`update bw_referrals set status = 'active' where referred_id = ${uid} and status = 'pending'`;
+    }
+  } catch (e) { console.error("referral activate:", e); }
 }
 
-module.exports = { RATE, HOURS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, settle, consumeToken, sendVerifyMail, sendResetMail };
+// Masukkan poin sesi mining yang sudah selesai ke saldo (atomik, tidak bisa ganda).
+// Hadiah = RATE x HOURS x (1 + bonus referral). Dipakai oleh api/app.js sebelum membaca saldo/dompet.
+async function settle(uid) {
+  const rows = await sql`
+    with old as (select id, mine_start from bw_users where id = ${uid} for update),
+    ref as (select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'),
+    calc as (select ${RATE}::numeric * ${HOURS}::numeric * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt from ref)
+    update bw_users u set balance = u.balance + calc.amt, mine_start = null
+    from old, calc
+    where u.id = old.id and old.mine_start is not null
+      and now() >= old.mine_start + make_interval(hours => ${HOURS}::int)
+    returning u.id, calc.amt as amt`;
+  if (rows.length) {
+    await sql`insert into bw_mining_log (user_id, amount) values (${uid}, ${rows[0].amt})`;
+    await activateReferral(uid);
+  }
+}
+
+module.exports = { RATE, HOURS, REF_BONUS, REF_MAX, REF_MIN_SESSIONS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, settle, activateReferral, consumeToken, sendVerifyMail, sendResetMail };
