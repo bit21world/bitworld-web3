@@ -68,10 +68,21 @@ async function kycWebhook(req, res) {
   } catch (err) { console.error(err); res.status(500).end("server"); }
 }
 
+// Mengecek status KYC milik pengguna yang sedang login
+async function kycStatus(req, res) {
+  try {
+    const uid = getUid(req);
+    if (!uid) return send(res, 401, { error: "login" });
+    const k = await sql`select status from kyc where user_id = ${uid}`;
+    send(res, 200, { status: k.length ? k[0].status : "none" });
+  } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
+}
+
 module.exports = async (req, res) => {
   const kyc = (req.query && req.query.kyc) || "";
   if (kyc === "start") return kycStart(req, res);
   if (kyc === "webhook") return kycWebhook(req, res);
+  if (kyc === "status") return kycStatus(req, res);
   try {
     const uid = getUid(req);
     if (!uid) return send(res, 200, { user: null });
