@@ -127,7 +127,7 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;bac
 <style id="scroll-menu">
 main{overflow:hidden}
 .view{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start;padding-top:14px;padding-bottom:18px}
-#v-home{justify-content:center;overflow:hidden}
+#v-home{justify-content:safe center;overflow-y:auto}
 .view .panel{margin:auto 0}
 </style>
 <style id="auth-mining">
@@ -257,6 +257,7 @@ html .tabs2 button.on{color:#111}
       <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
     </div>
     <p class="warnhome tagline muted" data-i18n="warn_short"></p>
+    <div id="homeStats" style="margin-top:14px;text-align:center"></div>
     <div id="homeSocial" style="margin-top:14px;text-align:center"></div>
   </section>
 
@@ -515,7 +516,7 @@ function renderContract(){
 function renderTeam(){
   var isId = lang === "id";
   var roles = [
-    {r: isId ? "Founder & Developer" : "Founder & Developer", n: "Juan", photo: true}
+    {r: isId ? "CEO & Developer" : "CEO & Developer", n: "Juan", photo: true}
   ];
   var h = "<h2>" + (isId ? "Tim" : "Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
@@ -1080,5 +1081,19 @@ go(VIEWS[initial] ? initial : "home");
   });
 })();
 </script>
-<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script></body>
+<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script><script>
+(function(){
+  var data=null;
+  function f(n){try{return Number(n).toLocaleString((window.lang==="en")?"en-US":"id-ID")}catch(e){return n}}
+  function draw(){
+    var el=document.getElementById("homeStats"); if(!el||!data) return;
+    var en=window.lang==="en";
+    el.innerHTML="<div style='display:inline-flex;gap:18px;padding:10px 18px;border-radius:14px;background:#fff;border:1px solid rgba(88,76,214,.14);box-shadow:0 6px 18px rgba(60,60,140,.08)'>"
+      +"<div><div style='font-size:20px;font-weight:800;color:#6b5ff0'>"+f(data.total)+"</div><div class='muted' style='font-size:12px'>"+(en?"Total users":"Total pengguna")+"</div></div>"
+      +"<div><div style='font-size:20px;font-weight:800;color:#d9a400'>"+f(data.active)+"</div><div class='muted' style='font-size:12px'>"+(en?"Mining now":"Sedang mining")+"</div></div></div>";
+  }
+  fetch("/api/register?stats=1").then(function(r){return r.ok?r.json():null}).then(function(d){if(d&&typeof d.total==="number"){data=d;draw()}}).catch(function(){});
+  ["lang-id","lang-en"].forEach(function(id){var b=document.getElementById(id); if(b) b.addEventListener("click",function(){setTimeout(draw,0)})});
+})();
+</script></body>
 </html>
