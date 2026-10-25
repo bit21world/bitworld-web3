@@ -1,7 +1,10 @@
 const crypto = require("crypto");
 const { sql, send, getUid, jsonOnly, RATE, HOURS } = require("./_lib");
 
-async function kycToken(req, res) {
+const DIDIT = "https://verification.didit.me/v3";
+const SITE = "https://bitworld-web3-phi.vercel.app";
+
+async function kycStart(req, res) {
   try {
     if (!jsonOnly(req, res)) return;
     const uid = getUid(req);
@@ -11,22 +14,21 @@ async function kycToken(req, res) {
     const k = await sql`select status from kyc where user_id = ${uid}`;
     if (k[0].status === "approved") return send(res, 200, { status: "approved" });
 
-    const path = `/resources/accessTokens?userId=${encodeURIComponent(uid)}&levelName=${encodeURIComponent(process.env.SUMSUB_LEVEL)}`;
-    const ts = Math.floor(Date.now() / 1000).toString();
-    const sig = crypto.createHmac("sha256", process.env.SUMSUB_SECRET)
-      .update(ts + "POST" + path).digest("hex");
-
-    const r = await fetch("https://api.sumsub.com" + path, {
+    const r = await fetch(DIDIT + "/session/", {
       method: "POST",
-      headers: {
-        "X-App-Token": process.env.SUMSUB_APP_TOKEN,
-        "X-App-Access-Sig": sig,
-        "X-App-Access-Ts": ts
-      }
+      headers: { "x-api-key": process.env.DIDIT_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workflow_id: process.env.DIDIT_WORKFLOW_ID,
+        vendor_data: String(uid),
+        callback: SITE + "/kyc.html",
+        callback_method: "both"
+      })
     });
     const d = await r.json();
-    if (!r.ok) { console.error(d); return send(res, 502, { error: "sumsub" }); }
-    send(res, 200, { token: d.token, status: k[0].status });
+    if (!r.ok) { console.error(d); return send(res, 502, { error: "didit" }); }
+
+    await sql`update kyc set applicant_id = ${d.session_id}, status = 'pending', updated_at = now() where user_id = ${uid}`;
+    send(res, 200, { url: d.url, status: "pending" });
   } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
 }
 
@@ -34,17 +36,28 @@ async function kycWebhook(req, res) {
   try {
     const chunks = [];
     for await (const c of req) chunks.push(c);
-    const raw = Buffer.concat(chunks);
-    const expected = crypto.createHmac("sha256", process.env.SUMSUB_WEBHOOK_SECRET)
-      .update(raw).digest("hex");
-    if ((req.headers["x-payload-digest"] || "") !== expected)
-      return res.status(401).end("invalid");
+    const b = JSON.parse(Buffer.concat(chunks).toString() || "{}");
 
-    const e = JSON.parse(raw.toString());
-    if (e.type === "applicantReviewed") {
-      const status = e.reviewResult && e.reviewResult.reviewAnswer === "GREEN" ? "approved" : "rejected";
-      await sql`update kyc set status = ${status}, applicant_id = ${e.applicantId}, updated_at = now()
-                where user_id = ${e.externalUserId}`;
+    const ts = String(req.headers["x-timestamp"] || "");
+    const sig = String(req.headers["x-signature-simple"] || "");
+    if (!ts || Math.abs(Date.now() / 1000 - Number(ts)) > 300) return res.status(401).end("old");
+
+    const expected = crypto.createHmac("sha256", process.env.DIDIT_WEBHOOK_SECRET)
+      .update([ts, b.session_id, b.status, b.webhook_type].join(":")).digest("hex");
+    const a = Buffer.from(sig), e = Buffer.from(expected);
+    if (a.length !== e.length || !crypto.timingSafeEqual(a, e)) return res.status(401).end("invalid");
+
+    // Konfirmasi hasil langsung ke Didit (tidak percaya isi webhook begitu saja)
+    const r = await fetch(`${DIDIT}/session/${encodeURIComponent(b.session_id)}/decision/`, {
+      headers: { "x-api-key": process.env.DIDIT_API_KEY }
+    });
+    if (!r.ok) return res.status(502).end("didit");
+    const d = await r.json();
+
+    const st = { Approved: "approved", Declined: "rejected" }[d.status];
+    if (st && d.vendor_data) {
+      await sql`update kyc set status = ${st}, updated_at = now()
+                where user_id = ${d.vendor_data} and applicant_id = ${b.session_id}`;
     }
     res.status(200).end("ok");
   } catch (err) { console.error(err); res.status(500).end("server"); }
@@ -52,7 +65,7 @@ async function kycWebhook(req, res) {
 
 module.exports = async (req, res) => {
   const kyc = (req.query && req.query.kyc) || "";
-  if (kyc === "token") return kycToken(req, res);
+  if (kyc === "start") return kycStart(req, res);
   if (kyc === "webhook") return kycWebhook(req, res);
   try {
     const uid = getUid(req);
