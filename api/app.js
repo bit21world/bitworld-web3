@@ -42,7 +42,13 @@ module.exports = async (req, res) => {
       (select status from bw_kyc k where k.user_id = ${uid} order by k.id desc limit 1) as kyc from bw_users where id = ${uid}`)[0];
     if (!me) return send(res, 401, { error: "not_logged_in" });
     const kycStatus = me.kyc || "none";
-
+    /* ---------- POOL MINING ---------- */
+    if (a === "pool") {
+      const r = await sql`select total, used from bw_pool where id = 1`;
+      const total = r.length ? Number(r[0].total) : 10500000;
+      const used = r.length ? Number(r[0].used) : 0;
+      return send(res, 200, { total, used, remaining: Math.max(0, total - used), percent: total ? Math.min(100, used / total * 100) : 0 });
+      }
     /* ---------- WALLET ---------- */
     if (a === "wallet") {
       const h = await sql`
