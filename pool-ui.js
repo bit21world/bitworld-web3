@@ -12,7 +12,10 @@
     { id: 'btw-pool-token', texts: ['Tokenomics'] }
   ];
 
-  function isEn() { return (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0; }
+  function isEn() {
+    if (typeof window.lang === 'string') return window.lang === 'en';
+    return (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
+  }
   function nf(n, d) { return Number(n || 0).toLocaleString('id-ID', { maximumFractionDigits: d == null ? 2 : d }); }
 
   function visible(el) { return !!(el && (el.offsetWidth || el.offsetHeight || el.getClientRects().length)); }
