@@ -9,6 +9,8 @@ const REF_MIN_SESSIONS = Number(lib.REF_MIN_SESSIONS) || 3;
 // Memulai sesi mining 24 jam. Satu query atomik: tidak bisa dimulai dua kali / dicurangi.
 // Poin sesi sebelumnya (RATE x HOURS x (1 + bonus referral)) dimasukkan ke saldo saat sesi baru dimulai;
 // poin sesi yang sedang berjalan dihitung otomatis di /api/me.
+// POOL: setiap reward yang dicetak dikurangkan dari bw_pool (10.500.000 BTW) dalam query yang sama.
+// Jika pool tidak cukup, saldo TIDAK bertambah dan sesi tidak di-reset (error "pool_empty").
 module.exports = async (req, res) => {
   try {
     if (!jsonOnly(req, res)) return;
@@ -17,15 +19,35 @@ module.exports = async (req, res) => {
     const rows = await sql`
       with old as (select id, mine_start from bw_users where id = ${uid} for update),
       ref as (select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'),
-      calc as (select ${RATE}::numeric * ${HOURS}::numeric * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt from ref)
-      update bw_users u set
-        balance = u.balance + case when old.mine_start is not null then calc.amt else 0 end,
-        mine_start = now()
-      from old, calc
-      where u.id = old.id
-        and (old.mine_start is null or now() >= old.mine_start + make_interval(hours => ${HOURS}::int))
-      returning u.balance, u.mine_start, (old.mine_start is not null) as settled, calc.amt as amt`;
-    if (!rows.length) return send(res, 429, { error: "cooldown" });
+      calc as (select ${RATE}::numeric * ${HOURS}::numeric * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt from ref),
+      need as (
+        select case when old.mine_start is not null then calc.amt else 0 end as amt
+        from old, calc
+        where old.mine_start is null or now() >= old.mine_start + make_interval(hours => ${HOURS}::int)
+      ),
+      pool as (
+        update bw_pool p set used = p.used + need.amt
+        from need
+        where p.id = 1 and p.used + need.amt <= p.total
+        returning need.amt as amt
+      ),
+      upd as (
+        update bw_users u set
+          balance = u.balance + pool.amt,
+          mine_start = now()
+        from old, pool
+        where u.id = old.id
+        returning u.balance, u.mine_start, (old.mine_start is not null) as settled, pool.amt as amt
+      )
+      select * from upd`;
+    if (!rows.length) {
+      // Bedakan: masih cooldown, atau pool habis.
+      const chk = await sql`
+        select (mine_start is null or now() >= mine_start + make_interval(hours => ${HOURS}::int)) as can
+        from bw_users where id = ${uid}`;
+      if (chk.length && chk[0].can) return send(res, 409, { error: "pool_empty" });
+      return send(res, 429, { error: "cooldown" });
+    }
     if (rows[0].settled) {
       await sql`insert into bw_mining_log (user_id, amount) values (${uid}, ${rows[0].amt})`;
       // Teman yang diundang menjadi "active" setelah REF_MIN_SESSIONS sesi mining selesai.
