@@ -8,7 +8,7 @@
   var timer = null;
 
   var ANCHORS = [
-    { id: 'btw-pool-mining', texts: ['Durasi sesi', 'Session duration'] },
+    { id: 'btw-pool-mining', texts: ['Durasi sesi', 'Session length', 'Session duration'] },
     { id: 'btw-pool-token', texts: ['Tokenomics'] }
   ];
 
