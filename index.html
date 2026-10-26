@@ -1095,5 +1095,5 @@ go(VIEWS[initial] ? initial : "home");
   fetch("/api/register?stats=1").then(function(r){return r.ok?r.json():null}).then(function(d){if(d&&typeof d.total==="number"){data=d;draw()}}).catch(function(){});
   ["lang-id","lang-en"].forEach(function(id){var b=document.getElementById(id); if(b) b.addEventListener("click",function(){setTimeout(draw,0)})});
 })();
-</script></body>
+</script></body><script src="pool-ui.js" defer></script>
 </html>
