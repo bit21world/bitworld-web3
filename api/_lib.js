@@ -6,10 +6,8 @@ const sql = neon(process.env.DATABASE_URL);
 const MAXAGE = 60 * 60 * 24 * 30; // sesi login 30 hari
 const RATE = 0.004; // poin per jam
 const HOURS = 24;   // lama 1 sesi mining (jam)
-const REF_BONUS = 0.05;      // +5% per teman aktif
-const REF_MAX = 10;          // maksimal 10 teman dihitung (+50%)
-const REF_MIN_SESSIONS = 3;  // teman aktif setelah 3x selesai mining
-const SITE_URL = (process.env.SITE_URL || "https://bitworld21.vercel.app").replace(/\/$/, "");
+const SITE_URL = (process.env.SITE_URL || "https://bitworld-web3-phi.vercel.app").trim().replace(/\/$/, "");
+
 function secret() {
   if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET belum diisi di Vercel");
   return process.env.JWT_SECRET;
@@ -67,11 +65,39 @@ async function consumeToken(token, type) {
   return rows.length ? rows[0].user_id : null;
 }
 
-// Kirim email lewat Resend
+// ---------- Kirim email: Brevo (jika BREVO_API_KEY ada), selain itu Resend ----------
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// MAIL_FROM boleh "Nama <email@domain.com>" atau cukup "email@domain.com"
+function parseFrom(raw) {
+  const s = String(raw || "").trim().replace(/^["']+|["']+$/g, "");
+  const m = s.match(/^(.*)<\s*([^<>\s]+@[^<>\s]+)\s*>$/);
+  if (m) return { name: m[1].trim().replace(/["']/g, "") || "Bitworld", email: m[2].trim() };
+  if (/^[^<>\s]+@[^<>\s]+$/.test(s)) return { name: "Bitworld", email: s };
+  return null;
+}
+
 async function sendMail(to, subject, html) {
-  const key = process.env.RESEND_API_KEY, from = process.env.MAIL_FROM;
-  if (!key || !from) throw new Error("RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
+  const brevoKey = String(process.env.BREVO_API_KEY || "").trim();
+  console.log("mail provider:", brevoKey ? "brevo" : "resend");
+
+  if (brevoKey) {
+    const sender = parseFrom(process.env.MAIL_FROM);
+    if (!sender) throw new Error("MAIL_FROM tidak valid. Contoh: Bitworld <email@domain.com> atau email@domain.com");
+    const br = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": brevoKey, "Content-Type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ sender, to: [{ email: to }], subject, htmlContent: html })
+    });
+    const body = await br.text();
+    if (!br.ok) throw new Error("Brevo gagal: " + br.status + " " + body);
+    console.log("brevo terkirim:", br.status);
+    return;
+  }
+
+  const key = String(process.env.RESEND_API_KEY || "").trim();
+  const from = String(process.env.MAIL_FROM || "").trim();
+  if (!key || !from) throw new Error("BREVO_API_KEY tidak terbaca, dan RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
@@ -98,33 +124,17 @@ async function sendResetMail(user) {
     mailHtml(user.name, "Klik tombol di bawah untuk membuat password baru (berlaku 1 jam).", `${SITE_URL}/?reset=${t}`, "Buat Password Baru"));
 }
 
-// Teman yang diundang menjadi "active" setelah REF_MIN_SESSIONS sesi mining selesai.
-// Gagal di sini tidak boleh mengganggu proses utama.
-async function activateReferral(uid) {
-  try {
-    const c = await sql`select count(*)::int as n from bw_mining_log where user_id = ${uid}`;
-    if (c[0].n >= REF_MIN_SESSIONS) {
-      await sql`update bw_referrals set status = 'active' where referred_id = ${uid} and status = 'pending'`;
-    }
-  } catch (e) { console.error("referral activate:", e); }
-}
-
 // Masukkan poin sesi mining yang sudah selesai ke saldo (atomik, tidak bisa ganda).
-// Hadiah = RATE x HOURS x (1 + bonus referral). Dipakai oleh api/app.js sebelum membaca saldo/dompet.
+// Dipakai oleh api/app.js sebelum membaca saldo/dompet.
 async function settle(uid) {
   const rows = await sql`
-    with old as (select id, mine_start from bw_users where id = ${uid} for update),
-    ref as (select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'),
-    calc as (select ${RATE}::numeric * ${HOURS}::numeric * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt from ref)
-    update bw_users u set balance = u.balance + calc.amt, mine_start = null
-    from old, calc
+    with old as (select id, mine_start from bw_users where id = ${uid} for update)
+    update bw_users u set balance = u.balance + ${RATE}::numeric * ${HOURS}::numeric, mine_start = null
+    from old
     where u.id = old.id and old.mine_start is not null
       and now() >= old.mine_start + make_interval(hours => ${HOURS}::int)
-    returning u.id, calc.amt as amt`;
-  if (rows.length) {
-    await sql`insert into bw_mining_log (user_id, amount) values (${uid}, ${rows[0].amt})`;
-    await activateReferral(uid);
-  }
+    returning u.id`;
+  if (rows.length) await sql`insert into bw_mining_log (user_id, amount) values (${uid}, ${RATE * HOURS})`;
 }
 
-module.exports = { RATE, HOURS, REF_BONUS, REF_MAX, REF_MIN_SESSIONS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, settle, activateReferral, consumeToken, sendVerifyMail, sendResetMail };
+module.exports = { RATE, HOURS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, settle, consumeToken, sendVerifyMail, sendResetMail };
