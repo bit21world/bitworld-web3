@@ -138,3 +138,37 @@ async function settle(uid) {
 }
 
 module.exports = { RATE, HOURS, sql, send, setSession, clearSession, getUid, jsonOnly, getIp, limit, settle, consumeToken, sendVerifyMail, sendResetMail };
+async function sendMail(to, subject, html) {
+  const brevoKey = String(process.env.BREVO_API_KEY || "").trim();
+  console.log("mail provider:", brevoKey ? "brevo" : "resend");
+
+  if (brevoKey) {
+    const sender = parseFrom(process.env.MAIL_FROM);
+    if (!sender) throw new Error("MAIL_FROM tidak valid. Contoh: Bitworld <email@domain.com> atau email@domain.com");
+    
+    const payload = { sender, to: [{ email: to }], subject, htmlContent: html };
+    console.log("Payload Brevo:", JSON.stringify(payload));
+
+    const br = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": brevoKey, "Content-Type": "application/json", accept: "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const body = await br.text();
+    console.log("Respon Brevo status:", br.status, "body:", body);
+
+    if (!br.ok) throw new Error("Brevo gagal [" + br.status + "]: " + body);
+    console.log("brevo terkirim:", br.status);
+    return;
+  }
+
+  const key = String(process.env.RESEND_API_KEY || "").trim();
+  const from = String(process.env.MAIL_FROM || "").trim();
+  if (!key || !from) throw new Error("BREVO_API_KEY tidak terbaca, dan RESEND_API_KEY / MAIL_FROM belum diisi di Vercel");
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to, subject, html })
+  });
+  if (!r.ok) throw new Error("Resend gagal: " + r.status + " " + (await r.text()));
+}
