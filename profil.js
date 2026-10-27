@@ -115,7 +115,7 @@
       headers: { "Content-Type": "application/json" },
       body: post ? JSON.stringify(body) : undefined
     }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, data: d }; });
+      return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, data: d }; });
     }).catch(function () { return { ok: false, data: { error: "network" } }; });
   }
   function errText(c) {
@@ -199,6 +199,14 @@
       }
     }).catch(function () {});
   }
+  /* Detail teknis singkat agar penyebab error terlihat langsung di layar */
+  function detail(e, status) {
+    var p = [];
+    if (status) p.push("HTTP " + status);
+    if (e && e.code !== undefined && typeof e.code !== "string") p.push("kode " + e.code);
+    if (e && e.message) p.push(String(e.message).slice(0, 90));
+    return p.length ? " [" + p.join(", ") + "]" : "";
+  }
   function connectWallet() {
     var eth = window.ethereum;
     if (!eth) {
@@ -215,21 +223,21 @@
       return switchBsc(eth).then(function () { return addr; });
     }).then(function (addr) {
       return api("wallet", { action: "nonce" }).then(function (r) {
-        if (!r.ok) throw { code: r.data.error };
+        if (!r.ok) throw { code: r.data.error, status: r.status };
         return eth.request({ method: "personal_sign", params: [toHex(r.data.message), addr] }).then(function (sig) {
           return api("wallet", { action: "link", address: addr, signature: sig, challenge: r.data.challenge });
         });
       });
     }).then(function (r) {
       done();
-      if (!r.ok) return msg(errText(r.data.error));
+      if (!r.ok) return msg(errText(r.data.error) + (r.data.error ? "" : detail(null, r.status)));
       me.wallet = r.data.wallet;
       renderProfile();
       msg(T("Wallet berhasil dihubungkan \u2713", "Wallet connected successfully \u2713"), true);
     }).catch(function (e) {
       done();
       var c = (e && e.code === 4001) ? "user_rejected" : (e && typeof e.code === "string" ? e.code : "");
-      msg(errText(c));
+      msg(errText(c) + (c === "user_rejected" ? "" : detail(e, e && e.status)));
     });
   }
 
