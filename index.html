@@ -257,7 +257,6 @@ html .tabs2 button.on{color:#111}
       <button class="btn" type="button" data-go="contract" data-i18n="b_contract"></button>
     </div>
     <p class="warnhome tagline muted" data-i18n="warn_short"></p>
-    <div id="homeStats" style="margin-top:14px;text-align:center"></div>
     <div id="homeSocial" style="margin-top:14px;text-align:center"></div>
   </section>
 
@@ -1083,17 +1082,33 @@ go(VIEWS[initial] ? initial : "home");
 </script>
 <script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script><script>
 (function(){
-  var data=null;
+  var data=null, el=null;
   function f(n){try{return Number(n).toLocaleString((window.lang==="en")?"en-US":"id-ID")}catch(e){return n}}
   function draw(){
-    var el=document.getElementById("homeStats"); if(!el||!data) return;
+    if(!el) return;
     var en=window.lang==="en";
-    el.innerHTML="<div style='display:inline-flex;gap:18px;padding:10px 18px;border-radius:14px;background:#fff;border:1px solid rgba(88,76,214,.14);box-shadow:0 6px 18px rgba(60,60,140,.08)'>"
-      +"<div><div style='font-size:20px;font-weight:800;color:#6b5ff0'>"+f(data.total)+"</div><div class='muted' style='font-size:12px'>"+(en?"Total users":"Total pengguna")+"</div></div>"
-      +"<div><div style='font-size:20px;font-weight:800;color:#d9a400'>"+f(data.active)+"</div><div class='muted' style='font-size:12px'>"+(en?"Mining now":"Sedang mining")+"</div></div></div>";
+    var t=data?f(data.total):"-", a=data?f(data.active):"-";
+    el.innerHTML=(en?"Total users":"Total pengguna")+": <b style='color:#6b5ff0'>"+t+"</b> &nbsp;\u2022&nbsp; "+(en?"Mining now":"Sedang mining")+": <b style='color:#d9a400'>"+a+"</b>";
   }
-  fetch("/api/register?stats=1").then(function(r){return r.ok?r.json():null}).then(function(d){if(d&&typeof d.total==="number"){data=d;draw()}}).catch(function(){});
-  ["lang-id","lang-en"].forEach(function(id){var b=document.getElementById(id); if(b) b.addEventListener("click",function(){setTimeout(draw,0)})});
+  function mount(){
+    var host=document.getElementById("v-mine2");
+    if(!host) return false;
+    el=document.createElement("div");
+    el.id="mnUsers";
+    el.style.cssText="align-self:center;margin:0 auto 6px;padding:6px 14px;border-radius:999px;background:#fff;box-shadow:0 4px 12px rgba(60,60,140,.08);font-size:12px;color:#5b5f86;white-space:nowrap";
+    host.insertBefore(el,host.firstChild);
+    draw();
+    return true;
+  }
+  function load(){
+    fetch("/api/register?stats=1",{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(d){
+      if(d&&typeof d.total==="number"){data=d;draw()}
+    }).catch(function(){});
+  }
+  var tries=0;
+  (function wait(){ if(mount()||++tries>20) return; setTimeout(wait,250); })();
+  load(); setInterval(load,60000);
+  ["lang-id","lang-en"].forEach(function(id){var x=document.getElementById(id); if(x) x.addEventListener("click",function(){setTimeout(draw,0)})});
 })();
 </script>
 <script src="pool-ui.js" defer></script>
