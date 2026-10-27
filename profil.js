@@ -2,7 +2,6 @@
   var g = function (id) { return document.getElementById(id); };
   var T = function (a, b) { return window.lang === "en" ? b : a; };
   var me = null;
-  var editing = false;
   var f6 = function (n) { return Number(n || 0).toLocaleString("id-ID", { minimumFractionDigits: 6, maximumFractionDigits: 6 }); };
 
   /* saldo langsung = saldo + poin sesi yang sedang berjalan */
@@ -122,6 +121,10 @@
   function errText(c) {
     if (c === "invalid_wallet") return T("Alamat wallet tidak valid. Harus diawali 0x dan 42 karakter.", "Invalid wallet address. It must start with 0x and be 42 characters.");
     if (c === "wallet_taken") return T("Alamat wallet ini sudah dipakai akun lain.", "This wallet is already used by another account.");
+    if (c === "invalid_signature") return T("Tanda tangan tidak cocok dengan alamat wallet. Coba lagi.", "The signature does not match the wallet address. Try again.");
+    if (c === "invalid_challenge") return T("Permintaan sudah kedaluwarsa. Tekan tombol hubungkan lagi.", "The request expired. Press the connect button again.");
+    if (c === "user_rejected") return T("Permintaan dibatalkan di MetaMask.", "The request was cancelled in MetaMask.");
+    if (c === "no_wallet") return T("MetaMask tidak memberikan alamat akun. Buka kunci MetaMask lalu coba lagi.", "MetaMask did not return an account. Unlock MetaMask and try again.");
     if (c === "unauthorized") return T("Sesi habis. Silakan masuk lagi.", "Session expired. Please log in again.");
     if (c === "cooldown") return T("Sesi mining masih berjalan.", "Mining session is still running.");
     if (c === "rate_limited") return T("Terlalu banyak percobaan. Coba lagi nanti.", "Too many attempts. Try again later.");
@@ -146,51 +149,87 @@
       g("pGo").onclick = function () { go("auth"); };
       return;
     }
-    var locked = !!me.wallet && !editing;
+    var has = !!me.wallet;
     b.innerHTML =
       '<h2>' + T("Profil", "Profile") + '</h2><p class="sub" id="pWho"></p>' +
       '<div class="mst"><div>' + T("Saldo", "Balance") + '<b id="pBal"></b></div>' +
       '<div>Wallet<b id="pStat"></b></div></div>' +
       '<label for="pWallet">' + T("Alamat wallet BSC (BEP-20)", "BSC wallet address (BEP-20)") + '</label>' +
-      '<input id="pWallet" placeholder="0x..." autocomplete="off" autocapitalize="off" spellcheck="false">' +
-      (locked ? '<div class="pbadge">\u2713 ' + T("Wallet tersimpan", "Wallet saved") + '</div>' : '') +
-      '<button class="btn' + (locked ? '' : ' primary') + '" type="button" id="pSave">' +
-        (locked ? T("Ubah Wallet", "Change Wallet") : T("Simpan Wallet", "Save Wallet")) + '</button>' +
-      (me.wallet && editing ? '<button class="btn" type="button" id="pCancel">' + T("Batal", "Cancel") + '</button>' : '') +
+      '<input id="pWallet" placeholder="0x..." readonly autocomplete="off" autocapitalize="off" spellcheck="false">' +
+      (has ? '<div class="pbadge">\u2713 ' + T("Wallet terhubung", "Wallet connected") + '</div>' : '') +
+      '<button class="btn' + (has ? '' : ' primary') + '" type="button" id="pConnect">' +
+        (has ? T("Ganti Wallet (MetaMask)", "Change Wallet (MetaMask)") : T("Hubungkan MetaMask", "Connect MetaMask")) + '</button>' +
       '<div class="fmsg" id="pMsg"></div><div class="lnk" id="pLink"></div>' +
-      '<p class="note">' + T("Jangan pernah memasukkan seed phrase atau private key. Cukup alamat publik (0x...).", "Never enter your seed phrase or private key. Only the public address (0x...).") + '</p>' +
+      '<p class="note">' + T("Wallet dihubungkan dengan menandatangani pesan di MetaMask. Ini gratis dan tidak mengirim transaksi. Jangan pernah memasukkan seed phrase atau private key.", "The wallet is linked by signing a message in MetaMask. It is free and sends no transaction. Never enter your seed phrase or private key.") + '</p>' +
       '<button class="btn" type="button" id="pOut">' + T("Keluar", "Log out") + '</button>';
     g("pWho").textContent = (me.name ? me.name + " \u2022 " : "") + me.email;
     g("pBal").textContent = f6(liveBalance());
-    g("pStat").textContent = me.wallet ? "\u2713 " + T("Tersimpan", "Saved") : T("Belum diisi", "Not set");
-    var inp = g("pWallet");
-    if (me.wallet && !editing) inp.value = me.wallet;
-    inp.readOnly = locked;
-    if (me.wallet) {
+    g("pStat").textContent = has ? "\u2713 " + T("Tersimpan", "Saved") : T("Belum diisi", "Not set");
+    if (has) g("pWallet").value = me.wallet;
+    if (has) {
       var a = document.createElement("a");
       a.href = "https://bscscan.com/address/" + me.wallet;
       a.target = "_blank"; a.rel = "noopener noreferrer";
       a.textContent = T("Lihat di BscScan", "View on BscScan");
       g("pLink").appendChild(a);
     }
-    g("pSave").onclick = function () {
-      if (locked) { editing = true; renderProfile(); var i = g("pWallet"); i.readOnly = false; i.focus(); i.select(); }
-      else saveWallet();
-    };
-    if (g("pCancel")) g("pCancel").onclick = function () { editing = false; renderProfile(); };
+    g("pConnect").onclick = connectWallet;
     g("pOut").onclick = function () { api("logout", {}).then(function () { location.reload(); }); };
   }
-  function saveWallet() {
-    var w = g("pWallet").value.trim();
-    if (!/^0x[a-fA-F0-9]{40}$/.test(w)) return msg(errText("invalid_wallet"));
-    g("pSave").disabled = true;
-    api("wallet", { wallet: w }).then(function (r) {
-      if (g("pSave")) g("pSave").disabled = false;
+
+  /* ---------- MetaMask ---------- */
+  function toHex(s) {
+    var b = new TextEncoder().encode(s), h = "0x";
+    for (var i = 0; i < b.length; i++) h += ("0" + b[i].toString(16)).slice(-2);
+    return h;
+  }
+  /* Pindah ke BNB Smart Chain (chainId 56). Jika gagal, tetap lanjut: tanda tangan tidak butuh jaringan tertentu. */
+  function switchBsc(eth) {
+    return eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] }).catch(function (e) {
+      if (e && e.code === 4902) {
+        return eth.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: "0x38", chainName: "BNB Smart Chain",
+            nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+            rpcUrls: ["https://bsc-dataseed.binance.org/"],
+            blockExplorerUrls: ["https://bscscan.com"]
+          }]
+        });
+      }
+    }).catch(function () {});
+  }
+  function connectWallet() {
+    var eth = window.ethereum;
+    if (!eth) {
+      /* Chrome di HP tidak punya MetaMask: buka situs ini di browser dalam aplikasi MetaMask */
+      msg(T("MetaMask tidak ditemukan di browser ini. Membuka aplikasi MetaMask...", "MetaMask not found in this browser. Opening the MetaMask app..."), true);
+      setTimeout(function () { location.href = "https://metamask.app.link/dapp/" + location.host + "/"; }, 900);
+      return;
+    }
+    var bt = g("pConnect"); if (bt) bt.disabled = true;
+    var done = function () { var x = g("pConnect"); if (x) x.disabled = false; };
+    eth.request({ method: "eth_requestAccounts" }).then(function (accs) {
+      var addr = accs && accs[0];
+      if (!addr) throw { code: "no_wallet" };
+      return switchBsc(eth).then(function () { return addr; });
+    }).then(function (addr) {
+      return api("wallet", { action: "nonce" }).then(function (r) {
+        if (!r.ok) throw { code: r.data.error };
+        return eth.request({ method: "personal_sign", params: [toHex(r.data.message), addr] }).then(function (sig) {
+          return api("wallet", { action: "link", address: addr, signature: sig, challenge: r.data.challenge });
+        });
+      });
+    }).then(function (r) {
+      done();
       if (!r.ok) return msg(errText(r.data.error));
-      me.wallet = r.data.wallet || w.toLowerCase();
-      editing = false;
+      me.wallet = r.data.wallet;
       renderProfile();
-      msg(T("Wallet berhasil disimpan \u2713", "Wallet saved successfully \u2713"), true);
+      msg(T("Wallet berhasil dihubungkan \u2713", "Wallet connected successfully \u2713"), true);
+    }).catch(function (e) {
+      done();
+      var c = (e && e.code === 4001) ? "user_rejected" : (e && typeof e.code === "string" ? e.code : "");
+      msg(errText(c));
     });
   }
 
@@ -276,7 +315,6 @@
     _go(n);
     closeMenu();
     sync();
-    if (n === "profile") editing = false;
     if (n === "profile" || n === "mine") load();
   };
   ["lang-id", "lang-en"].forEach(function (id) {
