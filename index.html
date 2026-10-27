@@ -508,12 +508,7 @@ function renderContract(){
       : "Match this address with BscScan before interacting with any contract. Never send your seed phrase or private key.") + "</p>";
   $("contractBody").innerHTML = h;
   $("bscLink").href = BSCSCAN;
-}
-
-function renderTeam(){
-  var isId = lang === "id";
-  var roles = [
-    {}
+  }
   ];
   var h = "<h2>" + (isId ? "Tim" : "Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
