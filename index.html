@@ -1081,17 +1081,14 @@ go(VIEWS[initial] ? initial : "home");
   });
 })();
 </script>
-<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script><script>
-(function(){
-  var data=null;
-  function f(n){try{return Number(n).toLocaleString((window.lang==="en")?"en-US":"id-ID")}catch(e){return n}}
-  function draw(){
-    var el=document.getElementById("homeStats"); if(!el||!data) return;
-    var en=window.lang==="en";
-    el.innerHTML="<div style='display:inline-flex;gap:18px;padding:10px 18px;border-radius:14px;background:#fff;border:1px solid rgba(88,76,214,.14);box-shadow:0 6px 18px rgba(60,60,140,.08)'>"
-      +"<div><div style='font-size:20px;font-weight:800;color:#6b5ff0'>"+f(data.total)+"</div><div class='muted' style='font-size:12px'>"+(en?"Total users":"Total pengguna")+"</div></div>"
-      +"<div><div style='font-size:20px;font-weight:800;color:#d9a400'>"+f(data.active)+"</div><div class='muted' style='font-size:12px'>"+(en?"Mining now":"Sedang mining")+"</div></div></div>";
-  }
+function draw() {
+  var el = document.getElementById('honeStats'); if (!el || !data) return;
+  var es = window.lang === "en";
+  el.innerHTML = 
+    '<div style="display:inline-flex;gap:10px;padding:10px;border-radius:14px;background:#FFF;border:1px solid var(--line)"><div style="font-size:20px;font-weight:800;color:#6b5ff0">' + f(data.total_users || 0) + '</div><div class="muted">' + (es ? "Total Users" : "Total Pengguna") + '</div></div>' +
+    '<div style="display:inline-flex;gap:10px;padding:10px;border-radius:14px;background:#FFF;border:1px solid var(--line)"><div style="font-size:20px;font-weight:800;color:#df9400">' + f(data.active) + '</div><div class="muted">' + (es ? "Active" : "Aktif") + '</div></div>';
+}
+
   fetch("/api/register?stats=1").then(function(r){return r.ok?r.json():null}).then(function(d){if(d&&typeof d.total==="number"){data=d;draw()}}).catch(function(){});
   ["lang-id","lang-en"].forEach(function(id){var b=document.getElementById(id); if(b) b.addEventListener("click",function(){setTimeout(draw,0)})});
 })();
