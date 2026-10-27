@@ -89,26 +89,32 @@ module.exports = async (req, res) => {
   if (kyc === "webhook") return kycWebhook(req, res);
   if (kyc === "status") return kycStatus(req, res);
   try {
+    // Ambil jumlah total pengguna dari database
+    const userCountRows = await sql`select count(*)::int as total_user from bw_users`;
+    const totalUsers = userCountRows[0]?.total_user || 0;
+
     const uid = getUid(req);
-    if (!uid) return send(res, 200, { user: null });
+    if (!uid) return send(res, 200, { user: null, total_users: totalUsers });
+    
     const r = await sql`select email, name, balance, mine_start, is_admin, wallet, now() as server_now from bw_users where id = ${uid}`;
-    if (!r.length) return send(res, 200, { user: null });
+    if (!r.length) return send(res, 200, { user: null, total_users: totalUsers });
     const u = r[0];
 
-    // Rate sudah termasuk bonus referral (sama dengan hitungan di claim.js).
-    // Bila gagal dibaca, bonus dianggap 0 supaya halaman tidak ikut error.
     let mult = 1;
     try {
       const ra = await sql`select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'`;
       mult = 1 + Math.min(ra[0].n, REF_MAX) * REF_BONUS;
     } catch (e) { console.error("referral bonus:", e); }
 
-    send(res, 200, { user: {
-      email: u.email, name: u.name, balance: Number(u.balance),
-      mine_start: u.mine_start, server_now: u.server_now,
-      rate: Number((RATE * mult).toFixed(8)), session_hours: HOURS, is_admin: !!u.is_admin,
-      wallet: u.wallet || null
-    } });
+    send(res, 200, { 
+      total_users: totalUsers,
+      user: {
+        email: u.email, name: u.name, balance: Number(u.balance),
+        mine_start: u.mine_start, server_now: u.server_now,
+        rate: Number((RATE * mult).toFixed(8)), session_hours: HOURS, is_admin: !!u.is_admin,
+        wallet: u.wallet || null
+      } 
+    });
   } catch (e) { console.error(e); send(res, 500, { error: "server" }); }
 };
 
