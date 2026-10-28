@@ -76,6 +76,7 @@ module.exports = async (req, res) => {
       }
       return send(res, 200, { ok: true, reward: t.reward });
     }
+
     /* ---------- TUGAS HARIAN (reset tiap hari, hadiah dari pool mining) ---------- */
     if (a === "daily" || (a === "daily_claim" && post)) {
       // Ubah angka reward di sini. Semua tugas harian bisa diklaim 1x per hari (hari mengikuti WIB).
