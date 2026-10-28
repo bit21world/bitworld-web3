@@ -99,7 +99,7 @@
 
   var mv = document.createElement("section");
   mv.className = "view"; mv.id = "v-mine2";
-  mv.innerHTML = '<div class="mn-wrap" id="mnBody"></div>';
+  mv.innerHTML = '<div class="mn-wrap" id="mnBody"><div id="mnCore"></div></div>';
   main.appendChild(mv);
   VIEWS.mine = "v-mine2";
 
@@ -246,8 +246,11 @@
     e.textContent = text; e.className = "mn-msg " + (ok ? "ok" : "err");
   }
   function renderMine() {
-    var b = g("mnBody"); if (!b) return;
+    var b = g("mnCore"); if (!b) return;
     clearInterval(tickM);
+    /* simpan kartu tambahan (mis. Tugas & Hadiah) yang dipasang skrip lain di bawah tombol mining */
+    var extras = [], mm = g("mnMsg");
+    if (mm) { while (mm.nextSibling) { extras.push(mm.nextSibling); mm.parentNode.removeChild(mm.nextSibling); } }
     if (!me) {
       b.innerHTML = '<div class="mn-orb"><div class="mn-coin">BTW</div></div>' +
         '<div class="mn-card"><p style="margin-bottom:14px;color:#3d4163">' + T("Masuk dulu untuk mulai mining.", "Log in to start mining.") +
@@ -274,6 +277,7 @@
       '<button class="mn-btn" type="button" id="mnBtn" disabled>-</button>' +
       '<div class="mn-msg" id="mnMsg"></div>';
     g("mnBtn").onclick = claim;
+    extras.forEach(function (n) { b.appendChild(n); });
 
     function upd() {
       var bt = g("mnBtn"); if (!bt) return clearInterval(tickM);
