@@ -1,3 +1,4 @@
+/* BTW-TUGAS-VERSI 2 : kartu dipasang ke #mnBody (panel Mining baru) */
 /* Bitworld - kartu "Tugas & Hadiah" (tugas sekali klaim + tugas harian).
    Data: /api/app?a=tasks, /api/app?a=daily (GET) dan POST {a:"task_claim"|"daily_claim", key}. Harus login. */
 (function () {
