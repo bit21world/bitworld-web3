@@ -946,8 +946,7 @@ go(VIEWS[initial] ? initial : "home");
       if (!r.ok) return msg(errText(r.data.error));
       try { localStorage.removeItem("bw_ref"); } catch (x) {}
       mode = "login"; renderAuth();
-      if (r.data.mail_sent === false) msg(T("Akun dibuat, tapi email gagal terkirim. Coba masuk lalu pilih kirim ulang verifikasi.", "Account created, but the email failed to send. Try logging in and choose resend verification."));
-      else msg(T("Berhasil! Kami mengirim link verifikasi ke email Anda (cek juga folder spam). Klik link itu, lalu masuk.", "Done! We sent a verification link to your email (check spam too). Click it, then log in."), true);
+      msg(T("Akun berhasil dibuat! Silakan masuk dengan email dan password Anda.", "Account created! Please log in with your email and password."), true);
     });
   }
   function addResend(em){
