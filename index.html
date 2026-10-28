@@ -344,7 +344,8 @@ html .tabs2 button.on{color:#111}
 /* ================= DATA ================= */
 var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
 var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var lang = "id";
+var lang = "en";
+try { var _sv = localStorage.getItem("bw_lang"); lang = (_sv === "id" || _sv === "en") ? _sv : ((navigator.language || "").toLowerCase().indexOf("id") === 0 ? "id" : "en"); } catch (e) {}
 
 var UI = {
   id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
@@ -472,7 +473,7 @@ function renderVision(){
 function renderToken(){
   var isId = lang === "id";
   var cats = [
-    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e", a:"0x3cce806978300525acb416f77d28b9699bd611f0"},
+    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e"},
     {n:isId?"Tim":"Team",                p:15, c:"#22d3ee"},
     {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
     {n:isId?"Likuiditas":"Liquidity",    p:10, c:"#34d399"},
@@ -493,8 +494,6 @@ function renderToken(){
     h += "<tr><td style='width:auto;color:" + c.c + ";font-weight:700'>" + esc(c.n) + "</td><td>" + c.p + "%</td><td>" + amt + "</td></tr>";
   });
   h += "</table></div>";
-  h += "<p class='muted' style='margin-top:10px;font-size:12px'>" + (isId
-      ? "Dompet komunitas: " : "Community wallet: ") + "<span class='mono' style='display:inline;padding:2px 4px;font-size:11px'>" + esc(cats[0].a) + "</span></p>";
   h += "<p class='muted' style='font-size:12px'>" + (isId
       ? "Alamat dompet kategori lain akan dicantumkan setelah dipisahkan. Jadwal vesting akan diumumkan melalui kanal resmi."
       : "Wallet addresses for other categories will be listed after separation. Vesting schedules will be announced through official channels.") + "</p>";
@@ -598,7 +597,7 @@ function renderMore(){
   var isId = lang === "id";
   var W = "https://bscscan.com/token/" + CONTRACT + "?a=";
   var wallets = [
-    {n: isId ? "Komunitas" : "Community", p: 50, a: "0x3cce806978300525acb416f77d28b9699bd611f0"},
+    {n: isId ? "Komunitas" : "Community", p: 50, a: "0x3cce...11f0"},
     {n: isId ? "Tim" : "Team", p: 15, a: "0x090b...813f"},
     {n: isId ? "Pengembangan" : "Development", p: 10, a: "0x60988ac58B48337335De3f6d70B0A65aFf902455"},
     {n: isId ? "Likuiditas" : "Liquidity", p: 10, a: "0xeceb4365dde67be55ba46018b647a2087084789d"},
@@ -737,8 +736,8 @@ document.addEventListener("click", function(e){
 $("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
 $("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
 
-$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
-$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
+$("lang-id").addEventListener("click", function(){ lang = "id"; try { localStorage.setItem("bw_lang", "id"); } catch (e) {} applyUI(); });
+$("lang-en").addEventListener("click", function(){ lang = "en"; try { localStorage.setItem("bw_lang", "en"); } catch (e) {} applyUI(); });
 
 function copyText(text){
   if (navigator.clipboard && navigator.clipboard.writeText) {
