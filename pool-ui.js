@@ -11,7 +11,7 @@
   /* sel = panel tujuan (kartu ditaruh di dalamnya, paling bawah).
      texts = cadangan untuk versi tampilan lain: kartu ditaruh setelah kartu yang memuat teks itu. */
   var ANCHORS = [
-    { id: 'btw-pool-mining', sel: '#mineBody', texts: ['Durasi sesi', 'Session length', 'Session duration'] },
+    { id: 'btw-pool-mining', sel: '#mnBody', texts: ['Durasi sesi', 'Session length', 'Session duration'] },
     { id: 'btw-pool-token', sel: '#tokenBody', texts: ['Tokenomics'] }
   ];
 
