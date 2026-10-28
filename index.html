@@ -344,7 +344,8 @@ html .tabs2 button.on{color:#111}
 /* ================= DATA ================= */
 var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
 var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var lang = "id";
+var lang = "en";
+try { var _sv = localStorage.getItem("bw_lang"); lang = (_sv === "id" || _sv === "en") ? _sv : ((navigator.language || "").toLowerCase().indexOf("id") === 0 ? "id" : "en"); } catch (e) {}
 
 var UI = {
   id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
@@ -513,7 +514,7 @@ function renderContract(){
 function renderTeam(){
   var isId = lang === "id";
   var roles = [
-    {r: isId ? "Founder" : "Founder", n: "Juan", photo: true}
+    {r: isId ? "CEO & Developer" : "CEO & Developer", n: "Juan", photo: true}
   ];
   var h = "<h2>" + (isId ? "Tim" : "Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
@@ -661,7 +662,7 @@ function renderChannels(){
     {n: "Website", u: "https://bitworld-btw.vercel.app", d: isId ? "Whitepaper, tokenomics, dan kontrak" : "Whitepaper, tokenomics, and contract"},
     {n: "X (Twitter)", u: "https://x.com/bitworld_btw", d: isId ? "Pengumuman singkat" : "Short announcements"},
     {n: "Facebook", u: "https://www.facebook.com/share/1FKuR8i7rT/", d: isId ? "Halaman resmi Bitworld - BTW" : "Official Bitworld - BTW page"},
-    {n: "Telegram", u: "https://t.me/Bitworld_Official", d: isId ? "Pengumuman dan diskusi resmi" : "Official announcements and discussion"}
+    {n: "Telegram", u: "https://t.me/bitworld_btw", d: isId ? "Pengumuman dan diskusi resmi" : "Official announcements and discussion"}
   ];
   var h = "<h2>" + (isId ? "Tim Support" : "Support Team") + "</h2>";
   h += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
@@ -735,8 +736,8 @@ document.addEventListener("click", function(e){
 $("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
 $("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
 
-$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
-$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
+$("lang-id").addEventListener("click", function(){ lang = "id"; try { localStorage.setItem("bw_lang", "id"); } catch (e) {} applyUI(); });
+$("lang-en").addEventListener("click", function(){ lang = "en"; try { localStorage.setItem("bw_lang", "en"); } catch (e) {} applyUI(); });
 
 function copyText(text){
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -946,7 +947,8 @@ go(VIEWS[initial] ? initial : "home");
       if (!r.ok) return msg(errText(r.data.error));
       try { localStorage.removeItem("bw_ref"); } catch (x) {}
       mode = "login"; renderAuth();
-      msg(T("Akun berhasil dibuat! Silakan masuk dengan email dan password Anda.", "Account created! Please log in with your email and password."), true);
+      if (r.data.mail_sent === false) msg(T("Akun dibuat, tapi email gagal terkirim. Coba masuk lalu pilih kirim ulang verifikasi.", "Account created, but the email failed to send. Try logging in and choose resend verification."));
+      else msg(T("Berhasil! Kami mengirim link verifikasi ke email Anda (cek juga folder spam). Klik link itu, lalu masuk.", "Done! We sent a verification link to your email (check spam too). Click it, then log in."), true);
     });
   }
   function addResend(em){
@@ -1109,6 +1111,5 @@ go(VIEWS[initial] ? initial : "home");
 })();
 </script>
 <script src="pool-ui.js" defer></script>
-<script src="tugas-ui.js" defer></script>
 </body>
 </html>

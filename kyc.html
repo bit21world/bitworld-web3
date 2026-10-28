@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<title>Verifikasi Identitas - Bitworld (BTW)</title>
-<meta name="description" content="Verifikasi identitas akun Bitworld (BTW).">
+<title>Identity Verification - Bitworld (BTW)</title>
+<meta name="description" content="Identity verification for your Bitworld (BTW) account.">
 <link rel="icon" type="image/svg+xml" href="bitworld-btw-logo-32.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
@@ -58,6 +58,7 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
 .safe{display:flex;gap:12px;font-size:13.5px;color:var(--mute)}
 .safe svg{flex:0 0 22px;color:var(--ok);margin-top:2px}
 .safe b{color:var(--ink)}
+.hr{display:flex;align-items:center;gap:8px}.lg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lg button{border:0;background:#fff;color:var(--mute);font:inherit;font-weight:700;font-size:12.5px;padding:7px 11px;cursor:pointer}.lg button.on{background:var(--p);color:#fff}.chips em{font-style:normal}.prog .d em{font-style:normal}
 .foot{text-align:center;font-size:12px;color:var(--mute);padding:4px 8px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -65,49 +66,49 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
 <body>
 <header>
   <a class="brand" href="index.html"><img src="bitworld-btw-logo-32.svg" alt="" width="34" height="34" onerror="this.style.display='none'"><span>Bitworld</span></a>
-  <a class="back" href="index.html">Beranda</a>
+  <div class="hr"><div class="lg" role="group" aria-label="Language"><button type="button" id="lg-id">ID</button><button type="button" id="lg-en">EN</button></div><a class="back" href="index.html" data-k="home">Beranda</a></div>
 </header>
 
 <main>
   <section class="hero">
     <div class="shield" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
-    <h1>Verifikasi identitas Anda</h1>
-    <p>Satu kali verifikasi untuk akun Bitworld yang lebih aman dan terpercaya.</p>
+    <h1 data-k="h1">Verifikasi identitas Anda</h1>
+    <p data-k="hero">Satu kali verifikasi untuk akun Bitworld yang lebih aman dan terpercaya.</p>
     <div class="chips">
-      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Sekitar 2 menit</span>
-      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>Data terenkripsi</span>
-      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Proses otomatis</span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><em data-k="c1">Sekitar 2 menit</em></span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><em data-k="c2">Data terenkripsi</em></span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><em data-k="c3">Proses otomatis</em></span>
     </div>
   </section>
 
   <section class="card" aria-live="polite">
     <div class="prog" aria-hidden="true">
-      <div class="d" id="p1"><i>1</i>Mulai</div><div class="ln" id="l1"></div>
-      <div class="d" id="p2"><i>2</i>Diproses</div><div class="ln" id="l2"></div>
-      <div class="d" id="p3"><i>3</i>Hasil</div>
+      <div class="d" id="p1"><i>1</i><em data-k="s1">Mulai</em></div><div class="ln" id="l1"></div>
+      <div class="d" id="p2"><i>2</i><em data-k="s2">Diproses</em></div><div class="ln" id="l2"></div>
+      <div class="d" id="p3"><i>3</i><em data-k="s3">Hasil</em></div>
     </div>
     <div class="sbox" id="sbox">
       <div class="sico" id="sico">…</div>
-      <div><h2 id="title">Memuat status…</h2><p id="desc"></p></div>
+      <div><h2 id="title" data-k="loading">Memuat status…</h2><p id="desc"></p></div>
     </div>
-    <button id="go" class="btn" type="button" hidden>Mulai verifikasi</button>
-    <p id="fb" class="fallback" hidden>Belum terbuka? <a id="fbl" href="#">Ketuk di sini</a></p>
+    <button id="go" class="btn" type="button" hidden>Start verification</button>
+    <p id="fb" class="fallback" hidden><span data-k="fb1">Belum terbuka?</span> <a id="fbl" href="#" data-k="fb2">Ketuk di sini</a></p>
     <p id="err" class="err" role="alert"></p>
   </section>
 
   <section class="card">
-    <h3>Cara kerjanya</h3>
+    <h3 data-k="how">Cara kerjanya</h3>
     <ol class="how">
-      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2"/></svg></div><div><b>Siapkan dokumen</b><span>KTP, paspor, atau SIM asli yang masih berlaku.</span></div></li>
-      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><circle cx="12" cy="10" r="3"/><path d="M7 18c.8-2.4 2.6-3.5 5-3.5s4.2 1.1 5 3.5"/></svg></div><div><b>Foto dokumen dan swafoto</b><span>Cari tempat terang, lalu ikuti petunjuk di layar.</span></div></li>
-      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div><div><b>Hasil otomatis</b><span>Status akun diperbarui di halaman ini begitu hasil keluar.</span></div></li>
+      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2"/></svg></div><div><b data-k="h1t">Siapkan dokumen</b><span data-k="h1d">KTP, paspor, atau SIM asli yang masih berlaku.</span></div></li>
+      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><circle cx="12" cy="10" r="3"/><path d="M7 18c.8-2.4 2.6-3.5 5-3.5s4.2 1.1 5 3.5"/></svg></div><div><b data-k="h2t">Foto dokumen dan swafoto</b><span data-k="h2d">Cari tempat terang, lalu ikuti petunjuk di layar.</span></div></li>
+      <li><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div><div><b data-k="h3t">Hasil otomatis</b><span data-k="h3d">Status akun diperbarui di halaman ini begitu hasil keluar.</span></div></li>
     </ol>
   </section>
 
   <section class="card">
     <div class="safe">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
-      <div><b>Privasi Anda terjaga.</b> Foto dokumen dan wajah diproses langsung oleh penyedia verifikasi identitas yang terpercaya. Bitworld hanya menerima hasilnya: disetujui atau ditolak. Kami tidak pernah meminta seed phrase atau private key.</div>
+      <div><b data-k="pvt">Privasi Anda terjaga.</b> <span data-k="pvd">Foto dokumen dan wajah diproses langsung oleh penyedia verifikasi identitas yang terpercaya. Bitworld hanya menerima hasilnya: disetujui atau ditolak. Kami tidak pernah meminta seed phrase atau private key.</span></div>
     </div>
   </section>
 
@@ -120,6 +121,59 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
   var api = "/api/me?kyc=";
   var timer = null, tries = 0;
 
+  var L = {
+    id: {
+      home:"Beranda", h1:"Verifikasi identitas Anda", hero:"Satu kali verifikasi untuk akun Bitworld yang lebih aman dan terpercaya.",
+      c1:"Sekitar 2 menit", c2:"Data terenkripsi", c3:"Proses otomatis", s1:"Mulai", s2:"Diproses", s3:"Hasil",
+      loading:"Memuat status…", fb1:"Belum terbuka?", fb2:"Ketuk di sini", how:"Cara kerjanya",
+      h1t:"Siapkan dokumen", h1d:"Kartu identitas nasional (misalnya KTP), paspor, atau SIM asli yang masih berlaku, dari negara mana pun.",
+      h2t:"Foto dokumen dan swafoto", h2d:"Cari tempat terang, lalu ikuti petunjuk di layar.",
+      h3t:"Hasil otomatis", h3d:"Status akun diperbarui di halaman ini begitu hasil keluar.",
+      pvt:"Privasi Anda terjaga.", pvd:"Foto dokumen dan wajah diproses langsung oleh penyedia verifikasi identitas yang terpercaya. Bitworld hanya menerima hasilnya: disetujui atau ditolak. Kami tidak pernah meminta seed phrase atau private key.",
+      ttl:"Verifikasi Identitas - Bitworld (BTW)",
+      okT:"Identitas terverifikasi", okD:"Akun Anda sudah disetujui. Tidak ada yang perlu dilakukan lagi.",
+      pdT:"Verifikasi sedang diproses", pdD:"Hasil biasanya muncul dalam beberapa menit. Halaman ini diperbarui otomatis.", restart:"Mulai ulang verifikasi",
+      rjT:"Verifikasi ditolak", rjD:"Dokumen atau swafoto belum bisa diterima. Coba lagi dengan dokumen asli dan foto yang jelas.", retry:"Coba lagi",
+      nvT:"Belum terverifikasi", nvD:"Verifikasi satu kali untuk mengaktifkan akun Anda sepenuhnya.", start:"Mulai verifikasi",
+      lgT:"Masuk dulu", lgD:"Anda harus login sebelum verifikasi. ", lgL:"Masuk di halaman utama",
+      stT:"Status tidak bisa dimuat", stE:"Periksa koneksi lalu muat ulang halaman.",
+      still:"Masih diproses. Muat ulang halaman ini beberapa menit lagi untuk melihat hasilnya.",
+      opening:"Membuka verifikasi…", fail:"Verifikasi tidak bisa dimulai. Coba lagi beberapa saat lagi."
+    },
+    en: {
+      home:"Home", h1:"Verify your identity", hero:"A one-time verification for a safer, more trusted Bitworld account.",
+      c1:"About 2 minutes", c2:"Encrypted data", c3:"Automatic process", s1:"Start", s2:"Processing", s3:"Result",
+      loading:"Loading status…", fb1:"Didn't open?", fb2:"Tap here", how:"How it works",
+      h1t:"Prepare your document", h1d:"A valid original national ID card, passport, or driver's license, from any country.",
+      h2t:"Photo of document and selfie", h2d:"Find a well-lit place, then follow the on-screen instructions.",
+      h3t:"Automatic result", h3d:"Your account status updates on this page as soon as the result is ready.",
+      pvt:"Your privacy is protected.", pvd:"Document and face photos are processed directly by a trusted identity verification provider. Bitworld only receives the result: approved or rejected. We never ask for your seed phrase or private key.",
+      ttl:"Identity Verification - Bitworld (BTW)",
+      okT:"Identity verified", okD:"Your account has been approved. Nothing more to do.",
+      pdT:"Verification in progress", pdD:"Results usually appear within a few minutes. This page updates automatically.", restart:"Restart verification",
+      rjT:"Verification rejected", rjD:"Your document or selfie could not be accepted. Try again with an original document and a clear photo.", retry:"Try again",
+      nvT:"Not verified yet", nvD:"Verify once to fully activate your account.", start:"Start verification",
+      lgT:"Log in first", lgD:"You must log in before verifying. ", lgL:"Log in on the main page",
+      stT:"Could not load status", stE:"Check your connection and reload the page.",
+      still:"Still processing. Reload this page in a few minutes to see the result.",
+      opening:"Opening verification…", fail:"Could not start verification. Please try again shortly."
+    }
+  };
+  var lang = "en";
+  try { var sv = localStorage.getItem("bw_lang"); if (sv === "id" || sv === "en") lang = sv; else lang = (navigator.language || "").toLowerCase().indexOf("id") === 0 ? "id" : "en"; } catch (e) {}
+  var qs = location.search.match(/[?&]lang=(id|en)/); if (qs) lang = qs[1];
+  function t(k) { return L[lang][k]; }
+  var state = "loading";
+  function applyStatic() {
+    document.documentElement.lang = lang; document.title = t("ttl");
+    document.querySelectorAll("[data-k]").forEach(function (el) { var v = L[lang][el.getAttribute("data-k")]; if (v !== undefined) el.textContent = v; });
+    $("lg-id").classList.toggle("on", lang === "id"); $("lg-en").classList.toggle("on", lang === "en");
+  }
+  function setLang(l) {
+    lang = l; try { localStorage.setItem("bw_lang", l); } catch (e) {}
+    applyStatic(); rerender();
+  }
+
   function steps(n, done) {
     for (var i = 1; i <= 3; i++) $("p" + i).className = "d" + (i < n || (done && i === n) ? " done" : i === n ? " on" : "");
     $("l1").className = "ln" + (n > 1 ? " done" : "");
@@ -130,41 +184,49 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
     $("sico").textContent = ico; $("title").textContent = title; $("desc").textContent = desc;
   }
   function btn(text) { var b = $("go"); b.textContent = text; b.disabled = false; b.hidden = !text; }
+  function rerender() {
+    if (state === "login") needLogin();
+    else if (state === "loadfail") box("rejected", "⚠️", t("stT"), ""), $("err").textContent = t("stE");
+    else if (state === "loading") box("", "…", t("loading"), "");
+    else render(state);
+  }
 
   function render(status) {
+    state = status || "none";
     $("err").textContent = ""; $("fb").hidden = true;
     if (status === "approved") {
       steps(3, true);
-      box("approved", "✅", "Identitas terverifikasi", "Akun Anda sudah disetujui. Tidak ada yang perlu dilakukan lagi.");
+      box("approved", "✅", t("okT"), t("okD"));
       btn("");
     } else if (status === "pending") {
       steps(2);
-      box("pending", "⏳", "Verifikasi sedang diproses", "Hasil biasanya muncul dalam beberapa menit. Halaman ini diperbarui otomatis.");
-      btn("Mulai ulang verifikasi"); poll();
+      box("pending", "⏳", t("pdT"), t("pdD"));
+      btn(t("restart")); poll();
     } else if (status === "rejected") {
       steps(3);
-      box("rejected", "⚠️", "Verifikasi ditolak", "Dokumen atau swafoto belum bisa diterima. Coba lagi dengan dokumen asli dan foto yang jelas.");
-      btn("Coba lagi");
+      box("rejected", "⚠️", t("rjT"), t("rjD"));
+      btn(t("retry"));
     } else {
       steps(1);
-      box("", "🪪", "Belum terverifikasi", "Verifikasi satu kali untuk mengaktifkan akun Anda sepenuhnya.");
-      btn("Mulai verifikasi");
+      box("", "🪪", t("nvT"), t("nvD"));
+      btn(t("start"));
     }
   }
   function needLogin() {
-    steps(1); btn("");
-    box("", "🔒", "Masuk dulu", "Anda harus login sebelum verifikasi.");
-    $("desc").innerHTML = 'Anda harus login sebelum verifikasi. <a class="lnk" href="index.html#auth">Masuk di halaman utama</a>';
+    state = "login"; steps(1); btn("");
+    box("", "🔒", t("lgT"), "");
+    $("desc").textContent = t("lgD");
+    var a = document.createElement("a"); a.className = "lnk"; a.href = "index.html#auth"; a.textContent = t("lgL"); $("desc").appendChild(a);
   }
   function load() {
     fetch(api + "status", { credentials: "same-origin" })
       .then(function (r) { if (r.status === 401) { needLogin(); return null; } if (!r.ok) throw 0; return r.json(); })
       .then(function (d) { if (d) render(d.status); })
-      .catch(function () { box("rejected", "⚠️", "Status tidak bisa dimuat", ""); $("err").textContent = "Periksa koneksi lalu muat ulang halaman."; });
+      .catch(function () { state = "loadfail"; box("rejected", "⚠️", t("stT"), ""); $("err").textContent = t("stE"); });
   }
   function poll() {
     clearTimeout(timer);
-    if (++tries > 30) { $("err").textContent = "Masih diproses. Muat ulang halaman ini beberapa menit lagi untuk melihat hasilnya."; return; }
+    if (++tries > 30) { $("err").textContent = t("still"); return; }
     timer = setTimeout(function () {
       fetch(api + "status", { credentials: "same-origin" })
         .then(function (r) { return r.ok ? r.json() : null; })
@@ -176,7 +238,7 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
   $("go").addEventListener("click", function () {
     var b = this, label = b.textContent;
     $("err").textContent = ""; $("fb").hidden = true;
-    b.disabled = true; b.textContent = "Membuka verifikasi…";
+    b.disabled = true; b.textContent = t("opening");
     fetch(api + "start", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: "{}" })
       .then(function (r) {
         if (r.status === 401) { needLogin(); return null; }
@@ -194,10 +256,13 @@ h3{font-size:17px;font-weight:800;margin-bottom:14px}
       })
       .catch(function () {
         b.disabled = false; b.textContent = label;
-        $("err").textContent = "Verifikasi tidak bisa dimulai. Coba lagi beberapa saat lagi.";
+        $("err").textContent = t("fail");
       });
   });
 
+  $("lg-id").addEventListener("click", function () { setLang("id"); });
+  $("lg-en").addEventListener("click", function () { setLang("en"); });
+  applyStatic();
   load();
 })();
 </script>

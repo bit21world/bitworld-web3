@@ -2,7 +2,7 @@
   var g = function (id) { return document.getElementById(id); };
   var T = function (a, b) { return window.lang === "en" ? b : a; };
   var me = null;
-  var f6 = function (n) { return Number(n || 0).toLocaleString("id-ID", { minimumFractionDigits: 6, maximumFractionDigits: 6 }); };
+  var f6 = function (n) { return Number(n || 0).toLocaleString(window.lang === "en" ? "en-US" : "id-ID", { minimumFractionDigits: 6, maximumFractionDigits: 6 }); };
 
   /* saldo langsung = saldo + poin sesi yang sedang berjalan */
   function liveBalance() {
@@ -65,14 +65,9 @@
   moreBtn.type = "button"; moreBtn.id = "n-more";
   var drawer = document.createElement("div");
   drawer.id = "navDrawer";
-  /* Tombol KYC: dibuat di sini bila belum ada di index.html, lalu masuk ke menu Lainnya */
-  if (!g("n-kyc")) {
-    var kycBtn = document.createElement("button");
-    kycBtn.type = "button"; kycBtn.id = "n-kyc"; kycBtn.textContent = "KYC";
-    kycBtn.addEventListener("click", function () { location.href = "kyc.html"; });
-    nav.appendChild(kycBtn);
-  }
-  ["n-kyc", "n-alloc", "n-dist", "n-road", "n-wp", "n-vision", "n-contract", "n-sec", "n-docs", "n-team", "n-news", "n-faq", "n-gloss", "n-chan"].forEach(function (id) {
+  /* KYC dipindah ke dalam halaman Profil (lihat renderProfile) */
+  var oldKyc = g("n-kyc"); if (oldKyc) oldKyc.remove();
+  ["n-alloc", "n-dist", "n-road", "n-wp", "n-vision", "n-contract", "n-sec", "n-docs", "n-team", "n-news", "n-faq", "n-gloss", "n-chan"].forEach(function (id) {
     var el = g(id); if (el) drawer.appendChild(el);
   });
   nav.appendChild(moreBtn);
@@ -161,7 +156,9 @@
         (has ? T("Ganti Wallet (MetaMask)", "Change Wallet (MetaMask)") : T("Hubungkan MetaMask", "Connect MetaMask")) + '</button>' +
       '<div class="fmsg" id="pMsg"></div><div class="lnk" id="pLink"></div>' +
       '<p class="note">' + T("Wallet dihubungkan dengan menandatangani pesan di MetaMask. Ini gratis dan tidak mengirim transaksi. Jangan pernah memasukkan seed phrase atau private key.", "The wallet is linked by signing a message in MetaMask. It is free and sends no transaction. Never enter your seed phrase or private key.") + '</p>' +
-      '<button class="btn" type="button" id="pOut">' + T("Keluar", "Log out") + '</button>';
+      '<h2 style="margin-top:22px">KYC</h2><p class="sub">' + T("Verifikasi identitas akun Anda.", "Verify your account identity.") + '</p>' +
+      '<button class="btn primary" type="button" id="pKyc">' + T("Buka KYC", "Open KYC") + '</button>' +
+      '<button class="btn" type="button" id="pOut" style="margin-top:14px">' + T("Keluar", "Log out") + '</button>';
     g("pWho").textContent = (me.name ? me.name + " \u2022 " : "") + me.email;
     g("pBal").textContent = f6(liveBalance());
     g("pStat").textContent = has ? "\u2713 " + T("Tersimpan", "Saved") : T("Belum diisi", "Not set");
@@ -174,6 +171,7 @@
       g("pLink").appendChild(a);
     }
     g("pConnect").onclick = connectWallet;
+    g("pKyc").onclick = function () { location.href = "kyc.html"; };
     g("pOut").onclick = function () { api("logout", {}).then(function () { location.reload(); }); };
   }
 
@@ -203,7 +201,7 @@
   function detail(e, status) {
     var p = [];
     if (status) p.push("HTTP " + status);
-    if (e && e.code !== undefined && typeof e.code !== "string") p.push("kode " + e.code);
+    if (e && e.code !== undefined && typeof e.code !== "string") p.push(T("kode ", "code ") + e.code);
     if (e && e.message) p.push(String(e.message).slice(0, 90));
     return p.length ? " [" + p.join(", ") + "]" : "";
   }
@@ -264,8 +262,8 @@
       '<div class="mn-orb" id="mnOrb"><div class="mn-coin">BTW</div></div>' +
       '<div class="mn-bal"><i class="mn-dot"></i><span id="mnBal">0</span></div>' +
       '<div class="mn-card">' +
-        '<div class="mn-row"><span>' + T("Hadiah per sesi", "Reward per session") + '</span><b>' + (RATE * HRS).toLocaleString("id-ID", { maximumFractionDigits: 3 }) + ' BTW</b></div>' +
-        '<div class="mn-row"><span>Rate</span><em>' + String(RATE).replace(".", ",") + ' / ' + T("jam", "hr") + '</em></div>' +
+        '<div class="mn-row"><span>' + T("Hadiah per sesi", "Reward per session") + '</span><b>' + (RATE * HRS).toLocaleString(window.lang === "en" ? "en-US" : "id-ID", { maximumFractionDigits: 3 }) + ' BTW</b></div>' +
+        '<div class="mn-row"><span>Rate</span><em>' + (window.lang === "en" ? String(RATE) : String(RATE).replace(".", ",")) + ' / ' + T("jam", "hr") + '</em></div>' +
         '<div class="mn-row"><span>' + T("Durasi sesi", "Session length") + '</span><em>' + HRS + ' ' + T("jam", "hrs") + '</em></div>' +
       '</div>' +
       '<div class="mn-tiles">' +
