@@ -86,7 +86,7 @@
     var b = document.createElement('button');
     b.type = 'button'; b.textContent = label; b.disabled = !enabled;
     b.style.cssText = 'border:0;border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:700;cursor:' + (enabled ? 'pointer' : 'default') +
-      ';background:' + (enabled ? 'var(--accent,#f5b82e)' : 'var(--line,rgba(255,255,255,.1))') + ';color:' + (enabled ? '#1a1400' : 'var(--muted,#8a94a8)');
+      ';background:' + (enabled ? '#6b5ff0' : '#e8e9f8') + ';color:' + (enabled ? '#fff' : '#9a9fc0');
     if (onclick) b.addEventListener('click', onclick);
     return b;
   }
@@ -94,10 +94,10 @@
   function rowFor(t, isDaily) {
     var bk = (isDaily ? 'd:' : 't:') + t.key;
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line,rgba(255,255,255,.1))';
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #eceefc';
     var left = document.createElement('div'); left.style.cssText = 'min-width:0;flex:1';
-    var title = document.createElement('div'); title.style.cssText = 'font-size:14px;font-weight:600'; title.textContent = tx(TITLES[t.key] || [t.key, t.key]);
-    var sub = document.createElement('div'); sub.style.cssText = 'font-size:12px;color:var(--muted,#8a94a8);margin-top:2px';
+    var title = document.createElement('div'); title.style.cssText = 'font-size:14px;font-weight:600;color:#12142e'; title.textContent = tx(TITLES[t.key] || [t.key, t.key]);
+    var sub = document.createElement('div'); sub.style.cssText = 'font-size:12px;color:#8a8fb0;margin-top:2px';
     sub.textContent = '+' + nf(t.reward) + ' BTW' + (!isDaily && t.kind === 'auto' && t.target > 1 ? '  •  ' + t.progress + '/' + t.target : '');
     left.appendChild(title); left.appendChild(sub);
     row.appendChild(left);
@@ -124,14 +124,14 @@
   function build() {
     var wrap = document.createElement('div');
     wrap.id = CARD_ID;
-    wrap.style.cssText = 'background:var(--card,#fff);border:1px solid var(--line,rgba(0,0,0,.08));border-radius:16px;padding:16px 18px;margin:14px auto 0;width:100%;max-width:460px;box-sizing:border-box;text-align:left;font-family:inherit;color:var(--fg,#1f2040)';
+    wrap.style.cssText = 'background:#fff;border-radius:22px;padding:16px 18px;margin:14px auto 0;width:100%;box-sizing:border-box;text-align:left;font-family:inherit;color:#1b1d3a;box-shadow:0 6px 20px rgba(60,60,140,.08)';
     return wrap;
   }
 
   function heading(text, note) {
     var f = document.createDocumentFragment();
-    var h = document.createElement('div'); h.style.cssText = 'font-weight:700;font-size:16px;margin:2px 0 4px'; h.textContent = text; f.appendChild(h);
-    if (note) { var p = document.createElement('div'); p.style.cssText = 'font-size:12px;color:var(--muted,#8a94a8);margin-bottom:6px'; p.textContent = note; f.appendChild(p); }
+    var h = document.createElement('div'); h.style.cssText = 'font-weight:700;font-size:16px;margin:2px 0 4px;color:#12142e'; h.textContent = text; f.appendChild(h);
+    if (note) { var p = document.createElement('div'); p.style.cssText = 'font-size:12px;color:#8a8fb0;margin-bottom:6px'; p.textContent = note; f.appendChild(p); }
     return f;
   }
 
@@ -148,7 +148,7 @@
       var box = document.createElement('div'); box.style.cssText = 'margin-top:14px'; box.appendChild(h); wrap.appendChild(box);
       tasks.forEach(function (t) { wrap.appendChild(rowFor(t, false)); });
     }
-    var m = document.createElement('div'); m.style.cssText = 'font-size:12px;min-height:16px;margin-top:8px;color:var(--accent,#d4a006)'; m.textContent = msg; wrap.appendChild(m);
+    var m = document.createElement('div'); m.style.cssText = 'font-size:12px;min-height:16px;margin-top:8px;color:#5b52e8'; m.textContent = msg; wrap.appendChild(m);
   }
 
   /* Penempatan kartu: panel #mineBody (tampilan gelap), atau di bawah kartu pool / kartu "Durasi sesi" (tampilan terang). */
@@ -174,8 +174,10 @@
     return null;
   }
   function place() {
+    var mn = document.querySelector('#mnBody');
+    if (mn && visible(mn)) return { el: mn, mode: 'append' };
     var host = document.querySelector('#mineBody');
-    if (host) return visible(host) ? { el: host, mode: 'append' } : null;
+    if (host && visible(host)) return { el: host, mode: 'append' };
     var pool = document.getElementById('btw-pool-mining');
     if (pool && visible(pool)) return { el: pool, mode: 'after' };
     var leaf = findLeaf(['Durasi sesi', 'Session length', 'Session duration']);
