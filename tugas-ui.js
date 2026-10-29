@@ -1,4 +1,4 @@
-/* BTW-TUGAS-VERSI 3 (bahasa ikut tombol ID/EN, muat lebih cepat) : kartu dipasang ke #mnBody (panel Mining baru) */
+/* BTW-TUGAS-VERSI 4 (menu & halaman Tugas sendiri, bahasa ikut tombol ID/EN, muat lebih cepat)  */
 /* Bitworld - kartu "Tugas & Hadiah" (tugas sekali klaim + tugas harian).
    Data: /api/app?a=tasks, /api/app?a=daily (GET) dan POST {a:"task_claim"|"daily_claim", key}. Harus login. */
 (function () {
@@ -13,6 +13,18 @@
   var msg = '';
   var loading = false, loadedOnce = false, lastLoad = 0, retries = 0;
   var MAX_RETRY = 4;
+  var CACHE_KEY = 'btw_tugas_cache_v1', CACHE_TTL = 30 * 60 * 1000;
+  /* Cache per tab (sessionStorage): kartu langsung tampil dari data terakhir, lalu diperbarui dari server. */
+  function readCache() {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
+      if (c && Date.now() - c.t < CACHE_TTL) { tasks = c.tasks || null; daily = c.daily || null; }
+    } catch (e) {}
+  }
+  function writeCache() {
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), tasks: tasks, daily: daily })); } catch (e) {}
+  }
+  function clearCache() { try { sessionStorage.removeItem(CACHE_KEY); } catch (e) {} }
 
   var ORIGIN = location.origin;
   var SHARE_TEXT = 'Saya menambang BTW di Bitworld. Gabung sekarang! #Bitworld #BTW';
@@ -47,6 +59,7 @@
     not_logged_in: ['Silakan login dulu.', 'Please log in first.']
   };
 
+  function failed() { return !tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading; }
   function en() { return typeof window.lang === 'string' ? window.lang === 'en' : false; }
   function tx(pair) { return en() ? pair[1] : pair[0]; }
   function nf(n) { return Number(n || 0).toLocaleString(en() ? 'en-US' : 'id-ID', { maximumFractionDigits: 4 }); }
@@ -62,7 +75,7 @@
       loading = false; loadedOnce = true;
       if (x[0] && x[0].tasks) tasks = x[0].tasks;
       if (x[1] && x[1].tasks) daily = x[1].tasks;
-      if (tasks || daily) retries = 0;
+      if (tasks || daily) { retries = 0; writeCache(); }
       else if (retries < MAX_RETRY) { retries++; setTimeout(load, retries * 2000); }
       render();
     });
@@ -81,7 +94,6 @@
         busy[bk] = false;
         if (x.ok) {
           msg = (en() ? 'Reward added: +' : 'Hadiah masuk: +') + nf(x.j.reward) + ' BTW';
-          var b = document.querySelector('[data-go="mine"]'); if (b) b.click();
         } else {
           var e = ERR[x.j && x.j.error];
           msg = e ? tx(e) : (en() ? 'Failed (' : 'Gagal (') + ((x.j && x.j.error) || 'error') + ')';
@@ -145,6 +157,14 @@
 
   function fillCard(wrap) {
     wrap.textContent = '';
+    if (failed()) {
+      wrap.appendChild(heading(en() ? 'Tasks could not be loaded' : 'Tugas belum bisa dimuat', en() ? 'Log in first, or try again.' : 'Masuk dulu, atau coba lagi.'));
+      var rowb = document.createElement('div'); rowb.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';
+      rowb.appendChild(btn(en() ? 'Log in / Sign up' : 'Masuk / Daftar', true, function () { if (typeof go === 'function') go('auth'); }));
+      rowb.appendChild(btn(en() ? 'Try again' : 'Coba lagi', true, function () { retries = 0; load(); render(); }));
+      wrap.appendChild(rowb);
+      return;
+    }
     if (!tasks && !daily) {
       wrap.appendChild(heading(en() ? 'Loading tasks…' : 'Memuat tugas…', en() ? 'Please wait a moment.' : 'Mohon tunggu sebentar.'));
       return;
@@ -163,38 +183,10 @@
     var m = document.createElement('div'); m.style.cssText = 'font-size:12px;min-height:16px;margin-top:8px;color:#5b52e8'; m.textContent = msg; wrap.appendChild(m);
   }
 
-  /* Penempatan kartu: panel #mineBody (tampilan gelap), atau di bawah kartu pool / kartu "Durasi sesi" (tampilan terang). */
-  function findLeaf(texts) {
-    var all = document.body.querySelectorAll('*');
-    for (var i = 0; i < all.length; i++) {
-      var n = all[i];
-      if (n.children.length) continue;
-      var t = (n.textContent || '').trim();
-      if (texts.indexOf(t) !== -1 && visible(n)) return n;
-    }
-    return null;
-  }
-  function cardOf(leaf) {
-    var n = leaf;
-    for (var i = 0; i < 9 && n && n !== document.body; i++) {
-      var cs = getComputedStyle(n);
-      var r = parseFloat(cs.borderTopLeftRadius) || 0;
-      var bg = cs.backgroundColor;
-      if (r >= 16 && bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') return n;
-      n = n.parentElement;
-    }
-    return null;
-  }
+  /* Kartu dipasang di halaman Tugas (#tgBody) yang dibuat oleh setupTab(). */
   function place() {
-    var mn = document.querySelector('#mnBody');
-    if (mn && visible(mn)) return { el: mn, mode: 'append' };
-    var host = document.querySelector('#mineBody');
-    if (host && visible(host)) return { el: host, mode: 'append' };
-    var pool = document.getElementById('btw-pool-mining');
-    if (pool && visible(pool)) return { el: pool, mode: 'after' };
-    var leaf = findLeaf(['Durasi sesi', 'Session length', 'Session duration']);
-    var card = leaf ? cardOf(leaf) : null;
-    return card ? { el: card, mode: 'after' } : null;
+    var el = document.getElementById('tgBody');
+    return el && visible(el) ? { el: el, mode: 'append' } : null;
   }
   function placed(pl) {
     var card = document.getElementById(CARD_ID);
@@ -203,10 +195,7 @@
   }
 
   function render() {
-    if (!tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading) {
-      var old = document.getElementById(CARD_ID); if (old) old.remove();
-      return;
-    }
+    if (failed()) clearCache();
     var pl = place();
     if (!pl) return;
     var card = document.getElementById(CARD_ID);
@@ -219,20 +208,60 @@
     fillCard(card);
   }
   function ensure() {
-    if (!tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading) return;
     var pl = place();
     if (pl && !placed(pl)) render();
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(ensure, 300); }
 
+  /* ---------- Menu & halaman "Tugas" ---------- */
+  function labelNav() { var b = document.getElementById('n-tugas'); if (b) b.textContent = en() ? 'Tasks' : 'Tugas'; }
+  function setupTab() {
+    if (document.getElementById('n-tugas')) return;
+    var nav = document.querySelector('nav.bottom'), main = document.querySelector('main');
+    if (!nav || !main) return;
+    var st = document.createElement('style');
+    st.textContent =
+      'html nav.bottom{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,1.35fr)!important;gap:3px!important;padding:8px 5px!important}' +
+      '@media (max-width:340px){html nav.bottom button{font-size:9.5px!important}}' +
+      'html nav.bottom button{font-size:10.5px!important;padding:10px 0!important;letter-spacing:-.1px;overflow:hidden;text-overflow:ellipsis}' +
+      '#v-tugas{background:#f4f5fb;color:#1b1d3a;justify-content:flex-start}' +
+      '.tg-wrap{width:100%;max-width:520px;margin:0 auto;padding-bottom:28px}';
+    document.head.appendChild(st);
+    var b = document.createElement('button');
+    b.type = 'button'; b.id = 'n-tugas'; b.setAttribute('data-go', 'tugas');
+    var after = document.getElementById('n-mine');
+    nav.insertBefore(b, after ? after.nextSibling : nav.firstChild);
+    var v = document.createElement('section');
+    v.className = 'view'; v.id = 'v-tugas';
+    v.innerHTML = '<div class="tg-wrap" id="tgBody"></div>';
+    main.appendChild(v);
+    if (typeof VIEWS === 'object') VIEWS.tugas = 'v-tugas';
+    labelNav();
+    if (typeof go === 'function') {
+      var _go = go;
+      go = function (n) {
+        _go.apply(this, arguments);
+        if (n === 'tugas') {
+          render();
+          if (!loading && Date.now() - lastLoad > 20000) { retries = 0; load(); }
+        }
+      };
+      if (location.hash === '#tugas') go('tugas');
+    }
+  }
+
   function start() {
+    setupTab();
+    readCache();
+    if (tasks || daily) render();   /* tampil seketika dari cache */
     load();
     setInterval(load, 60000);
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, attributes: true });
     document.addEventListener('click', function (e) {
       schedule();
+      if (e.target && e.target.closest && e.target.closest('#pOut')) { clearCache(); tasks = daily = null; }
       var l = e.target && e.target.closest ? e.target.closest('#lang-id, #lang-en') : null;
-      if (l) setTimeout(render, 0);
+      if (l) setTimeout(function () { labelNav(); render(); }, 0);
       if (!tasks && !daily && !loading && Date.now() - lastLoad > 3000) { retries = 0; load(); }
     }, true);
     document.addEventListener('visibilitychange', function () {
