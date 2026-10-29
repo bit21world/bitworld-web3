@@ -11,6 +11,15 @@
 <link rel="preload" as="script" href="/logo-koin.js">
 <link rel="preload" as="script" href="pool-ui.js">
 <link rel="preload" as="script" href="tugas-ui.js">
+<script>try{document.documentElement.setAttribute("data-auth",localStorage.getItem("btw_auth")==="1"?"1":"0")}catch(e){document.documentElement.setAttribute("data-auth","0")}</script>
+<style id="gate-login">
+/* Sebelum login: hanya Beranda & halaman masuk yang tampil */
+html[data-auth="0"] nav.bottom{grid-template-columns:1fr!important}
+html[data-auth="0"] nav.bottom>button:not(#n-home){display:none!important}
+html[data-auth="0"] #navDrawer{display:none!important}
+html[data-auth="0"] .view:not(#v-home):not(#v-auth){display:none!important}
+html[data-auth="0"] #v-home .actions{display:none!important}
+</style>
 <title>Bitworld (BTW)</title>
 <style>
 :root{--bg:#05070d;--fg:#e8ecf5;--muted:#8a94a8;--accent:#f5b82e;--accent2:#22d3ee;--card:rgba(18,24,38,.72);--line:rgba(255,255,255,.1);--spring:cubic-bezier(.34,1.56,.64,1)}
@@ -869,7 +878,7 @@ function initScene(){
       headers: { "Content-Type": "application/json" },
       body: post ? JSON.stringify(body) : undefined
     }).then(function(r){
-      return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, data: d }; });
+      return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, status: r.status, data: d }; });
     }).catch(function(){ return { ok: false, data: { error: "network" } }; });
   }
   function errText(c){
@@ -886,8 +895,20 @@ function initScene(){
   }
   function msg(text, ok){ var e = g("fmsg"); if (!e) return; e.textContent = text; e.className = "fmsg " + (ok ? "ok" : "err"); }
 
+  var authKnown = false;
+  function setAuthUI(){
+    var a = user ? "1" : "0";
+    document.documentElement.setAttribute("data-auth", a);
+    try { localStorage.setItem("btw_auth", a); } catch(e) {}
+    var cur = document.querySelector(".view.active");
+    if (!user && cur && cur.id !== "v-home" && cur.id !== "v-auth") go("home");
+  }
   function loadMe(){
-    return api("me").then(function(r){ user = (r.ok && r.data.user) ? r.data.user : null; });
+    return api("me").then(function(r){
+      user = (r.ok && r.data.user) ? r.data.user : null;
+      /* hanya percaya hasil yang pasti (bukan gangguan jaringan/server) */
+      if (user || r.status === 401 || (r.ok && r.data && !r.data.user)) { authKnown = true; setAuthUI(); }
+    });
   }
 
   /* ---------- AUTH ---------- */
@@ -1061,6 +1082,7 @@ function initScene(){
   var _go = go;
   go = function(n){
     if (n === "mine" && !user) { toast(T("Masuk dulu untuk mining", "Log in to mine")); n = "auth"; }
+    else if (authKnown && !user && n !== "home" && n !== "auth") { toast(T("Masuk dulu untuk membuka menu ini", "Log in to open this menu")); n = "auth"; }
     _go(n);
     var ab = document.querySelector("nav.bottom button.on");
     if (ab && ab.scrollIntoView) ab.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
