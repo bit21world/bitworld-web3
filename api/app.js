@@ -18,6 +18,10 @@ const RPC = process.env.BSC_RPC || "https://bsc-dataseed.binance.org";
 let _eth;
 const eth = () => (_eth = _eth || require("ethers"));
 
+// Data transaksi klaim (calldata) dibuat di server supaya browser tidak perlu pustaka tambahan.
+const claimData = (wei, nonce, deadline, sig) =>
+  new (eth().Interface)(["function claim(uint256 amount, bytes32 nonce, uint256 deadline, bytes signature)"])
+    .encodeFunctionData("claim", [wei, nonce, BigInt(deadline), sig]);
 const linkMsg = (uid, ts) => "Hubungkan dompet ke Bitworld\nAkun: " + uid + "\nWaktu: " + ts;
 
 // Cek voucher aktif: sudah diklaim di chain -> 'claimed'; lewat batas waktu & belum dipakai -> 'expired' + saldo dikembalikan.
@@ -305,12 +309,13 @@ module.exports = async (req, res) => {
       const v = await sql`select nonce, amount, deadline, sig from bw_vouchers where user_id = ${uid} and status = 'issued' limit 1`;
       const { parseUnits } = eth();
       return send(res, 200, {
-        wallet: me.wallet || null, balance: Number(bal), kyc: me.kyc || "none",
+        uid: String(uid), wallet: me.wallet || null, balance: Number(bal), kyc: me.kyc || "none",
         min: MIN_CLAIM, max: MAX_CLAIM, chainId: CHAIN_ID, pool: process.env.POOL_ADDRESS,
-        voucher: v.length ? {
-          amount: parseUnits(String(v[0].amount), DECIMALS).toString(),
-          nonce: v[0].nonce, deadline: Number(v[0].deadline), signature: v[0].sig
-        } : null
+        voucher: v.length ? (() => {
+          const w = parseUnits(String(v[0].amount), DECIMALS);
+          return { amount: w.toString(), nonce: v[0].nonce, deadline: Number(v[0].deadline), signature: v[0].sig,
+            data: claimData(w, v[0].nonce, v[0].deadline, v[0].sig) };
+        })() : null
       });
     }
 
@@ -372,7 +377,7 @@ module.exports = async (req, res) => {
           where exists (select 1 from d) returning 1)
         select (select count(*) from v)::int as ok`;
       if (!r[0].ok) return send(res, 409, { error: "insufficient" });
-      return send(res, 200, { ok: true, voucher: { amount: wei.toString(), nonce, deadline, signature: sig }, pool: process.env.POOL_ADDRESS, chainId: CHAIN_ID });
+      return send(res, 200, { ok: true, voucher: { amount: wei.toString(), nonce, deadline, signature: sig, data: claimData(wei, nonce, deadline, sig) }, pool: process.env.POOL_ADDRESS, chainId: CHAIN_ID });
     }
 
     /* ---------- WALLET ---------- */
