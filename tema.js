@@ -4,7 +4,7 @@ html:root{--bg:#b4d8ff;--fg:#1b1d3a;--muted:#6f7fa6;--accent:#6b5ff0;--accent2:#
 html body{background-color:#b4d8ff!important;background-image:radial-gradient(900px 480px at 50% -140px,rgba(255,255,255,.45),transparent 70%),linear-gradient(180deg,#c8e3ff 0%,#a6d0ff 100%)!important;background-attachment:fixed!important;color:#1b1d3a!important}
 html body main{background:transparent!important}
 /* logo koin di belakang konten, warna asli */
-html::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 52%/min(86vw,400px) auto;opacity:.65}
+html::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 52%/min(86vw,400px) auto;opacity:.4}
 html body header{background:#fff!important;border-bottom:1px solid rgba(88,76,214,.14)!important;box-shadow:0 2px 14px rgba(60,60,140,.06)}
 html body .brand{color:#1b1d3a!important}
 html body .accbtn{background:linear-gradient(180deg,#ffd75a,#f5b82e)!important;color:#3a2a00!important;box-shadow:0 4px 12px rgba(245,184,46,.35)!important;border:0!important}
@@ -31,7 +31,9 @@ html body .mono{background:#eef5ff!important;color:#4b44c8!important;border:1px 
 html body td{color:#2c2f55!important;border-bottom-color:rgba(88,76,214,.12)!important}
 
 html body h1,html body .ch{color:#1b1d3a!important}
-html body .tagline{color:#4f5b86!important}
+html body .tagline{color:#1b2550!important;font-weight:600}
+html body #v-home .tagline,html body #v-home .muted,html body #v-home h1{text-shadow:0 0 8px #fff,0 0 3px #fff,0 0 14px rgba(255,255,255,.9)}
+html body #v-home .muted{color:#2c3a6e!important;font-weight:600}
 html body .badge{background:#fff3c4!important;border:1px solid #f2d56b!important;color:#7a5a00!important}
 
 html body .btn{background:#fff!important;border:1px solid rgba(107,95,240,.4)!important;color:#5b52e8!important}
