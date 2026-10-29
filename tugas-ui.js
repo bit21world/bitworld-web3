@@ -1,4 +1,4 @@
-/* BTW-TUGAS-VERSI 2 : kartu dipasang ke #mnBody (panel Mining baru) */
+/* BTW-TUGAS-VERSI 3 (bahasa ikut tombol ID/EN, muat lebih cepat) : kartu dipasang ke #mnBody (panel Mining baru) */
 /* Bitworld - kartu "Tugas & Hadiah" (tugas sekali klaim + tugas harian).
    Data: /api/app?a=tasks, /api/app?a=daily (GET) dan POST {a:"task_claim"|"daily_claim", key}. Harus login. */
 (function () {
@@ -11,6 +11,8 @@
   var busy = {};
   var timer = null;
   var msg = '';
+  var loading = false, loadedOnce = false, lastLoad = 0, retries = 0;
+  var MAX_RETRY = 4;
 
   var ORIGIN = location.origin;
   var SHARE_TEXT = 'Saya menambang BTW di Bitworld. Gabung sekarang! #Bitworld #BTW';
@@ -54,9 +56,14 @@
     return fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
   }
   function load() {
+    if (loading) return Promise.resolve();
+    loading = true; lastLoad = Date.now();
     return Promise.all([getJson('/api/app?a=tasks'), getJson('/api/app?a=daily')]).then(function (x) {
+      loading = false; loadedOnce = true;
       if (x[0] && x[0].tasks) tasks = x[0].tasks;
       if (x[1] && x[1].tasks) daily = x[1].tasks;
+      if (tasks || daily) retries = 0;
+      else if (retries < MAX_RETRY) { retries++; setTimeout(load, retries * 2000); }
       render();
     });
   }
@@ -138,6 +145,10 @@
 
   function fillCard(wrap) {
     wrap.textContent = '';
+    if (!tasks && !daily) {
+      wrap.appendChild(heading(en() ? 'Loading tasks…' : 'Memuat tugas…', en() ? 'Please wait a moment.' : 'Mohon tunggu sebentar.'));
+      return;
+    }
     if (daily && daily.length) {
       wrap.appendChild(heading(en() ? 'Daily tasks' : 'Tugas harian',
         en() ? 'Resets every day. Rewards come from the community pool.' : 'Direset setiap hari. Hadiah diambil dari pool komunitas.'));
@@ -192,7 +203,10 @@
   }
 
   function render() {
-    if (!tasks && !daily) return;
+    if (!tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading) {
+      var old = document.getElementById(CARD_ID); if (old) old.remove();
+      return;
+    }
     var pl = place();
     if (!pl) return;
     var card = document.getElementById(CARD_ID);
@@ -205,7 +219,7 @@
     fillCard(card);
   }
   function ensure() {
-    if (!tasks && !daily) return;
+    if (!tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading) return;
     var pl = place();
     if (pl && !placed(pl)) render();
   }
@@ -215,7 +229,15 @@
     load();
     setInterval(load, 60000);
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, attributes: true });
-    document.addEventListener('click', schedule, true);
+    document.addEventListener('click', function (e) {
+      schedule();
+      var l = e.target && e.target.closest ? e.target.closest('#lang-id, #lang-en') : null;
+      if (l) setTimeout(render, 0);
+      if (!tasks && !daily && !loading && Date.now() - lastLoad > 3000) { retries = 0; load(); }
+    }, true);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && !loading && Date.now() - lastLoad > 3000) load();
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
