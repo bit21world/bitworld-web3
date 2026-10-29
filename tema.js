@@ -1,9 +1,10 @@
 (function () {
   var css = `
-html:root{--bg:#dcedff;--fg:#1b1d3a;--muted:#6f7fa6;--accent:#6b5ff0;--accent2:#6b5ff0;--card:#ffffff;--line:rgba(88,76,214,.16);--surface2:#ecebff}
-html body{background-color:#dcedff!important;background-image:radial-gradient(900px 480px at 50% -140px,rgba(59,150,255,.30),transparent 70%),linear-gradient(180deg,#e6f3ff 0%,#d3e8ff 100%)!important;background-attachment:fixed!important;color:#1b1d3a!important}
-/* logo koin di semua halaman (di atas kartu, tidak bisa diklik, warna asli) */
-html::after{content:"";position:fixed;inset:0;z-index:3;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 50%/min(84vw,400px) auto;opacity:.16}
+html:root{--bg:#b4d8ff;--fg:#1b1d3a;--muted:#6f7fa6;--accent:#6b5ff0;--accent2:#6b5ff0;--card:#ffffff;--line:rgba(88,76,214,.16);--surface2:#ecebff}
+html body{background-color:#b4d8ff!important;background-image:radial-gradient(900px 480px at 50% -140px,rgba(255,255,255,.45),transparent 70%),linear-gradient(180deg,#c8e3ff 0%,#a6d0ff 100%)!important;background-attachment:fixed!important;color:#1b1d3a!important}
+html body main{background:transparent!important}
+/* logo koin di belakang konten, warna asli */
+html::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 52%/min(86vw,400px) auto;opacity:.65}
 html body header{background:#fff!important;border-bottom:1px solid rgba(88,76,214,.14)!important;box-shadow:0 2px 14px rgba(60,60,140,.06)}
 html body .brand{color:#1b1d3a!important}
 html body .accbtn{background:linear-gradient(180deg,#ffd75a,#f5b82e)!important;color:#3a2a00!important;box-shadow:0 4px 12px rgba(245,184,46,.35)!important;border:0!important}
@@ -17,7 +18,7 @@ html body nav.bottom button.on{background:#6b5ff0!important;color:#fff!important
 html body nav.bottom button.locked{color:#a4a8c4!important}
 html body #navDrawer{background:#fff!important;border:1px solid rgba(88,76,214,.18)!important;box-shadow:0 18px 40px rgba(60,60,140,.22)!important}
 
-html body .card,html body .panel,html body .contract,html body .lockcard{background:#fff!important;border:1px solid rgba(88,76,214,.12)!important;box-shadow:0 8px 24px rgba(60,60,140,.09)!important;border-radius:20px!important}
+html body .card,html body .panel,html body .contract,html body .lockcard{background:rgba(255,255,255,.86)!important;border:1px solid rgba(88,76,214,.12)!important;box-shadow:0 8px 24px rgba(60,60,140,.09)!important;border-radius:20px!important}
 html body .lockcard{border-style:dashed!important;border-color:rgba(107,95,240,.4)!important;background:#f3f8ff!important}
 html body .lockcard .t{color:#5b52e8!important}
 html body .panel h2{color:#1b1d3a!important}
