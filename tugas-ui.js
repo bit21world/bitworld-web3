@@ -8,6 +8,24 @@
   var CARD_ID = 'btw-tugas';
   var tasks = null, daily = null;
   var opened = {};
+  var proofVal = {};
+  var STATE_KEY = 'btw_tugas_state_v1';
+  function saveState() { try { sessionStorage.setItem(STATE_KEY, JSON.stringify({ o: opened, p: proofVal })); } catch (e) {} }
+  function readState() {
+    try { var c = JSON.parse(sessionStorage.getItem(STATE_KEY) || 'null'); if (c) { opened = c.o || {}; proofVal = c.p || {}; } } catch (e) {}
+  }
+  /* Tugas yang wajib melampirkan tautan postingan sebagai bukti */
+  var X_RE = /^https:\/\/(www\.|mobile\.)?(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d{5,25}(\/\S*)?(\?\S*)?$/i;
+  var PROOF = {
+    xlike:  { re: X_RE, ex: 'https://x.com/namaakun/status/1234567890' },
+    xpost:  { re: X_RE, ex: 'https://x.com/namaakun/status/1234567890' },
+    fbpost: { re: /^https:\/\/((www|m|web)\.)?(facebook\.com|fb\.com)\/\S{6,}$|^https:\/\/fb\.watch\/\S+$/i, ex: 'https://www.facebook.com/namaakun/posts/123456' },
+    tgshare:{ re: /^https:\/\/t\.me\/[A-Za-z0-9_]{4,32}\/\d+(\?\S*)?$/i, ex: 'https://t.me/namagrup/123' }
+  };
+  function validProof(key, v) {
+    v = (v || '').trim();
+    return !!(PROOF[key] && v.length <= 300 && PROOF[key].re.test(v));
+  }
   var busy = {};
   var timer = null;
   var msg = '';
@@ -56,7 +74,11 @@
     already_done: ['Tugas ini sudah diklaim.', 'Already claimed.'],
     pool_empty: ['Pool hadiah sudah habis.', 'The reward pool is empty.'],
     rate_limited: ['Terlalu cepat, coba sebentar lagi.', 'Too fast, try again shortly.'],
-    not_logged_in: ['Silakan login dulu.', 'Please log in first.']
+    not_logged_in: ['Silakan login dulu.', 'Please log in first.'],
+    proof_required: ['Tempelkan tautan postingan Anda dulu.', 'Paste your post link first.'],
+    invalid_proof: ['Tautan bukti tidak valid.', 'The proof link is not valid.'],
+    proof_used: ['Tautan ini sudah pernah dipakai.', 'This link has already been used.'],
+    pending: ['Bukti diterima, menunggu pengecekan.', 'Proof received, pending review.']
   };
 
   function failed() { return !tasks && !daily && loadedOnce && retries >= MAX_RETRY && !loading; }
@@ -81,19 +103,20 @@
     });
   }
 
-  function claim(key, isDaily) {
+  function claim(key, isDaily, proof) {
     var bk = (isDaily ? 'd:' : 't:') + key;
     if (busy[bk]) return;
     busy[bk] = true; msg = ''; render();
     fetch('/api/app', {
       method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ a: isDaily ? 'daily_claim' : 'task_claim', key: key })
+      body: JSON.stringify(proof ? { a: isDaily ? 'daily_claim' : 'task_claim', key: key, proof: proof } : { a: isDaily ? 'daily_claim' : 'task_claim', key: key })
     }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         busy[bk] = false;
         if (x.ok) {
           msg = (en() ? 'Reward added: +' : 'Hadiah masuk: +') + nf(x.j.reward) + ' BTW';
+          delete proofVal[bk]; delete opened[bk]; saveState();
         } else {
           var e = ERR[x.j && x.j.error];
           msg = e ? tx(e) : (en() ? 'Failed (' : 'Gagal (') + ((x.j && x.j.error) || 'error') + ')';
@@ -102,11 +125,15 @@
       }).catch(function () { busy[bk] = false; msg = en() ? 'Connection problem.' : 'Koneksi bermasalah.'; render(); });
   }
 
-  function btn(label, enabled, onclick) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.textContent = label; b.disabled = !enabled;
+  function styleBtn(b, enabled) {
+    b.disabled = !enabled;
     b.style.cssText = 'border:0;border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:700;cursor:' + (enabled ? 'pointer' : 'default') +
       ';background:' + (enabled ? '#6b5ff0' : '#e8e9f8') + ';color:' + (enabled ? '#fff' : '#9a9fc0');
+  }
+  function btn(label, enabled, onclick) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = label;
+    styleBtn(b, enabled);
     if (onclick) b.addEventListener('click', onclick);
     return b;
   }
@@ -123,21 +150,47 @@
     row.appendChild(left);
 
     var right = document.createElement('div'); right.style.cssText = 'display:flex;gap:6px;flex-shrink:0';
+    var extraBox = null;
     var needsOpen = isDaily || t.kind === 'link';
     if (t.done) {
       right.appendChild(btn(en() ? 'Done ✓' : 'Selesai ✓', false));
     } else if (needsOpen) {
+      var needProof = isDaily && !!PROOF[t.key];
       var waited = opened[bk] && (Date.now() - opened[bk] >= 8000);
+      var canClaim = needProof ? (!!opened[bk] && validProof(t.key, proofVal[bk])) : !!waited;
       right.appendChild(btn(en() ? 'Open' : 'Buka', true, function () {
         window.open(LINKS[t.key], '_blank', 'noopener');
-        opened[bk] = Date.now();
-        render(); setTimeout(render, 8200);
+        opened[bk] = Date.now(); saveState();
+        render(); if (!needProof) setTimeout(render, 8200);
       }));
-      right.appendChild(btn(busy[bk] ? '…' : (en() ? 'Claim' : 'Klaim'), !!waited && !busy[bk], function () { claim(t.key, isDaily); }));
+      var cb = btn(busy[bk] ? '…' : (en() ? 'Claim' : 'Klaim'), canClaim && !busy[bk], function () {
+        claim(t.key, isDaily, needProof ? (proofVal[bk] || '').trim() : undefined);
+      });
+      right.appendChild(cb);
+      if (needProof && opened[bk]) {
+        row.style.flexWrap = 'wrap';
+        var box = document.createElement('div'); box.style.cssText = 'flex-basis:100%;margin-top:2px';
+        var lab = document.createElement('div'); lab.style.cssText = 'font-size:12px;color:#8a8fb0;margin-bottom:6px';
+        lab.textContent = en() ? 'Paste the link to your post as proof, then press Claim.' : 'Tempel tautan postingan Anda sebagai bukti, lalu tekan Klaim.';
+        var inp = document.createElement('input');
+        inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.maxLength = 300;
+        inp.placeholder = PROOF[t.key].ex; inp.value = proofVal[bk] || ''; inp.setAttribute('aria-label', lab.textContent);
+        inp.style.cssText = 'width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d9dcf3;border-radius:10px;font:inherit;font-size:16px;color:#12142e;background:#fff';
+        var er = document.createElement('div'); er.style.cssText = 'font-size:12px;color:#c0392b;min-height:14px;margin-top:4px';
+        inp.addEventListener('input', function () {
+          proofVal[bk] = inp.value; saveState();
+          var ok = validProof(t.key, inp.value);
+          styleBtn(cb, ok && !busy[bk]);
+          er.textContent = (!inp.value.trim() || ok) ? '' : (en() ? 'The link does not look right. Example: ' : 'Tautan belum sesuai. Contoh: ') + PROOF[t.key].ex;
+        });
+        box.appendChild(lab); box.appendChild(inp); box.appendChild(er);
+        extraBox = box;
+      }
     } else {
       right.appendChild(btn(busy[bk] ? '…' : (en() ? 'Claim' : 'Klaim'), t.progress >= t.target && !busy[bk], function () { claim(t.key, false); }));
     }
     row.appendChild(right);
+    if (extraBox) row.appendChild(extraBox);
     return row;
   }
 
@@ -205,6 +258,8 @@
       if (pl.mode === 'append') pl.el.appendChild(card);
       else pl.el.parentNode.insertBefore(card, pl.el.nextSibling);
     }
+    var ae = document.activeElement;
+    if (ae && ae.tagName === 'INPUT' && card.contains(ae)) return;   /* jangan ganggu saat mengetik */
     fillCard(card);
   }
   function ensure() {
@@ -252,14 +307,14 @@
 
   function start() {
     setupTab();
-    readCache();
+    readCache(); readState();
     if (tasks || daily) render();   /* tampil seketika dari cache */
     load();
     setInterval(load, 60000);
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, attributes: true });
     document.addEventListener('click', function (e) {
       schedule();
-      if (e.target && e.target.closest && e.target.closest('#pOut')) { clearCache(); tasks = daily = null; }
+      if (e.target && e.target.closest && e.target.closest('#pOut')) { clearCache(); try { sessionStorage.removeItem(STATE_KEY); } catch (e) {} tasks = daily = null; opened = {}; proofVal = {}; }
       var l = e.target && e.target.closest ? e.target.closest('#lang-id, #lang-en') : null;
       if (l) setTimeout(function () { labelNav(); render(); }, 0);
       if (!tasks && !daily && !loading && Date.now() - lastLoad > 3000) { retries = 0; load(); }
