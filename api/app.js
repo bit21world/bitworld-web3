@@ -5,6 +5,42 @@ const REQUIRE_KYC_FOR_TRANSFER = true; // ubah ke false jika transfer tidak perl
 const maskEmail = (e) => e.replace(/^(.{1,2}).*(@.*)$/, "$1***$2");
 const clean = (s, n) => String(s || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, n);
 
+/* ---------- KLAIM ON-CHAIN (BSC) ---------- */
+const crypto = require("crypto");
+const REQUIRE_KYC_FOR_CLAIM = true;   // ubah ke false jika klaim tidak perlu KYC
+const MIN_CLAIM = 1;                  // minimal BTW per klaim
+const MAX_CLAIM = 1000;               // harus sama dengan maxPerClaim di kontrak
+const VOUCHER_TTL = 3600;             // detik voucher berlaku
+const CHAIN_ID = Number(process.env.CHAIN_ID || 56);          // 56 = BSC mainnet, 97 = testnet
+const DECIMALS = Number(process.env.TOKEN_DECIMALS || 18);
+const RPC = process.env.BSC_RPC || "https://bsc-dataseed.binance.org";
+
+let _eth;
+const eth = () => (_eth = _eth || require("ethers"));
+
+const linkMsg = (uid, ts) => "Hubungkan dompet ke Bitworld\nAkun: " + uid + "\nWaktu: " + ts;
+
+// Cek voucher aktif: sudah diklaim di chain -> 'claimed'; lewat batas waktu & belum dipakai -> 'expired' + saldo dikembalikan.
+async function syncVouchers(uid) {
+  const rows = await sql`select nonce, deadline from bw_vouchers where user_id = ${uid} and status = 'issued'`;
+  if (!rows.length) return;
+  const { JsonRpcProvider, Contract } = eth();
+  const pool = new Contract(process.env.POOL_ADDRESS, ["function used(bytes32) view returns (bool)"], new JsonRpcProvider(RPC, CHAIN_ID));
+  const now = Math.floor(Date.now() / 1000);
+  for (const v of rows) {
+    let usedOnChain;
+    try { usedOnChain = await pool.used(v.nonce); } catch (e) { continue; } // RPC gagal: coba lagi nanti
+    if (usedOnChain) {
+      await sql`update bw_vouchers set status = 'claimed' where nonce = ${v.nonce} and status = 'issued'`;
+    } else if (now > Number(v.deadline) + 120) {
+      await sql`
+        with e as (update bw_vouchers set status = 'expired' where nonce = ${v.nonce} and status = 'issued' returning user_id, amount),
+        u as (update bw_users set balance = balance + e.amount from e where bw_users.id = e.user_id returning 1)
+        select (select count(*) from e)::int as n`;
+    }
+  }
+}
+
 /* ---------- BUKTI TUGAS HARIAN ---------- */
 const OFFICIAL_X = "bitworld_btw";            // akun resmi: postingannya tidak dihitung sebagai bukti
 const KEYWORD = /bitworld|#btw\b/i;            // kata yang harus ada di isi postingan (cek otomatis)
@@ -72,7 +108,7 @@ module.exports = async (req, res) => {
     const q = post ? (req.body || {}) : req.query || {};
     const a = String(q.a || "");
     await settle(uid);
-    const me = (await sql`select id, email, balance, is_admin,
+    const me = (await sql`select id, email, balance, is_admin, wallet,
       kyc_status as kyc from bw_users where id = ${uid}`)[0];
     if (!me) return send(res, 401, { error: "not_logged_in" });
     const kycStatus = me.kyc || "none";
@@ -257,6 +293,86 @@ module.exports = async (req, res) => {
         where id = ${pid} and status = 'pending' returning id`;
       if (!r.length) return send(res, 409, { error: "not_pending_or_pool_empty" });
       return send(res, 200, { ok: true });
+    }
+
+    if (a === "claim_status" || a === "wallet_link" || a === "claim_voucher") {
+      if (!process.env.POOL_ADDRESS || !process.env.CLAIM_SIGNER_KEY) return send(res, 503, { error: "claim_not_ready" });
+    }
+    /* ---------- status klaim ---------- */
+    if (a === "claim_status") {
+      await syncVouchers(uid);
+      const bal = (await sql`select balance from bw_users where id = ${uid}`)[0].balance;
+      const v = await sql`select nonce, amount, deadline, sig from bw_vouchers where user_id = ${uid} and status = 'issued' limit 1`;
+      const { parseUnits } = eth();
+      return send(res, 200, {
+        wallet: me.wallet || null, balance: Number(bal), kyc: me.kyc || "none",
+        min: MIN_CLAIM, max: MAX_CLAIM, chainId: CHAIN_ID, pool: process.env.POOL_ADDRESS,
+        voucher: v.length ? {
+          amount: parseUnits(String(v[0].amount), DECIMALS).toString(),
+          nonce: v[0].nonce, deadline: Number(v[0].deadline), signature: v[0].sig
+        } : null
+      });
+    }
+
+    /* ---------- hubungkan dompet (bukti kepemilikan lewat tanda tangan pesan) ---------- */
+    if (a === "wallet_link" && post) {
+      if (!(await limit("wl:" + uid, 10, 60))) return send(res, 429, { error: "rate_limited" });
+      const { isAddress, verifyMessage } = eth();
+      const addr = String(q.address || "").trim();
+      const ts = Number(q.ts);
+      if (!isAddress(addr) || !isFinite(ts) || Math.abs(Date.now() - ts) > 10 * 60 * 1000) return send(res, 400, { error: "invalid_input" });
+      let rec;
+      try { rec = verifyMessage(linkMsg(uid, ts), String(q.sig || "")); } catch (e) { return send(res, 400, { error: "bad_signature" }); }
+      if (rec.toLowerCase() !== addr.toLowerCase()) return send(res, 400, { error: "bad_signature" });
+      const w = addr.toLowerCase();
+      const active = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'issued'`;
+      if (active.length) return send(res, 409, { error: "voucher_active" });
+      const r = await sql`update bw_users set wallet = ${w}
+        where id = ${uid} and not exists (select 1 from bw_users where lower(wallet) = ${w} and id <> ${uid}) returning id`;
+      if (!r.length) return send(res, 409, { error: "wallet_used" });
+      return send(res, 200, { ok: true, wallet: w });
+    }
+
+    /* ---------- terbitkan voucher klaim ---------- */
+    if (a === "claim_voucher" && post) {
+      if (REQUIRE_KYC_FOR_CLAIM && me.kyc !== "approved") return send(res, 403, { error: "kyc_required" });
+      if (!me.wallet) return send(res, 400, { error: "wallet_required" });
+      if (!(await limit("vc:" + uid, 5, 60))) return send(res, 429, { error: "rate_limited" });
+      await syncVouchers(uid);
+      const act = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'issued'`;
+      if (act.length) return send(res, 409, { error: "voucher_active" });
+
+      const bal = (await sql`select balance from bw_users where id = ${uid}`)[0].balance;
+      const micro = Math.min(Math.floor(Number(bal) * 1e6), MAX_CLAIM * 1e6);
+      if (micro < MIN_CLAIM * 1e6) return send(res, 400, { error: "below_min" });
+      const amt = (micro / 1e6).toFixed(6);
+
+      const { Wallet, parseUnits } = eth();
+      const nonce = "0x" + crypto.randomBytes(32).toString("hex");
+      const deadline = Math.floor(Date.now() / 1000) + VOUCHER_TTL;
+      const wei = parseUnits(amt, DECIMALS);
+      const sig = await new Wallet(process.env.CLAIM_SIGNER_KEY).signTypedData(
+        { name: "BTWRewardPool", version: "1", chainId: CHAIN_ID, verifyingContract: process.env.POOL_ADDRESS },
+        { Claim: [
+          { name: "wallet", type: "address" }, { name: "amount", type: "uint256" },
+          { name: "nonce", type: "bytes32" }, { name: "deadline", type: "uint256" } ] },
+        { wallet: me.wallet, amount: wei, nonce, deadline: BigInt(deadline) }
+      );
+
+      // Saldo dikurangi dan voucher dicatat dalam satu perintah atomik.
+      const r = await sql`
+        with d as (
+          update bw_users set balance = balance - ${amt}::numeric
+          where id = ${uid} and balance >= ${amt}::numeric
+            and not exists (select 1 from bw_vouchers where user_id = ${uid} and status = 'issued')
+          returning id),
+        v as (
+          insert into bw_vouchers (nonce, user_id, wallet, amount, deadline, sig, status)
+          select ${nonce}, ${uid}, ${me.wallet}, ${amt}::numeric, ${deadline}, ${sig}, 'issued'
+          where exists (select 1 from d) returning 1)
+        select (select count(*) from v)::int as ok`;
+      if (!r[0].ok) return send(res, 409, { error: "insufficient" });
+      return send(res, 200, { ok: true, voucher: { amount: wei.toString(), nonce, deadline, signature: sig }, pool: process.env.POOL_ADDRESS, chainId: CHAIN_ID });
     }
 
     /* ---------- WALLET ---------- */
