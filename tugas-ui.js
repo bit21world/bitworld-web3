@@ -166,24 +166,29 @@
       var cb = btn(busy[bk] ? '…' : (en() ? 'Claim' : 'Klaim'), canClaim && !busy[bk], function () {
         claim(t.key, isDaily, needProof ? (proofVal[bk] || '').trim() : undefined);
       });
-      right.appendChild(cb);
+      if (!needProof) right.appendChild(cb);
       if (needProof && opened[bk]) {
         row.style.flexWrap = 'wrap';
         var box = document.createElement('div'); box.style.cssText = 'flex-basis:100%;margin-top:2px';
         var lab = document.createElement('div'); lab.style.cssText = 'font-size:12px;color:#8a8fb0;margin-bottom:6px';
-        lab.textContent = en() ? 'Paste the link to your post as proof, then press Claim.' : 'Tempel tautan postingan Anda sebagai bukti, lalu tekan Klaim.';
+        lab.textContent = en() ? 'Paste the link to your post as proof, then press Send.' : 'Tempel tautan postingan Anda sebagai bukti, lalu tekan Kirim.';
         var inp = document.createElement('input');
         inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.maxLength = 300;
         inp.placeholder = PROOF[t.key].ex; inp.value = proofVal[bk] || ''; inp.setAttribute('aria-label', lab.textContent);
-        inp.style.cssText = 'width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d9dcf3;border-radius:10px;font:inherit;font-size:16px;color:#12142e;background:#fff';
+        inp.style.cssText = 'flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;border:1px solid #d9dcf3;border-radius:10px;font:inherit;font-size:16px;color:#12142e;background:#fff';
+        var sb = btn(busy[bk] ? '…' : (en() ? 'Send' : 'Kirim'), canClaim && !busy[bk], function () {
+          claim(t.key, isDaily, (proofVal[bk] || '').trim());
+        });
+        var line = document.createElement('div'); line.style.cssText = 'display:flex;gap:8px;align-items:center';
+        line.appendChild(inp); line.appendChild(sb);
         var er = document.createElement('div'); er.style.cssText = 'font-size:12px;color:#c0392b;min-height:14px;margin-top:4px';
         inp.addEventListener('input', function () {
           proofVal[bk] = inp.value; saveState();
           var ok = validProof(t.key, inp.value);
-          styleBtn(cb, ok && !busy[bk]);
+          styleBtn(sb, ok && !busy[bk]);
           er.textContent = (!inp.value.trim() || ok) ? '' : (en() ? 'The link does not look right. Example: ' : 'Tautan belum sesuai. Contoh: ') + PROOF[t.key].ex;
         });
-        box.appendChild(lab); box.appendChild(inp); box.appendChild(er);
+        box.appendChild(lab); box.appendChild(line); box.appendChild(er);
         extraBox = box;
       }
     } else {
