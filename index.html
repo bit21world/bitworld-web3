@@ -532,7 +532,7 @@ function renderVision(){
 function renderToken(){
   var isId = lang === "id";
   var cats = [
-    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e", a:"0x3cce806978300525acb416f77d28b9699bd611f0"},
+    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e"},
     {n:isId?"Tim":"Team",                p:15, c:"#22d3ee"},
     {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
     {n:isId?"Likuiditas":"Liquidity",    p:10, c:"#34d399"},
@@ -554,10 +554,8 @@ function renderToken(){
   });
   h += "</table></div>";
   h += "<p class='muted' style='margin-top:10px;font-size:12px'>" + (isId
-      ? "Dompet komunitas: " : "Community wallet: ") + "<span class='mono' style='display:inline;padding:2px 4px;font-size:11px'>" + esc(cats[0].a) + "</span></p>";
-  h += "<p class='muted' style='font-size:12px'>" + (isId
-      ? "Alamat dompet kategori lain akan dicantumkan setelah dipisahkan. Jadwal vesting akan diumumkan melalui kanal resmi."
-      : "Wallet addresses for other categories will be listed after separation. Vesting schedules will be announced through official channels.") + "</p>";
+      ? "Jadwal vesting akan diumumkan melalui kanal resmi."
+      : "Vesting schedules will be announced through official channels.") + "</p>";
   $("tokenBody").innerHTML = h;
 }
 
@@ -643,22 +641,20 @@ function renderMore(){
   var isId = lang === "id";
   var W = "https://bscscan.com/token/" + CONTRACT + "?a=";
   var wallets = [
-    {n: isId ? "Komunitas" : "Community", p: 50, a: "0x3cce806978300525acb416f77d28b9699bd611f0"},
-    {n: isId ? "Tim" : "Team", p: 15, a: "0x090b...813f"},
-    {n: isId ? "Pengembangan" : "Development", p: 10, a: "0x60988ac58B48337335De3f6d70B0A65aFf902455"},
-    {n: isId ? "Likuiditas" : "Liquidity", p: 10, a: "0xeceb4365dde67be55ba46018b647a2087084789d"},
-    {n: isId ? "Pemasaran & Ekosistem" : "Marketing & Ecosystem", p: 10, a: "0x10BA662fd08eD7E2F961E5E5EfCba039f62165a8"},
-    {n: isId ? "Cadangan" : "Reserve", p: 5, a: "0x0857...56e2"}
+    {n: isId ? "Komunitas" : "Community", p: 50},
+    {n: isId ? "Tim" : "Team", p: 15},
+    {n: isId ? "Pengembangan" : "Development", p: 10},
+    {n: isId ? "Likuiditas" : "Liquidity", p: 10},
+    {n: isId ? "Pemasaran & Ekosistem" : "Marketing & Ecosystem", p: 10},
+    {n: isId ? "Cadangan" : "Reserve", p: 5}
   ];
-  var al = "<h2>" + (isId ? "Dompet Alokasi" : "Allocation Wallets") + "</h2>";
+  var al = "<h2>" + (isId ? "Alokasi Token" : "Token Allocation") + "</h2>";
   al += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
-      ? "Setiap dompet bisa dicek saldonya di BscScan. Alamat yang masih disingkat akan dilengkapi sebelum publikasi."
-      : "Each wallet balance can be checked on BscScan. Shortened addresses will be completed before publication.") + "</p>";
+      ? "Pembagian total 21.000.000 BTW per kategori."
+      : "Breakdown of the 21,000,000 BTW total supply by category.") + "</p>";
   wallets.forEach(function(w){
     var amt = Math.round(21000000 * w.p / 100).toLocaleString(isId ? "id-ID" : "en-US");
-    var full = w.a.indexOf("...") === -1;
-    var link = full ? "<a href='https://bscscan.com/address/" + w.a + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent2)'>BscScan</a>" : "<span class='muted'>" + (isId ? "Alamat lengkap menyusul" : "Full address to follow") + "</span>";
-    al += "<p style='margin-bottom:8px'><strong>" + esc(w.n) + "</strong> · " + w.p + "% · " + amt + " BTW<br><span class='mono' style='display:inline;font-size:10.5px;padding:2px 4px'>" + esc(w.a) + "</span> " + link + "</p>";
+    al += "<p style='margin-bottom:8px'><strong>" + esc(w.n) + "</strong> · " + w.p + "% · " + amt + " BTW</p>";
   });
   $("allocBody").innerHTML = al;
 
