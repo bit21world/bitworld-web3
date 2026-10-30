@@ -32,15 +32,30 @@
   }
   function safeUrl(u) { return /^https:\/\/[^\s"'<>]+$/i.test(u || "") ? u : ""; }
 
-  /* Status KYC dibaca dari data /api/referral (kyc_status / kycStatus / kyc).
-     true = terverifikasi, false = belum, null = server belum mengirim data KYC. */
-  function kycState() {
-    if (!ref) return null;
-    var s = ref.kyc_status != null ? ref.kyc_status : (ref.kycStatus != null ? ref.kycStatus : ref.kyc);
-    if (s == null) return null;
-    if (s && typeof s === "object") s = s.status != null ? s.status : s.verified;
-    if (typeof s === "boolean") return s;
-    return /^(verified|approved|passed|terverifikasi|lulus)$/i.test(String(s).trim());
+  /* ============ Status KYC (endpoint yang sama dengan kyc.html) ============
+     Balasan: { status: "approved" | "pending" | "rejected" | lainnya = belum mulai }.
+     kycRaw: null = belum dimuat / gagal dimuat (tidak diblokir), selain itu string status. */
+  var kycRaw = null, kycBusy = false;
+  function loadKyc() {
+    if (kycBusy || typeof fetch !== "function") return;
+    kycBusy = true;
+    fetch("/api/me?kyc=status", { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (d) {
+        kycBusy = false;
+        if (d && typeof d === "object") { kycRaw = String(d.status || "none"); render(); }
+      });
+  }
+  function kycState() {            // true = terverifikasi, false = belum, null = tidak diketahui
+    if (kycRaw === null) return null;
+    return kycRaw === "approved";
+  }
+  function kycLabel() {
+    if (kycRaw === "approved") return T("Terverifikasi", "Verified");
+    if (kycRaw === "pending") return T("Sedang diproses", "In progress");
+    if (kycRaw === "rejected") return T("Ditolak", "Rejected");
+    return T("Belum terverifikasi", "Not verified");
   }
 
   /* ============ Data referral (endpoint yang sama dengan kartu di Profil) ============ */
@@ -98,7 +113,7 @@
       var kc = kycState();
       if (kc !== null) {
         h += "<p style='font-size:13px;margin:6px 0'>" + T("Status KYC: ", "KYC status: ") + "<strong style='color:" + (kc ? "#1a8a4a" : "#c0392b") + "'>" +
-             (kc ? T("Terverifikasi", "Verified") : T("Belum terverifikasi", "Not verified")) + "</strong></p>";
+             kycLabel() + "</strong></p>";
       }
       h += "<div style='height:10px;border-radius:999px;background:#e4efff;overflow:hidden;margin:8px 0'><div style='height:100%;width:" + pct + "%;background:#6b5ff0'></div></div>";
       h += "<p style='font-size:13px'>" + (next
@@ -195,8 +210,10 @@
     /* Tombol daftar */
     var form = safeUrl(AMB.FORM_URL);
     h += "<div class='actions' style='margin-top:2px'>";
-    if (kycState() === false) {
-      h += "<button class='btn primary' type='button' disabled>" + T("Selesaikan KYC dulu", "Complete KYC first") + "</button>";
+    if (kycRaw === "pending") {
+      h += "<button class='btn primary' type='button' disabled>" + T("KYC sedang diproses", "KYC in progress") + "</button>";
+    } else if (kycState() === false) {
+      h += "<a class='btn primary' href='kyc.html'>" + T("Selesaikan KYC dulu", "Complete KYC first") + "</a>";
     } else if (form) {
       h += "<a class='btn primary' href='" + esc(form) + "' target='_blank' rel='noopener noreferrer'>" + T("Daftar Ambassador", "Apply as Ambassador") + "</a>";
     } else {
@@ -265,12 +282,13 @@
     homeCta();
     placeBtn();
     loadRef();
+    loadKyc();
 
     var iv = setInterval(function () { placeBtn(); if (++tries > 40) clearInterval(iv); }, 500);
     document.addEventListener("click", function (e) {
       setTimeout(placeBtn, 60);
       var t = e.target && e.target.closest ? e.target.closest("[data-go]") : null;
-      if (t && t.getAttribute("data-go") === "ambassador") setTimeout(loadRef, 300);
+      if (t && t.getAttribute("data-go") === "ambassador") setTimeout(function () { loadRef(); loadKyc(); }, 300);
     });
     ["lang-id", "lang-en"].forEach(function (id) {
       var el = document.getElementById(id);
