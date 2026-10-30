@@ -7,7 +7,7 @@
 
   /* ============ PENGATURAN: ubah di sini ============ */
   var AMB = {
-    FORM_URL: "",                                   // tempel link Google Form di sini (harus diawali https://)
+    FORM_URL: "https://forms.gle/uteqzkg5WP4BeoNW8",                                   // tempel link Google Form di sini (harus diawali https://)
     TELEGRAM_URL: "https://t.me/Bitworld_Official",
     POOL: 50000,                                    // kuota total reward program (BTW)
     LEVELS: [
