@@ -65,6 +65,13 @@ function normProof(kind, raw) {
     const h = m[1].toLowerCase();
     return { key: "tg:" + h + "/" + m[2], canon: "https://t.me/" + h + "/" + m[2] };
   }
+  if (kind === "tgc") {
+    // tautan pesan di grup Telegram privat: https://t.me/c/<id grup>/<id pesan> (atau .../<id topik>/<id pesan>)
+    const m = s.match(/^https:\/\/t\.me\/c\/(\d{5,20})\/(\d+)(?:\/(\d+))?(?:\?\S*)?$/i);
+    if (!m) return null;
+    const msg = m[3] || m[2];
+    return { key: "tgc:" + m[1] + "/" + msg, canon: "https://t.me/c/" + m[1] + "/" + msg };
+  }
   if (kind === "fb") {
     let u;
     try { u = new URL(s); } catch (e) { return null; }
@@ -128,6 +135,7 @@ module.exports = async (req, res) => {
     if (a === "tasks" || (a === "task_claim" && post)) {
       const TASKS = {
         tg:    { reward: 0.05, kind: "link" },
+        tggroup: { reward: 0.05, kind: "link" },
         x:     { reward: 0.05, kind: "link" },
         fb:    { reward: 0.05, kind: "link" },
         ref3:  { reward: 0.3,  kind: "auto", target: 3 },
@@ -181,6 +189,7 @@ module.exports = async (req, res) => {
       // proof: jenis tautan bukti. auto: true = dicek otomatis lalu hadiah langsung cair;
       // auto: false = bukti masuk antrean, hadiah cair setelah disetujui admin.
       const DAILY = {
+        tgchat:  { reward: 0.02, proof: "tgc", auto: false },  // kirim pesan di grup Telegram komunitas (privat, ditinjau admin)
         xlike:   { reward: 0.02, proof: "x",  auto: false },  // suka, repost, komentar di X (isi komentar tidak bisa dicek otomatis)
         xpost:   { reward: 0.02, proof: "x",  auto: true  },  // posting tentang Bitworld di X
         fbpost:  { reward: 0.02, proof: "fb", auto: false },  // posting tentang Bitworld di Facebook (ditinjau manual)
