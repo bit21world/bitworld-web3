@@ -139,6 +139,50 @@ nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!impo
 <style id="logo-latar">
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url(/logo-latar.jpg);background-repeat:no-repeat;background-position:center 42%;background-size:min(92vw,560px) auto;opacity:.14;}
 </style>
+<style id="tema-hitam-emas">
+/* Tema Hitam & Emas: menimpa tema biru. Hapus blok ini untuk kembali ke tema sebelumnya. */
+:root,html{--bg:#050505;--fg:#f4efe0;--muted:#a89f86;--accent:#f5b82e;--accent2:#ffd966;--card:rgba(24,20,10,.78);--line:rgba(245,184,46,.22)}
+html,html body{background-color:#050505!important;background-image:radial-gradient(ellipse at 50% -10%,#3a2c05 0%,#1a1303 32%,#0b0902 64%,#000 100%)!important;background-attachment:fixed!important;color:#f4efe0}
+html body .ticker{background:rgba(18,14,3,.88)!important;border-top:1px solid rgba(245,184,46,.35)!important}
+html body .card,html body .panel,html body .contract,html body .lockcard{background:linear-gradient(160deg,rgba(245,184,46,.13),rgba(10,8,2,.93))!important;border:1px solid rgba(245,184,46,.28)!important;box-shadow:0 7px 0 rgba(0,0,0,.9),0 16px 28px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,236,170,.14)!important}
+html body .lockcard{border:1px dashed rgba(245,184,46,.5)!important}
+html body .badge{color:#ffd966!important;background:rgba(245,184,46,.1)!important;border-color:rgba(245,184,46,.35)!important}
+html body .mono{color:#ffd966!important;background:rgba(0,0,0,.45)!important}
+html body .lang{border-color:rgba(245,184,46,.4)!important}
+
+/* Menu navigasi (termasuk tombol Ambassador & Tim) */
+html body nav.bottom{background:linear-gradient(180deg,#2a2208,#0b0902)!important;box-shadow:0 8px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,225,140,.15)!important;border-bottom:none!important}
+html body nav.bottom button,html body #navDrawer button,html body #n-ambassador,html body #n-tim{background:linear-gradient(180deg,#2e2610,#141007)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.25)!important;border-radius:12px!important;box-shadow:0 5px 0 #000,0 9px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,225,140,.18)!important}
+html body nav.bottom button.on,html body #navDrawer button.on,html body #n-ambassador.on,html body #n-tim.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.4),inset 0 1px 0 rgba(255,255,255,.6)!important}
+html body nav.bottom button.locked{background:linear-gradient(180deg,#3a3a3a,#161616)!important;color:#8f8a7a!important;border-color:rgba(255,255,255,.08)!important;box-shadow:0 5px 0 #000,0 9px 14px rgba(0,0,0,.5)!important}
+html body nav.bottom button:active,html body #navDrawer button:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #000!important}
+
+/* Tombol */
+html body .btn{background:linear-gradient(180deg,#2e2610,#14100a)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.45)!important;border-radius:12px!important;box-shadow:0 5px 0 #000,0 10px 18px rgba(0,0,0,.5)!important}
+html body .btn:hover{color:#ffe9a8!important;border-color:#f5b82e!important}
+html body .btn.primary{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.35)!important}
+html body .btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #000!important}
+html body .btn.primary:active{box-shadow:0 1px 0 #a16207!important}
+html body .wpmenu button{background:linear-gradient(180deg,#2e2610,#141007)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.25)!important;box-shadow:0 4px 0 #000,0 8px 14px rgba(0,0,0,.5)!important}
+html body .wpmenu button.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 4px 0 #a16207,0 10px 16px rgba(245,184,46,.35)!important}
+
+/* Formulir login/daftar */
+html body input,html body select,html body textarea{background:#0e0b03!important;color:#f4efe0!important;border:1px solid rgba(245,184,46,.35)!important;border-radius:10px!important}
+html body input:focus,html body select:focus,html body textarea:focus{outline:2px solid #f5b82e!important;outline-offset:1px}
+html body input::placeholder,html body textarea::placeholder{color:#7d7561!important}
+html body .panel a:not(.btn){color:#ffd966}
+::selection{background:#f5b82e;color:#1a1400}
+
+/* Penyesuaian menu Ambassador & Tim (warna bawaan add-on dibuat untuk tema biru) */
+html body [style*="#e4efff"]{background:#17120a!important;color:#a89f86!important;border-color:rgba(245,184,46,.4)!important}
+html body [style*="#ecebff"]{background:rgba(245,184,46,.15)!important}
+html body [style*="#5b52e8"]{color:#ffd966!important}
+html body [style*="#6b5ff0,#3b96ff"]{background:linear-gradient(135deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
+html body [style*="width:"][style*="background:#6b5ff0"]{background:linear-gradient(90deg,#f5b82e,#fde68a)!important}
+html body [style*="border:2px solid #fff"]{border-color:#f5b82e!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
+html body [style*="#6f7fa6"]{color:#a89f86!important}
+</style>
+
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <style id="scroll-menu">
@@ -1105,7 +1149,7 @@ function initScene(){
   });
 })();
 </script>
-<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script><script>
+<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/ambassador.js"></script><script src="/tim.js"></script><script src="/logo-koin.js"></script><script>
 (function(){
   var data=null, el=null;
   function f(n){try{return Number(n).toLocaleString((window.lang==="en")?"en-US":"id-ID")}catch(e){return n}}
