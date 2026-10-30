@@ -32,6 +32,17 @@
   }
   function safeUrl(u) { return /^https:\/\/[^\s"'<>]+$/i.test(u || "") ? u : ""; }
 
+  /* Status KYC dibaca dari data /api/referral (kyc_status / kycStatus / kyc).
+     true = terverifikasi, false = belum, null = server belum mengirim data KYC. */
+  function kycState() {
+    if (!ref) return null;
+    var s = ref.kyc_status != null ? ref.kyc_status : (ref.kycStatus != null ? ref.kycStatus : ref.kyc);
+    if (s == null) return null;
+    if (s && typeof s === "object") s = s.status != null ? s.status : s.verified;
+    if (typeof s === "boolean") return s;
+    return /^(verified|approved|passed|terverifikasi|lulus)$/i.test(String(s).trim());
+  }
+
   /* ============ Data referral (endpoint yang sama dengan kartu di Profil) ============ */
   var ref = null, refBusy = false;
   function loadRef() {
@@ -63,11 +74,13 @@
     (L() === "en" ? [
       "Active on Telegram, X, or Facebook and comfortable sharing information.",
       "Has a Bitworld account with a verified email.",
+      "Has passed KYC (KYC status is verified).",
       "At least 18 years old.",
       "Willing to follow the program rules."
     ] : [
       "Aktif di Telegram, X, atau Facebook dan nyaman membagikan informasi.",
       "Sudah punya akun Bitworld dengan email terverifikasi.",
+      "Sudah lulus KYC (status KYC terverifikasi).",
       "Berusia minimal 18 tahun.",
       "Bersedia mengikuti aturan program."
     ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
@@ -82,6 +95,11 @@
       h += P + "<h2>" + T("Progres Anda", "Your progress") + "</h2>";
       h += "<div class='mst'><div>" + T("Teman aktif", "Active friends") + "<b>" + num(act) + "</b></div>" +
            "<div>Level<b>" + (cur ? esc(cur.name) : "-") + "</b></div></div>";
+      var kc = kycState();
+      if (kc !== null) {
+        h += "<p style='font-size:13px;margin:6px 0'>" + T("Status KYC: ", "KYC status: ") + "<strong style='color:" + (kc ? "#1a8a4a" : "#c0392b") + "'>" +
+             (kc ? T("Terverifikasi", "Verified") : T("Belum terverifikasi", "Not verified")) + "</strong></p>";
+      }
       h += "<div style='height:10px;border-radius:999px;background:#e4efff;overflow:hidden;margin:8px 0'><div style='height:100%;width:" + pct + "%;background:#6b5ff0'></div></div>";
       h += "<p style='font-size:13px'>" + (next
         ? T("Menuju ", "Towards ") + "<strong>" + esc(next.name) + "</strong>: " + num(act) + " / " + num(next.need)
@@ -130,19 +148,19 @@
     ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
     h += "</ul>";
     h += "<p class='muted' style='font-size:12px;margin-top:10px'>" + T(
-      "Reward berupa poin BTW internal yang dicatat di akun Anda. Verifikasi dan pembagian dilakukan sebulan sekali. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
-      "Rewards are internal BTW points recorded in your account. Verification and payout happen once a month. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
+      "Reward hanya diberikan kepada akun dengan status KYC terverifikasi. Reward berupa poin BTW internal yang dicatat di akun Anda. Verifikasi dan pembagian dilakukan sebulan sekali. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
+      "Rewards are only granted to accounts with a verified KYC status. Rewards are internal BTW points recorded in your account. Verification and payout happen once a month. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
     ) + "</p></div>";
 
     /* Cara ikut */
     h += P + "<h2>" + T("Cara ikut", "How to join") + "</h2><ul class='list'>";
     (L() === "en" ? [
-      "Make sure your Bitworld account is registered and the email is verified.",
+      "Make sure your Bitworld account is registered, the email is verified, and your KYC status is verified.",
       "Fill in the application form below.",
       "The team reviews your application and contacts you on Telegram.",
       "Start sharing your invite link from the Profile menu along with your content, then report your results in the group."
     ] : [
-      "Pastikan akun Bitworld sudah terdaftar dan email terverifikasi.",
+      "Pastikan akun Bitworld sudah terdaftar, email terverifikasi, dan status KYC terverifikasi.",
       "Isi formulir pendaftaran di bawah.",
       "Tim meninjau pendaftaran dan menghubungi Anda lewat Telegram.",
       "Mulai bagikan link undangan dari menu Profil beserta konten Anda, lalu laporkan hasilnya di grup."
@@ -177,7 +195,9 @@
     /* Tombol daftar */
     var form = safeUrl(AMB.FORM_URL);
     h += "<div class='actions' style='margin-top:2px'>";
-    if (form) {
+    if (kycState() === false) {
+      h += "<button class='btn primary' type='button' disabled>" + T("Selesaikan KYC dulu", "Complete KYC first") + "</button>";
+    } else if (form) {
       h += "<a class='btn primary' href='" + esc(form) + "' target='_blank' rel='noopener noreferrer'>" + T("Daftar Ambassador", "Apply as Ambassador") + "</a>";
     } else {
       h += "<button class='btn primary' type='button' disabled>" + T("Formulir segera dibuka", "Form opening soon") + "</button>";
