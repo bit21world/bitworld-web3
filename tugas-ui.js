@@ -48,6 +48,7 @@
   var SHARE_TEXT = 'Saya menambang BTW di Bitworld. Gabung sekarang! #Bitworld #BTW';
   var LINKS = {
     tg: 'https://t.me/bitworld_btw',
+    tggroup: 'https://t.me/+c_VWbTwxnlAwZTc9',
     x: 'https://x.com/bitworld_btw',
     fb: 'https://www.facebook.com/share/1FKuR8i7rT/',
     /* tugas harian */
@@ -58,6 +59,7 @@
   };
   var TITLES = {
     tg: ['Gabung Telegram Bitworld', 'Join the Bitworld Telegram'],
+    tggroup: ['Gabung Grup Telegram Bitworld', 'Join the Bitworld Telegram Group'],
     x: ['Ikuti X (Twitter) Bitworld', 'Follow Bitworld on X'],
     fb: ['Ikuti Facebook Bitworld', 'Follow Bitworld on Facebook'],
     ref3: ['Undang 3 teman aktif', 'Invite 3 active friends'],
