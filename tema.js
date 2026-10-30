@@ -76,6 +76,28 @@ html body [style*="width:"][style*="background:#6b5ff0"]{background:linear-gradi
 html body [style*="border:2px solid #fff"]{border-color:#f5b82e!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
 html body [style*="#6f7fa6"]{color:#a89f86!important}
 `;
+
+  /* Menimpa warna inline (gaya yang dibuat skrip lain, mis. Tugas, Profil, Pool) yang dibuat untuk tema terang */
+  function rgb(h){ h = h.replace("#",""); if (h.length === 3) h = h.replace(/(.)/g,"$1$1"); return "rgb(" + parseInt(h.slice(0,2),16) + ", " + parseInt(h.slice(2,4),16) + ", " + parseInt(h.slice(4,6),16) + ")"; }
+  function sel(prop, hex){ return '[style*="' + prop + ':' + hex + ';"],[style*="' + prop + ': ' + rgb(hex) + '"],[style*="' + prop + ':' + rgb(hex) + '"]'; }
+  function rule(prop, hexes, decl){ return hexes.map(function(h){ return "html body " + sel(prop,h).split("],[").join("],html body [") ; }).join(",") + "{" + decl + "}\n"; }
+  var X = "";
+  X += rule("background", ["#fff"], "background:#1a1408!important;");
+  X += rule("background", ["#f4f5fb","#eef5ff","#f1f7ff","#e4efff","#ecebff","#f3f8ff","#f8f9ff","#fafbff"], "background:#17120a!important;");
+  X += rule("background", ["#e8e9f8","#eceefc"], "background:#2a2416!important;color:#7d7458!important;");
+  X += rule("background", ["#6b5ff0"], "background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;");
+  X += rule("color", ["#12142e","#1b1d3a","#2c2f55","#3d4163"], "color:#f4efe0!important;");
+  X += rule("color", ["#8a8fb0","#6f7fa6","#7a7fa3"], "color:#b3a784!important;");
+  X += rule("color", ["#5d628a","#5b5f86"], "color:#cdbf98!important;");
+  X += rule("color", ["#5b52e8","#4b44c8","#6b5ff0"], "color:#ffd966!important;");
+  X += rule("color", ["#9a9fc0"], "color:#7d7458!important;");
+  X += rule("color", ["#c0392b","#a12626"], "color:#ff8a7a!important;");
+  X += rule("border", ["#eceefc"], "border-color:rgba(245,184,46,.18)!important;");
+  X += rule("border-top", ["#eceefc"], "border-color:rgba(245,184,46,.18)!important;");
+  X += rule("border", ["#d9dcf3"], "border-color:rgba(245,184,46,.35)!important;");
+  X += "html body .view,html body #v-tugas{background:transparent!important;color:#f4efe0!important}\n";
+  css += X;
+
   var st = document.createElement("style");
   st.id = "tema-emas";
   st.textContent = css;
