@@ -13,7 +13,7 @@
       tag: "FOUNDER",
       role: { id: "Founder & Lead Developer", en: "Founder & Lead Developer" },
       name: "Juan",
-      photo: "/foto-juan.png",
+      photo: "/foto-juan.jpg",
       desc: {
         id: "Memimpin arah proyek dan membangun produk Bitworld.",
         en: "Leads the project's direction and builds the Bitworld product."
