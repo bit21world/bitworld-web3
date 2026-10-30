@@ -102,6 +102,78 @@ html body [style*="#6f7fa6"]{color:#a89f86!important}
   st.id = "tema-emas";
   st.textContent = css;
   document.head.appendChild(st);
+
+  /* ===== Penyesuai otomatis: mengubah warna terang/ungu dari skrip lain (Mining, Tugas, Profil, dst.) menjadi hitam-emas ===== */
+  (function () {
+    var GOLD = "linear-gradient(180deg,#fde68a,#f5b82e)";
+    function parse(c) {
+      var m = /rgba?\(([^)]+)\)/.exec(c || ""); if (!m) return null;
+      var p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);
+      return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+    }
+    function lum(c) { return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255; }
+    function lightCool(c) { return c && c.a > 0.5 && lum(c) > 0.8 && c.b >= c.g - 10; }
+    function purple(c) { return c && c.a > 0.3 && c.b - c.g > 45 && c.b >= c.r + 25; }
+    function put(el, k, v) { el.style.setProperty(k, v, "important"); }
+    function skip(el) {
+      var t = el.tagName;
+      if (!t || t === "CANVAS" || t === "IMG" || t === "SCRIPT" || t === "STYLE" || t === "VIDEO" || t === "IFRAME") return true;
+      if (el.closest && el.closest('canvas,[id*="captcha" i],[class*="captcha" i],[id*="qr" i],[class*="qr" i]')) return true;
+      return !!(el.querySelector && el.querySelector("canvas"));
+    }
+    function fix(el) {
+      if (el.nodeType !== 1 || skip(el)) return;
+      var cs = getComputedStyle(el), gold = false;
+      if (el instanceof SVGElement) {
+        var sk = parse(cs.stroke), fl = parse(cs.fill);
+        if (purple(sk)) put(el, "stroke", "#f5b82e");
+        if (purple(fl)) put(el, "fill", "#f5b82e"); else if (lightCool(fl)) put(el, "fill", "#1a1408");
+        return;
+      }
+      var bg = parse(cs.backgroundColor), img = cs.backgroundImage;
+      if (purple(bg)) { put(el, "background", GOLD); gold = true; if (lum(bg) > 0.58) put(el, "opacity", ".6"); }
+      else if (lightCool(bg)) put(el, "background-color", "#1a1408");
+      if (!gold && img && img !== "none" && img.indexOf("gradient") > -1) {
+        var cols = (img.match(/rgba?\([^)]+\)/g) || []).map(parse);
+        if (cols.some(lightCool)) put(el, "background-image", "radial-gradient(circle at 50% 40%,#3a2c08,#17120a)");
+        else if (cols.some(purple)) { put(el, "background-image", GOLD); gold = true; }
+      }
+      var col = parse(cs.color);
+      if (gold) put(el, "color", "#1a1400");
+      else if (col && col.a > 0.5) {
+        if (purple(col)) put(el, "color", "#ffd966");
+        else if (lum(col) < 0.3 && col.b >= col.r) put(el, "color", "#f4efe0");
+        else if (lum(col) >= 0.3 && lum(col) < 0.7 && col.b >= col.r + 15) put(el, "color", "#b3a784");
+      }
+      var bw = parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderBottomWidth) > 0;
+      if (bw) {
+        var bt = parse(cs.borderTopColor), bb = parse(cs.borderBottomColor);
+        if (lightCool(bt) || purple(bt) || lightCool(bb) || purple(bb)) put(el, "border-color", "rgba(245,184,46,.3)");
+      }
+    }
+    function all(root) {
+      if (root.nodeType !== 1) return;
+      fix(root);
+      var k = root.querySelectorAll("*");
+      for (var i = 0; i < k.length; i++) fix(k[i]);
+    }
+    var main = document.querySelector("main"), drawer = document.getElementById("navDrawer"), obs;
+    if (!main || !window.MutationObserver) return;
+    function scanAll() { obs.disconnect(); all(main); if (drawer) all(drawer); watch(); }
+    function watch() { obs.observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] }); }
+    obs = new MutationObserver(function (list) {
+      obs.disconnect();
+      list.forEach(function (m) {
+        if (m.type === "childList") { for (var i = 0; i < m.addedNodes.length; i++) all(m.addedNodes[i]); }
+        else if (m.type === "attributes") { fix(m.target); }
+      });
+      watch();
+    });
+    scanAll();
+    window.addEventListener("load", scanAll);
+    [600, 1500, 3500].forEach(function (ms) { setTimeout(scanAll, ms); });
+  })();
+
   var m = document.querySelector('meta[name="theme-color"]');
   if (m) m.setAttribute("content", "#0d0a05");
 })();

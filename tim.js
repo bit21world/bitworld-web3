@@ -32,8 +32,8 @@
     {
       tag: "AMBASSADOR",
       role: { id: "Ambassador Program Manager", en: "Ambassador Program Manager" },
-      name: "",
-      photo: "",
+      name: "Tanisa",
+      photo: "/foto-tanisa.png",
       desc: {
         id: "Menerima pendaftaran Ambassador, memverifikasi referral, dan menyusun rekap bulanan.",
         en: "Reviews Ambassador applications, verifies referrals, and prepares the monthly summary."
