@@ -1,22 +1,43 @@
 /* Program Ambassador Bitworld: menu + halaman (add-on).
    Pasang: upload file ini ke folder yang sama dengan index.html, lalu tambahkan
    <script src="/ambassador.js"></script> tepat di bawah baris <script src="/tema.js"></script>.
-   Angka reward dan link formulir bisa diubah di bagian PENGATURAN di bawah. */
+   Angka poin, reward, dan link formulir bisa diubah di bagian PENGATURAN di bawah. */
 (function () {
   "use strict";
 
   /* ============ PENGATURAN: ubah di sini ============ */
   var AMB = {
-    FORM_URL: "https://forms.gle/uteqzkg5WP4BeoNW8",                                   // tempel link Google Form di sini (harus diawali https://)
+    FORM_URL: "https://forms.gle/uteqzkg5WP4BeoNW8",   // link Google Form (harus diawali https://)
     TELEGRAM_URL: "https://t.me/Bitworld_Official",
-    POOL: 50000,                                    // kuota total reward program (BTW)
-    LEVELS: [
-      { name: "Bronze",   color: "#cd7f32", need: 5,   bonus: 10 },
-      { name: "Silver",   color: "#8f9bb3", need: 15,  bonus: 45 },
-      { name: "Gold",     color: "#d9a400", need: 40,  bonus: 160 },
-      { name: "Platinum", color: "#6b5ff0", need: 100, bonus: 500 }
+    POOL: 50000,                                        // kuota total reward program (BTW)
+    CUTOFF_DAY: 23,                                     // batas tanggal laporan poin setiap bulan
+
+    /* Poin per aktivitas */
+    POINTS: [
+      { id: "Post dengan gambar atau video",       en: "Post with image or video",        pts: 3 },
+      { id: "Video pendek",                         en: "Short video",                     pts: 5 },
+      { id: "Video panjang",                        en: "Long video",                      pts: 8 },
+      { id: "Livestream atau AMA",                  en: "Livestream or AMA",               pts: 20 },
+      { id: "Event offline",                        en: "Offline event",                   pts: 50 }
     ],
-    CONTENT_TOP: [50, 30, 20]                       // bonus konten terbaik bulanan (juara 1 sampai 3)
+
+    /* Tabel reward bulanan: poin minimal -> BTW. Urutkan dari kecil ke besar. */
+    REWARDS: [
+      { pts: 200,   btw: 10 },
+      { pts: 400,   btw: 25 },
+      { pts: 800,   btw: 50 },
+      { pts: 1600,  btw: 100 },
+      { pts: 3200,  btw: 200 },
+      { pts: 6400,  btw: 400 },
+      { pts: 12800, btw: 800 }
+    ],
+
+    /* Tier ditempatkan manual oleh tim (3 = awal, 1 = tertinggi) */
+    TIERS: [
+      { name: "Tier 3", color: "#8f9bb3" },
+      { name: "Tier 2", color: "#d9a400" },
+      { name: "Tier 1", color: "#6b5ff0" }
+    ]
   };
 
   /* ============ Helper ============ */
@@ -58,99 +79,110 @@
     return T("Belum terverifikasi", "Not verified");
   }
 
-  /* ============ Data referral (endpoint yang sama dengan kartu di Profil) ============ */
-  var ref = null, refBusy = false;
-  function loadRef() {
-    if (refBusy || typeof fetch !== "function") return;
-    refBusy = true;
-    fetch("/api/referral", { credentials: "same-origin" })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
-      .catch(function () { return { ok: false, d: {} }; })
-      .then(function (r) {
-        refBusy = false;
-        if (r.ok && r.d && r.d.code) { ref = r.d; render(); }
-      });
-  }
-
   /* ============ Halaman ============ */
   function render() {
     var v = document.getElementById("v-ambassador");
     if (!v) return;
     var P = '<div class="panel" style="margin:0">';
     var h = "";
+    var th = "text-align:left;font-size:11px;font-weight:700;color:var(--muted);padding:6px 4px;text-transform:uppercase;letter-spacing:.5px";
+    function li(arr) { var s = ""; arr.forEach(function (x) { s += "<li>" + esc(x) + "</li>"; }); return s; }
 
     /* Pengantar */
     h += P + "<h2>" + T("Program Ambassador", "Ambassador Program") + "</h2>";
     h += "<p>" + T(
-      "Bantu perkenalkan Bitworld (BTW) ke komunitas secara jujur dan bertanggung jawab. Sebagai gantinya, Anda mendapat reward berupa poin BTW dan status resmi Ambassador.",
-      "Help introduce Bitworld (BTW) to the community honestly and responsibly. In return, you receive BTW points and official Ambassador status."
+      "Bantu perkenalkan Bitworld (BTW) ke komunitas secara jujur dan bertanggung jawab lewat konten buatan Anda sendiri. Setiap konten dan kegiatan menghasilkan poin. Poin dihitung setiap bulan lalu diubah menjadi reward BTW.",
+      "Help introduce Bitworld (BTW) to the community honestly and responsibly through your own content. Every piece of content and activity earns points. Points are counted each month and converted into BTW rewards."
     ) + "</p>";
     h += "<h2 style='font-size:16px;margin-top:12px'>" + T("Siapa yang cocok", "Who it is for") + "</h2><ul class='list'>";
-    (L() === "en" ? [
-      "Active on Telegram, X, or Facebook and comfortable sharing information.",
+    h += li(L() === "en" ? [
+      "Active on Telegram, X, Facebook, YouTube, or TikTok and comfortable creating content.",
       "Has a Bitworld account with a verified email.",
       "Has passed KYC (KYC status is verified).",
       "At least 18 years old.",
       "Willing to follow the program rules."
     ] : [
-      "Aktif di Telegram, X, atau Facebook dan nyaman membagikan informasi.",
+      "Aktif di Telegram, X, Facebook, YouTube, atau TikTok dan nyaman membuat konten.",
       "Sudah punya akun Bitworld dengan email terverifikasi.",
       "Sudah lulus KYC (status KYC terverifikasi).",
       "Berusia minimal 18 tahun.",
       "Bersedia mengikuti aturan program."
-    ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
-    h += "</ul></div>";
-
-    /* Progres Anda (hanya tampil jika data referral berhasil dimuat) */
-    if (ref) {
-      var act = Number(ref.active) || 0, cur = null, next = null;
-      AMB.LEVELS.forEach(function (x) { if (act >= x.need) cur = x; });
-      for (var i = 0; i < AMB.LEVELS.length; i++) { if (act < AMB.LEVELS[i].need) { next = AMB.LEVELS[i]; break; } }
-      var pct = next ? Math.min(100, Math.round(act / next.need * 100)) : 100;
-      h += P + "<h2>" + T("Progres Anda", "Your progress") + "</h2>";
-      h += "<div class='mst'><div>" + T("Teman aktif", "Active friends") + "<b>" + num(act) + "</b></div>" +
-           "<div>Level<b>" + (cur ? esc(cur.name) : "-") + "</b></div></div>";
-      var kc = kycState();
-      if (kc !== null) {
-        h += "<p style='font-size:13px;margin:6px 0'>" + T("Status KYC: ", "KYC status: ") + "<strong style='color:" + (kc ? "#1a8a4a" : "#c0392b") + "'>" +
-             kycLabel() + "</strong></p>";
-      }
-      h += "<div style='height:10px;border-radius:999px;background:#e4efff;overflow:hidden;margin:8px 0'><div style='height:100%;width:" + pct + "%;background:#6b5ff0'></div></div>";
-      h += "<p style='font-size:13px'>" + (next
-        ? T("Menuju ", "Towards ") + "<strong>" + esc(next.name) + "</strong>: " + num(act) + " / " + num(next.need)
-        : T("Semua level sudah tercapai.", "All levels reached.")) + "</p>";
-      h += "<p class='muted' style='font-size:12px'>" + T(
-        "Angka diambil dari menu Profil. Reward tetap diverifikasi admin setiap bulan.",
-        "Numbers come from the Profile menu. Rewards are still verified by an admin every month."
-      ) + "</p></div>";
+    ]);
+    h += "</ul>";
+    var kc = kycState();
+    if (kc !== null) {
+      h += "<p style='font-size:13px;margin:8px 0 0'>" + T("Status KYC Anda: ", "Your KYC status: ") +
+           "<strong style='color:" + (kc ? "#1a8a4a" : "#c0392b") + "'>" + kycLabel() + "</strong></p>";
     }
+    h += "</div>";
 
-    /* Reward */
-    var total = AMB.LEVELS.reduce(function (a, x) { return a + x.bonus; }, 0);
-    h += P + "<h2>Reward</h2>";
-    h += "<p class='muted' style='font-size:12.5px'>" + T(
-      "Referral aktif = teman yang mendaftar lewat link undangan Anda dan terhitung sebagai \"Teman aktif\" di menu Profil.",
-      "Active referral = a friend who signed up with your invite link and is counted as an \"Active friend\" in the Profile menu."
-    ) + "</p>";
-    var th = "text-align:left;font-size:11px;font-weight:700;color:var(--muted);padding:6px 4px;text-transform:uppercase;letter-spacing:.5px";
-    h += "<table style='margin:6px 0'><tr><th style='" + th + "'>Level</th><th style='" + th + "'>" + T("Referral aktif", "Active referrals") + "</th><th style='" + th + ";text-align:right'>Bonus</th></tr>";
-    AMB.LEVELS.forEach(function (x) {
-      h += "<tr><td style='width:auto'><span style='color:" + esc(x.color) + "'>&#9679;</span> <strong>" + esc(x.name) + "</strong></td>" +
-           "<td style='width:auto'>" + num(x.need) + "</td>" +
-           "<td style='width:auto;text-align:right'><strong>" + num(x.bonus) + " BTW</strong></td></tr>";
+    /* Poin */
+    h += P + "<h2>" + T("Cara mendapat poin", "How to earn points") + "</h2>";
+    h += "<table style='margin:6px 0'><tr><th style='" + th + "'>" + T("Aktivitas", "Activity") + "</th><th style='" + th + ";text-align:right'>" + T("Poin", "Points") + "</th></tr>";
+    AMB.POINTS.forEach(function (x) {
+      h += "<tr><td style='width:auto'>" + esc(L() === "en" ? x.en : x.id) + "</td>" +
+           "<td style='width:auto;text-align:right'><strong>" + num(x.pts) + "</strong></td></tr>";
     });
     h += "</table>";
     h += "<p style='font-size:12.5px'>" + T(
-      "Bonus dibayar sekali per level dan bersifat kumulatif. Total jika mencapai Platinum: ",
-      "Each bonus is paid once per level and is cumulative. Total if you reach Platinum: "
-    ) + "<strong>" + num(total) + " BTW</strong>.</p>";
-    h += "<h2 style='font-size:16px;margin-top:12px'>" + T("Bonus konten bulanan", "Monthly content bonus") + "</h2>";
+      "Konten dengan jumlah view atau like yang tinggi bisa mendapat poin tambahan dari tim. Besarnya ditentukan tim saat verifikasi.",
+      "Content with high views or likes can receive extra points from the team. The amount is decided during verification."
+    ) + "</p>";
+    h += "<p class='muted' style='font-size:12px'>" + T(
+      "Poin dihitung per bulan. Batas pelaporan setiap bulan adalah tanggal " + AMB.CUTOFF_DAY + ". Semua poin diverifikasi manual oleh admin.",
+      "Points are counted monthly. The reporting deadline each month is the " + AMB.CUTOFF_DAY + "th. All points are verified manually by an admin."
+    ) + "</p></div>";
+
+    /* Reward */
+    var top = AMB.REWARDS[AMB.REWARDS.length - 1];
+    h += P + "<h2>Reward</h2>";
     h += "<p style='font-size:13px'>" + T(
-      "Tiga konten terbaik setiap bulan mendapat ",
-      "The three best pieces of content each month receive "
-    ) + "<strong>" + AMB.CONTENT_TOP.map(num).join(" / ") + " BTW</strong>.</p>";
+      "Total poin Anda dalam satu bulan menentukan reward BTW untuk bulan itu. Poin tidak dibawa ke bulan berikutnya.",
+      "Your total points in one month decide the BTW reward for that month. Points do not carry over to the next month."
+    ) + "</p>";
+    h += "<table style='margin:6px 0'><tr><th style='" + th + "'>" + T("Poin bulanan", "Monthly points") + "</th><th style='" + th + ";text-align:right'>Reward</th></tr>";
+    AMB.REWARDS.forEach(function (x) {
+      h += "<tr><td style='width:auto'>" + num(x.pts) + "+</td>" +
+           "<td style='width:auto;text-align:right'><strong>" + num(x.btw) + " BTW</strong></td></tr>";
+    });
+    h += "</table>";
+    h += "<p style='font-size:12.5px'>" + T(
+      "Reward tertinggi per bulan adalah " + num(top.btw) + " BTW. Jika total poin di bawah " + num(AMB.REWARDS[0].pts) + ", belum ada reward bulan itu.",
+      "The highest monthly reward is " + num(top.btw) + " BTW. If your total is below " + num(AMB.REWARDS[0].pts) + " points, there is no reward that month."
+    ) + "</p>";
+    h += "<p class='muted' style='font-size:12px;margin-top:10px'>" + T(
+      "Reward hanya diberikan kepada akun dengan status KYC terverifikasi. Reward berupa poin BTW internal yang dicatat di akun Anda. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
+      "Rewards are only granted to accounts with a verified KYC status. Rewards are internal BTW points recorded in your account. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
+    ) + "</p></div>";
+
+    /* Tier */
+    h += P + "<h2>Tier</h2>";
+    h += "<p style='font-size:13px'>" + T(
+      "Ada tiga tier. Penempatan dilakukan oleh tim, bukan otomatis dari jumlah poin atau referral. Tim menilai hal berikut:",
+      "There are three tiers. Placement is done by the team, not automatically from points or referrals. The team looks at:"
+    ) + "</p><ul class='list'>";
+    h += li(L() === "en" ? [
+      "Network growth.",
+      "Quality and consistency of content.",
+      "Commitment to the program.",
+      "Presence and help in the community."
+    ] : [
+      "Pertumbuhan jaringan.",
+      "Kualitas dan konsistensi konten.",
+      "Komitmen terhadap program.",
+      "Kehadiran dan bantuan di komunitas."
+    ]);
+    h += "</ul><p style='font-size:13px;margin:8px 0'>";
+    AMB.TIERS.forEach(function (x, i) {
+      h += (i ? " &rarr; " : "") + "<span style='color:" + esc(x.color) + "'>&#9679;</span> <strong>" + esc(x.name) + "</strong>";
+    });
+    h += "</p>";
+    h += "<p class='muted' style='font-size:12px'>" + T(
+      "Tier 3 adalah tingkat awal dan Tier 1 yang tertinggi. Tim dapat menaikkan atau menurunkan tier sesuai penilaian bulanan.",
+      "Tier 3 is the starting level and Tier 1 is the highest. The team may move you up or down based on the monthly review."
+    ) + "</p>";
     h += "<h2 style='font-size:16px;margin-top:12px'>" + T("Status dan fasilitas", "Status and perks") + "</h2><ul class='list'>";
-    (L() === "en" ? [
+    h += li(L() === "en" ? [
       "Official Ambassador badge.",
       "Private coordination group.",
       "Ready-to-use content materials.",
@@ -160,47 +192,51 @@
       "Grup koordinasi khusus.",
       "Materi konten siap pakai.",
       "Nama Anda di daftar Ambassador (opsional, dengan persetujuan Anda)."
-    ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
-    h += "</ul>";
-    h += "<p class='muted' style='font-size:12px;margin-top:10px'>" + T(
-      "Reward hanya diberikan kepada akun dengan status KYC terverifikasi. Reward berupa poin BTW internal yang dicatat di akun Anda. Verifikasi dan pembagian dilakukan sebulan sekali. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
-      "Rewards are only granted to accounts with a verified KYC status. Rewards are internal BTW points recorded in your account. Verification and payout happen once a month. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
-    ) + "</p></div>";
+    ]);
+    h += "</ul></div>";
 
     /* Cara ikut */
     h += P + "<h2>" + T("Cara ikut", "How to join") + "</h2><ul class='list'>";
-    (L() === "en" ? [
+    h += li(L() === "en" ? [
       "Make sure your Bitworld account is registered, the email is verified, and your KYC status is verified.",
       "Fill in the application form below.",
       "The team reviews your application and contacts you on Telegram.",
-      "Start sharing your invite link from the Profile menu along with your content, then report your results in the group."
+      "Create content, keep the links, and report them in the group before the monthly deadline."
     ] : [
       "Pastikan akun Bitworld sudah terdaftar, email terverifikasi, dan status KYC terverifikasi.",
       "Isi formulir pendaftaran di bawah.",
       "Tim meninjau pendaftaran dan menghubungi Anda lewat Telegram.",
-      "Mulai bagikan link undangan dari menu Profil beserta konten Anda, lalu laporkan hasilnya di grup."
-    ]).forEach(function (x, i) { h += "<li>" + esc(x) + "</li>"; });
+      "Buat konten, simpan link-nya, lalu laporkan di grup sebelum batas waktu bulanan."
+    ]);
     h += "</ul></div>";
 
     /* Aturan */
     h += P + "<h2>" + T("Aturan program", "Program rules") + "</h2><ul class='list'>";
-    (L() === "en" ? [
+    h += li(L() === "en" ? [
+      "Content must be your own. Reposting other people's content does not count.",
+      "Duplicate content (the same content posted again) is counted once.",
+      "Low-effort or careless videos are not counted.",
+      "Do not manipulate likes, views, or followers (bots, paid engagement, fake accounts).",
       "Do not promise price, profit, or fixed returns.",
       "Do not give investment advice or urge people to buy.",
       "Do not spam, create fake or duplicate accounts, or refer yourself.",
       "Do not claim to be the official team or an admin.",
       "Never ask anyone for a seed phrase, private key, or payment.",
       "Say you are a Bitworld Ambassador and add \"Not investment advice. DYOR.\" to promotional content.",
-      "Violations mean removal from the program and cancelled rewards."
+      "Violations mean points are reduced or reset, or you are removed from the program and rewards are cancelled."
     ] : [
+      "Konten harus buatan sendiri. Repost konten orang lain tidak dihitung.",
+      "Konten ganda (konten yang sama diunggah ulang) hanya dihitung sekali.",
+      "Video asal-asalan tidak dihitung.",
+      "Dilarang memanipulasi like, view, atau followers (bot, interaksi berbayar, akun palsu).",
       "Dilarang menjanjikan harga, keuntungan, atau hasil tetap.",
       "Dilarang memberi nasihat investasi atau mengajak orang membeli.",
       "Dilarang spam, membuat akun palsu atau ganda, dan mengundang diri sendiri.",
       "Dilarang mengaku sebagai tim resmi atau admin.",
       "Jangan pernah meminta seed phrase, private key, atau pembayaran kepada siapa pun.",
       "Sebutkan bahwa Anda Ambassador Bitworld dan cantumkan \"Bukan ajakan investasi. DYOR.\" di konten promosi.",
-      "Pelanggaran berarti dikeluarkan dari program dan reward dibatalkan."
-    ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
+      "Pelanggaran berarti poin dikurangi atau direset, atau Anda dikeluarkan dari program dan reward dibatalkan."
+    ]);
     h += "</ul>";
     h += "<p class='muted' style='font-size:12px;margin-top:10px'>" + T(
       "Program dapat berubah sewaktu-waktu dan diumumkan lewat kanal resmi. Bukan ajakan investasi, tidak ada janji harga atau keuntungan.",
@@ -281,14 +317,13 @@
     render();
     homeCta();
     placeBtn();
-    loadRef();
     loadKyc();
 
     var iv = setInterval(function () { placeBtn(); if (++tries > 40) clearInterval(iv); }, 500);
     document.addEventListener("click", function (e) {
       setTimeout(placeBtn, 60);
       var t = e.target && e.target.closest ? e.target.closest("[data-go]") : null;
-      if (t && t.getAttribute("data-go") === "ambassador") setTimeout(function () { loadRef(); loadKyc(); }, 300);
+      if (t && t.getAttribute("data-go") === "ambassador") setTimeout(loadKyc, 300);
     });
     ["lang-id", "lang-en"].forEach(function (id) {
       var el = document.getElementById(id);
