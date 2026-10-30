@@ -31,7 +31,7 @@
     },
     {
       tag: "AMBASSADOR",
-      role: { id: "Ambassador Program Lead", en: "Ambassador Program Lead" },
+      role: { id: "Ambassador Program Manager", en: "Ambassador Program Manager" },
       name: "",
       photo: "",
       desc: {
