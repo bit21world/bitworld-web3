@@ -17,6 +17,7 @@
   /* Tugas yang wajib melampirkan tautan postingan sebagai bukti */
   var X_RE = /^https:\/\/(www\.|mobile\.)?(x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d{5,25}(\/\S*)?(\?\S*)?$/i;
   var PROOF = {
+    tgchat: { re: /^https:\/\/t\.me\/c\/\d{5,20}\/\d+(\/\d+)?(\?\S*)?$/i, ex: 'https://t.me/c/1234567890/45' },
     xlike:  { re: X_RE, ex: 'https://x.com/namaakun/status/1234567890' },
     xpost:  { re: X_RE, ex: 'https://x.com/namaakun/status/1234567890' },
     fbpost: { re: /^https:\/\/((www|m|web)\.)?(facebook\.com|fb\.com)\/\S{6,}$|^https:\/\/fb\.watch\/\S+$/i, ex: 'https://www.facebook.com/namaakun/posts/123456' },
@@ -47,8 +48,9 @@
   var ORIGIN = location.origin;
   var SHARE_TEXT = 'Saya menambang BTW di Bitworld. Gabung sekarang! #Bitworld #BTW';
   var LINKS = {
-    tg: 'https://t.me/bitworld_btw',
+    tg: 'https://t.me/Bitworld_Official',
     tggroup: 'https://t.me/+c_VWbTwxnlAwZTc9',
+    tgchat: 'https://t.me/+c_VWbTwxnlAwZTc9',
     x: 'https://x.com/bitworld_btw',
     fb: 'https://www.facebook.com/share/1FKuR8i7rT/',
     /* tugas harian */
@@ -60,6 +62,7 @@
   var TITLES = {
     tg: ['Gabung Telegram Bitworld', 'Join the Bitworld Telegram'],
     tggroup: ['Gabung Grup Telegram Bitworld', 'Join the Bitworld Telegram Group'],
+    tgchat: ['Kirim pesan di grup Telegram komunitas', 'Send a message in the community Telegram group'],
     x: ['Ikuti X (Twitter) Bitworld', 'Follow Bitworld on X'],
     fb: ['Ikuti Facebook Bitworld', 'Follow Bitworld on Facebook'],
     ref3: ['Undang 3 teman aktif', 'Invite 3 active friends'],
