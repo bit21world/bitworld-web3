@@ -75,6 +75,64 @@ html body [style*="#6b5ff0,#3b96ff"]{background:linear-gradient(135deg,#fde68a,#
 html body [style*="width:"][style*="background:#6b5ff0"]{background:linear-gradient(90deg,#f5b82e,#fde68a)!important}
 html body [style*="border:2px solid #fff"]{border-color:#f5b82e!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
 html body [style*="#6f7fa6"]{color:#a89f86!important}
+/* Bitworld: lapisan percantik v2. Serasi dengan tema.js (hitam & emas).
+   Selektor sengaja lebih spesifik (html:root body) supaya tidak tertimpa tema.js yang dimuat belakangan. */
+html:root body{--gold:#f5b82e;--gold2:#ffd966;--glass:rgba(26,20,8,.84)}
+
+/* Header */
+html:root body header{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(245,184,46,.3),0 10px 30px rgba(0,0,0,.5)!important}
+html:root body .brand span{background:linear-gradient(90deg,#fff7dc,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+html:root body .brand img{box-shadow:0 0 0 2px rgba(245,184,46,.55),0 0 20px rgba(245,184,46,.4)}
+
+/* Menu */
+html:root body nav.bottom button{border-radius:12px!important;transition:transform .2s,box-shadow .2s,color .2s,border-color .2s!important}
+html:root body nav.bottom button:hover{border-color:rgba(245,184,46,.6)!important;color:#fff0bf!important}
+html:root body nav.bottom button.on{box-shadow:0 0 22px rgba(245,184,46,.38),0 6px 14px rgba(245,184,46,.3)!important}
+
+/* Beranda */
+html:root body h1{filter:drop-shadow(0 6px 30px rgba(245,184,46,.28))}
+html:root body .ch{background:linear-gradient(180deg,#fff 10%,var(--gold2) 60%,var(--gold) 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;animation:drop .9s var(--spring) both!important;animation-delay:calc(var(--i) * 70ms + 100ms)!important}
+html:root body .badge{display:inline-flex;align-items:center;gap:7px;box-shadow:0 0 26px rgba(245,184,46,.16)}
+html:root body .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399}
+
+/* Kartu & panel */
+html:root body .card,html:root body .panel,html:root body .contract{position:relative;background:linear-gradient(165deg,rgba(255,236,170,.06),transparent 45%),var(--glass)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 14px 34px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,236,170,.1)!important;transition:transform .25s,box-shadow .25s,border-color .25s}
+html:root body .card::after,html:root body .panel::after{content:"";position:absolute;left:20px;right:20px;top:-1px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.8;pointer-events:none}
+html:root body .card:hover{transform:translateY(-3px)!important;border-color:rgba(245,184,46,.5)!important;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 28px rgba(245,184,46,.16)!important}
+html:root body .stats .card .value.gold{background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent!important}
+html:root body .panel h2::before{content:"";display:inline-block;width:4px;height:1em;border-radius:3px;margin-right:10px;vertical-align:-.15em;background:linear-gradient(var(--gold2),var(--gold))}
+html:root body td{padding:9px 6px}
+html:root body tr:last-child td{border-bottom:0!important}
+
+/* Tombol */
+html:root body .btn{border-radius:12px!important;transition:transform .2s,box-shadow .2s,background .2s,border-color .2s!important}
+html:root body .btn:hover{transform:translateY(-2px)!important}
+html:root body .btn.primary{box-shadow:0 8px 24px rgba(245,184,46,.32)!important}
+html:root body .btn.primary:hover{box-shadow:0 12px 32px rgba(245,184,46,.45)!important}
+html:root body .btn:focus-visible,html:root body nav.bottom button:focus-visible{outline:2px solid var(--gold2)!important;outline-offset:2px}
+
+/* Form login & daftar */
+html:root body .fm input{border-radius:12px!important;transition:border-color .2s,box-shadow .2s}
+html:root body .fm input:focus{outline:0!important;border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(245,184,46,.22)}
+html:root body .tabs2{background:#0e0b04;padding:4px;border-radius:14px;border:1px solid rgba(245,184,46,.25)}
+html:root body .tabs2 button{background:transparent!important;border-radius:10px}
+html:root body .tabs2 button.on{background:linear-gradient(180deg,var(--gold2),var(--gold))!important;box-shadow:0 4px 14px rgba(245,184,46,.3)}
+
+/* Mining */
+html:root body .bal{padding:14px 0 10px}
+html:root body .bal .n{background:linear-gradient(180deg,#fff7dc,var(--gold2) 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent!important;filter:drop-shadow(0 4px 24px rgba(245,184,46,.35));font-variant-numeric:tabular-nums}
+html:root body .mst div{border:1px solid rgba(245,184,46,.2);border-radius:14px}
+html:root body .mst b{color:var(--gold2)!important}
+
+/* Detail */
+html:root body .wpmenu button.on{box-shadow:0 0 18px rgba(245,184,46,.25)}
+html:root body #toast{border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.55)}
+html:root body .view{scrollbar-width:thin;scrollbar-color:rgba(245,184,46,.4) transparent}
+@media (prefers-reduced-motion:reduce){html:root body .card:hover,html:root body .btn:hover{transform:none!important}}
+
+/* Perbaikan judul: bayangan hitam dari tema.js membuat tulisan "Bitworld" tampak buram/hitam */
+html:root body #v-home h1,html:root body #v-home h1 .ch{text-shadow:none!important}
+
 `;
 
   /* Menimpa warna inline (gaya yang dibuat skrip lain, mis. Tugas, Profil, Pool) yang dibuat untuk tema terang */
