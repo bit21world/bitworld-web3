@@ -2,10 +2,10 @@
   /* Tema Hitam & Emas (menggantikan tema ungu/biru). Warna mengikuti logo koin BTW. */
   var css = `
 html:root{--bg:#0f1a3a;--fg:#f2f5ff;--muted:#a9b8d9;--accent:#f5b82e;--accent2:#ffd966;--card:rgba(34,50,96,.74);--line:rgba(245,184,46,.22);--surface2:#22356b}
-html body{background-color:#0f1a3a!important;background-image:radial-gradient(760px 560px at 50% 52%,rgba(245,184,46,.20),transparent 72%),radial-gradient(900px 460px at 50% -120px,rgba(110,168,255,.34),transparent 70%),linear-gradient(180deg,#1a2a55 0%,#0b1330 100%)!important;background-attachment:fixed!important;color:#f2f5ff!important}
+html body{background-color:#0f1a3a!important;background-image:radial-gradient(760px 560px at 50% 52%,rgba(214,160,40,.30),transparent 72%),radial-gradient(900px 460px at 50% -120px,rgba(110,168,255,.34),transparent 70%),linear-gradient(180deg,#1a2a55 0%,#0b1330 100%)!important;background-attachment:fixed!important;color:#f2f5ff!important}
 html body main{background:transparent!important}
 /* logo koin di belakang konten, warna asli */
-html::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 52%/min(86vw,400px) auto;opacity:.26}
+html::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:url(/btw-koin-latar.png) no-repeat center 52%/min(86vw,400px) auto;opacity:.34}
 html body header{background:#14224a!important;border-bottom:1px solid rgba(245,184,46,.28)!important;box-shadow:0 2px 14px rgba(0,0,0,.5)}
 html body .brand{color:#f5d27a!important}
 html body .accbtn{background:linear-gradient(180deg,#ffd75a,#f5b82e)!important;color:#3a2a00!important;box-shadow:0 4px 12px rgba(245,184,46,.35)!important;border:0!important}
@@ -81,7 +81,6 @@ html:root body header,html:root body nav.bottom{backdrop-filter:blur(12px);-webk
 html:root body header{box-shadow:0 1px 0 rgba(160,190,255,.2),0 10px 28px rgba(5,10,30,.45)!important}
 html:root body nav.bottom{box-shadow:0 8px 22px rgba(5,10,30,.4)!important}
 html:root body .brand span{background:linear-gradient(90deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
-html:root body .brand img{box-shadow:0 0 0 2px rgba(245,184,46,.6),0 0 20px rgba(245,184,46,.4)}
 
 /* Menu */
 html:root body nav.bottom button{border:1px solid rgba(160,190,255,.2)!important;border-radius:12px!important;box-shadow:0 4px 0 #0b1330,0 8px 14px rgba(5,10,30,.35)!important;transition:transform .2s,color .2s,border-color .2s!important}
@@ -165,7 +164,7 @@ html:root body .view{scrollbar-width:thin;scrollbar-color:rgba(245,184,46,.4) tr
     }
     function lum(c) { return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255; }
     function lightCool(c) { return c && c.a > 0.5 && lum(c) > 0.8 && c.b >= c.g - 10; }
-    function purple(c) { return c && c.a > 0.3 && c.b - c.g > 45 && c.b >= c.r + 25; }
+    function purple(c) { return c && c.a > 0.3 && c.b - c.g > 45 && c.b >= c.r + 25 && c.r >= c.g - 5; }
     function put(el, k, v) { el.style.setProperty(k, v, "important"); }
     function skip(el) {
       var t = el.tagName;
