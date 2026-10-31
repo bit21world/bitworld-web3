@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,12 +13,9 @@
 <link rel="preload" as="script" href="tugas-ui.js">
 <script>try{document.documentElement.setAttribute("data-auth",localStorage.getItem("btw_auth")==="1"?"1":"0")}catch(e){document.documentElement.setAttribute("data-auth","0")}</script>
 <style id="gate-login">
-/* Sebelum login: hanya Beranda & halaman masuk yang tampil */
-html[data-auth="0"] nav.bottom{grid-template-columns:1fr!important}
-html[data-auth="0"] nav.bottom>button:not(#n-home){display:none!important}
-html[data-auth="0"] #navDrawer{display:none!important}
-html[data-auth="0"] .view:not(#v-home):not(#v-auth){display:none!important}
-html[data-auth="0"] #v-home .actions{display:none!important}
+/* Sebelum login: hanya halaman Masuk/Daftar yang tampil, tanpa menu bawah */
+html[data-auth="0"] nav.bottom{display:none!important}
+html[data-auth="0"] .view:not(#v-auth){display:none!important}
 </style>
 <title>Bitworld (BTW)</title>
 <style>
@@ -139,50 +136,6 @@ nav.bottom button.locked{background:linear-gradient(180deg,#475569,#1e293b)!impo
 <style id="logo-latar">
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url(/logo-latar.jpg);background-repeat:no-repeat;background-position:center 42%;background-size:min(92vw,560px) auto;opacity:.14;}
 </style>
-<style id="tema-hitam-emas">
-/* Tema Hitam & Emas: menimpa tema biru. Hapus blok ini untuk kembali ke tema sebelumnya. */
-:root,html{--bg:#050505;--fg:#f4efe0;--muted:#a89f86;--accent:#f5b82e;--accent2:#ffd966;--card:rgba(24,20,10,.78);--line:rgba(245,184,46,.22)}
-html,html body{background-color:#050505!important;background-image:radial-gradient(ellipse at 50% -10%,#3a2c05 0%,#1a1303 32%,#0b0902 64%,#000 100%)!important;background-attachment:fixed!important;color:#f4efe0}
-html body .ticker{background:rgba(18,14,3,.88)!important;border-top:1px solid rgba(245,184,46,.35)!important}
-html body .card,html body .panel,html body .contract,html body .lockcard{background:linear-gradient(160deg,rgba(245,184,46,.13),rgba(10,8,2,.93))!important;border:1px solid rgba(245,184,46,.28)!important;box-shadow:0 7px 0 rgba(0,0,0,.9),0 16px 28px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,236,170,.14)!important}
-html body .lockcard{border:1px dashed rgba(245,184,46,.5)!important}
-html body .badge{color:#ffd966!important;background:rgba(245,184,46,.1)!important;border-color:rgba(245,184,46,.35)!important}
-html body .mono{color:#ffd966!important;background:rgba(0,0,0,.45)!important}
-html body .lang{border-color:rgba(245,184,46,.4)!important}
-
-/* Menu navigasi (termasuk tombol Ambassador & Tim) */
-html body nav.bottom{background:linear-gradient(180deg,#2a2208,#0b0902)!important;box-shadow:0 8px 20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,225,140,.15)!important;border-bottom:none!important}
-html body nav.bottom button,html body #navDrawer button,html body #n-ambassador,html body #n-tim{background:linear-gradient(180deg,#2e2610,#141007)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.25)!important;border-radius:12px!important;box-shadow:0 5px 0 #000,0 9px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,225,140,.18)!important}
-html body nav.bottom button.on,html body #navDrawer button.on,html body #n-ambassador.on,html body #n-tim.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.4),inset 0 1px 0 rgba(255,255,255,.6)!important}
-html body nav.bottom button.locked{background:linear-gradient(180deg,#3a3a3a,#161616)!important;color:#8f8a7a!important;border-color:rgba(255,255,255,.08)!important;box-shadow:0 5px 0 #000,0 9px 14px rgba(0,0,0,.5)!important}
-html body nav.bottom button:active,html body #navDrawer button:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #000!important}
-
-/* Tombol */
-html body .btn{background:linear-gradient(180deg,#2e2610,#14100a)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.45)!important;border-radius:12px!important;box-shadow:0 5px 0 #000,0 10px 18px rgba(0,0,0,.5)!important}
-html body .btn:hover{color:#ffe9a8!important;border-color:#f5b82e!important}
-html body .btn.primary{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;border-color:#f5b82e!important;box-shadow:0 5px 0 #a16207,0 12px 20px rgba(245,184,46,.35)!important}
-html body .btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 #000!important}
-html body .btn.primary:active{box-shadow:0 1px 0 #a16207!important}
-html body .wpmenu button{background:linear-gradient(180deg,#2e2610,#141007)!important;color:#f5d27a!important;border:1px solid rgba(245,184,46,.25)!important;box-shadow:0 4px 0 #000,0 8px 14px rgba(0,0,0,.5)!important}
-html body .wpmenu button.on{background:linear-gradient(180deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 4px 0 #a16207,0 10px 16px rgba(245,184,46,.35)!important}
-
-/* Formulir login/daftar */
-html body input,html body select,html body textarea{background:#0e0b03!important;color:#f4efe0!important;border:1px solid rgba(245,184,46,.35)!important;border-radius:10px!important}
-html body input:focus,html body select:focus,html body textarea:focus{outline:2px solid #f5b82e!important;outline-offset:1px}
-html body input::placeholder,html body textarea::placeholder{color:#7d7561!important}
-html body .panel a:not(.btn){color:#ffd966}
-::selection{background:#f5b82e;color:#1a1400}
-
-/* Penyesuaian menu Ambassador & Tim (warna bawaan add-on dibuat untuk tema biru) */
-html body [style*="#e4efff"]{background:#17120a!important;color:#a89f86!important;border-color:rgba(245,184,46,.4)!important}
-html body [style*="#ecebff"]{background:rgba(245,184,46,.15)!important}
-html body [style*="#5b52e8"]{color:#ffd966!important}
-html body [style*="#6b5ff0,#3b96ff"]{background:linear-gradient(135deg,#fde68a,#f5b82e)!important;color:#1a1400!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
-html body [style*="width:"][style*="background:#6b5ff0"]{background:linear-gradient(90deg,#f5b82e,#fde68a)!important}
-html body [style*="border:2px solid #fff"]{border-color:#f5b82e!important;box-shadow:0 6px 16px rgba(245,184,46,.35)!important}
-html body [style*="#6f7fa6"]{color:#a89f86!important}
-</style>
-
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <style id="scroll-menu">
@@ -218,12 +171,7 @@ main{overflow:hidden}
 .mst b{display:block;font-size:16px;color:#fff;margin-top:2px}
 .note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
 </style>
-<meta name="theme-color" content="#0d0a05">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bitworld">
+<meta name="theme-color" content="#0b0e14">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style id="dapp-theme">
@@ -281,10 +229,10 @@ html .tabs2 button.on{color:#111}
 <header>
   <div class="brand"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AABOkElEQVR42t39d5Tc13Xni37O+aXKqatzBBoZJEgwK5Aglaww1jgMJNuyksNYd+zndX3t57XunXkDc95c3/Hc8fi+8VgOz9ljSyY041GwskSCOYAkCBCNHBqdu6u7unL9wjnn/fErNEGJlCjHeRdr1UKFH36o2vucHb77u/cR/CP+OXLkiLyfR+QjHNMPPoi+8bOnP/svt60vbu5Il/J7E25iz/rG5rSQahih+1zXyqbTyazrOtiWRcJzcKRqOJZuCMm6tN0lg7nkSHlWJhJnmoG8OHXrz1+58f7myBH5yP3I+x9Biwcf1P9YMhD/GP/n4cOH5UP79pkbf/i//Ni7xm+5dewtjmPfZzvOHY1aY1u73SknU5JiPkE26dLfnyWfd0klwbPBthyk5WKMwagQYSKklOB6IC2QYMIIpVVFR/JKGKnjUeg/urbWeGLnu397bksZ5ojk6IzgA0e1APN/VwWIhx46LD/4gaPq+i/897/0wen+vsR7PUe8P+mJu5FkN9Y36XRb5HJJtk/0mR3bBsxgOWcgEN1WVzSaHdYrG6JWrdHuBIQRKK0xQOAro5QGtPEc10jbEkop0V/Oif6+DOX+HNl0hkgFDaR+JtLic5X18IuTb//NS68o47AFR7UQ/zCKEP9QK/4znzmqjAG43fl/fmL0Pfsn8x/vy3nvsCSZuaVVLl9eoC/v6tvv2KYP7B+X5XJeBM26WFpYYXGpysZmC6UMbipFKp0jl8uTySRxEy6JZBIvmUVYLsYoojAkCny6nRabtS6tRt00GzWztrqmo24kkwlLTkwWmJ4aI5XJNpMJ8fVuZ/OPfuGf/9aXfu95wuuKEOKo5u95R/x9K8CSQigdSz798x///g8N5eUnpicKBz3HMDu7yOLCqhodKfLmN03LA3v6BVgsLKxybXaJzc0W6WyewdFBSn0lyn0l3GwRHA+/sUFlZZ5SuZ9mo8bGWp1AG1KpJEJpBkb6ELaNVpAtluh2fBKJDM1ajZWFNXP5wlW9VllDdTvW9ESZbdv7GRjMv2ilvN956fErf37rR/5LC8A8dNgSHziq/v9NAeLwYeTRoyjA+b577/mJt942+ksTQ4kdxbTFyTNX9OLCmtm1a0i+/90HxbapPI21NV6eucJmPaA4MMDI+AhDYwNov0Wn2aY4NE4YaEItSKXSzF+aYfbCKUr9ZYyOKJRHWVxYZnh0gvW1CkFrDc+2ERaESrLZDNh/661s1tZIJPNM7LkF3fZZW142506d1hfOXRX5rCfvumMHIyP9F+2k+g+/9+//jz/8md8jNA8dtjj8kBZCmP/hFXD48GHr6NF4xZTLE+97z307/839t43eNpCD9Y2G+uLXnxXbp8rywx+4m303j1JfXub0y1eothSjkyNMbRvFS+dYuHKJRCZJfX2TC2fOcP+734eQkueeeoY33XcfzY0N5i5fRNqaVstn5037mbu2wJ59N3H58jXqq3NIacgVckjLZnhsjLmL57Ecj2bXkE5nSWSLTE9vI+o0sVI5zp27rF86/rIJmnXr9lsm2blr5AUnJ/61mPq1v/772g3i72fVb5+49abcv33n3aMfvmNvCa1C9fyJ06KyXpU/+oNv5l1v3069ss7JmQUCJZia3sbI+CCb64vUNjaJIkGnXsNJuGzfvY+zL8+QL5aY3rWL+dk5BofH6HZ8zp09R7GYwRhD/2A/tWbA4PAgtWqTbqtGp9NhsL/ESydfplQuI8IOoTGkc1k8C8qj07hScfypJ8gP7+DmO+4EA7Pnzuqv/PWjRkbKeuBtB5jeP/Fn1Wsr/6p073+6Zh56yOLwB/7OnPTflQKkAG2AvrGbf+z26fxv/ND94wMjZddcnl8xTz35krzjwAT//OMPkMvBs0/PsLJcY++t+xmbHEYYxfzVy2wsr+J6Cbx0CqM03U4bhY10kuQLObZtm0BYDqESKB2gogitFUJKokjhOF58vW3hWg7S0thC0+1qQh2iul1qtRaddpPK2ioTU9MErXVSmRRrazUmtu8kXxrGsgDtc/KF0/rRR14Ue3cMiXvu2buaTulfEHt/7S+uh65C/O3zh78LBViAguHU8FT51+87MPCJD71nNznPUl99+Cnr5NlLfOLj9/G+997K8qVZXnjpGoVSP3fcuYPlpRWUCGmub1AolQgjwdLCCqW+IoEfks4VGJkYJRIQ+V2atTrtdkDXj+i22+gwRAqLSIEQGozG8TyEsAmj3mvXJpnJkCnmyJdKZPIFHDfB5nqN1WuXWZm7RiKTw/YS7Nq7h4Tn0q5XSaYz2J4LGr7xjWfVyy+ctd73rpvZsWfwdz7/zS//4vt/5vn234VJ+lsq4JANxyI3u2fXyJD7F++7e/T2D7xrlwojX375a0+KyG/w8z/1drZNZnjyyXM0Oopb7jrI0PgwtKtcPH+Z+YU1BgaybFZr7L/5Vi5dnaOv3E++VMTv+tSra9SrNQJf4XoJCoUiljQ4jk0qkyXhpZC2wJIgAS1susbBcxxatRrdwKfb6lCrN2k3W0QqxEunGR4fY3h8ENtxWVtax3U88hmXdn2Dpx9/koN33Um2NEjQ7ZLKprlyadH82R9+ST/wpnHr3rfsfH5haeHHxt75Z+fNw0ds8cCD0T+CAmLhe4O3PDDR5/75hx4YH/4n922L1jY37cceP85g2eETP/lOok6Vb37jFKWBEe6+7wCWZbM0N0+2kCeTS/LMw8/iZvIMDPfjWBIsyfrqKrVqA6MEqaRHsa9IoS9POpdneWmFvr4sCc9DRQbpJRBG4He6eJ7LwrU5zl5cYPdN+xgd7sfoCGnZIB20MnRbTSqVdVaXKjSbDbJ9Rbbt3kWpXEL7HbTfobK8SrZYJJXN8vKJ49Q3VrnrnruQiQK//9ufi8pZY7//+29fagWNDxXv+O2HH374iP3A31AJ4m8j/OLk7T86kLX+4CPv2ZF835sn1fLyivXIo8+ya1eZj3/sAZYuX+WFFy9w4LYDFLKS9fUak7t289wTzyEtm4MH9yClxdziOmCztrJMu9HA9VwGh/rp6+8jmUpgjMZxE1ybXeTkidP0D5a5657bAJeF5Q0UksnJIYLGBk89/hTKJMlmPA7eeRCtwSBACJA2lrCxbQssSbfVYXFxmYW5eaQtmJyeYHh8FEtIdLvNRmWF2cuXKRY9XDeFlcoyPL2Tv/7LR9TK/DXrx370vo7x/Z9M3fkfP2UePmSLB45Ff/8KOHTI5tixaGj6rg9nE/pPP/7uaX7g7fv0wtyiPP3yS4xPZfmhH7yHMyfOcnV2nbe+8y349Qor83NEymb/wZsJI4NBIjDMXVtgfbVK2A0oFDMMjQ5TLOUR0qAVaGMDBsex2Nxs8sLxM2ijGdy2jVQmzdWz53FTOSzXJWFrdKdBtq+P8eEyiXQSgwUIhJAYYWGMIVaJQEoX27EAWFpc4ezpGaRQ7L/zIOWJKS4++xQLs1cZGRtAmIDFxRV27rmJ4V238uhXH9cnn31G/vSPvwOhg494d/3mn/1NlCD+Jit/as9bPiJ1549/8j3bzQ+962aWV5Zlq7ZMf7/HXXdt54VnTrGx6XPv2+5k7uosbT+kXauhIrjp4F7y+QJr1TqXz1+jXauRy2QYnRimPJAnMnE4JYWNkBIDCCPRJsK2BCoMkVaCk6cuEKmIA7fdQiqf4cVnTrCytMC73/t20IpQKYwWCNFTgLR6ypCvxG1SgjFgBI5jgYmYvXSZC2cvMLp9mu0376Ndr3Lt5eP4nQ5uMkG+UKbRNRx4y5t48itP6Ccefpyf+5n3iLDrfyz/5v/8p9+rEuT3kGFZcCzaeeBtP4Ly//gD7xgzh99zi1hYWpIJu822bQXuvGsvLzxzklqtxcFbtzN7+SyFUh8b6w0yhT5ypTyNWoPzZy9y/tR5pIqYnBxi7/4pCuUcHT9ARwrLgDEKpSOEMWijkFKgtEJrjW1BfzFJJmmRStlEzU1GR/rJpV2IAvxOFxWEaKPRKsIYhdYR2sQBixACow0ojZASYQmCKMT3fSa3j/PAOx/AbzR58qvfwHUku2+7E21nyOaKjE9MIFWLZ7/+Dd58/83ytrvuEr/1e4+YZC75x0uP/vSPiAeORcY8ZP0dK+CwxdGjav8tb7+/Va/90fveMsbHf/hNLC4tiP6CIp8K2bNnnJmXTxNGhnsP3cbVy5dZnNskXShx1123YSLN+HCZ1aU1Fq8tk05aTO8aZXRqFCxJFEaxYHo7QBuFwKCNAROhVYjWCsuRCEtTrVVpBoCbBTvB8sIK9bphs62ptToYyyOuMAi0fiVn0kZjjCbOoww6itAqQhqBZbkEkUALl1vfdBe7dkxy7K8fZmWlyj3vfAfjU9t56cQJBgYGmRgucuqpx3j7e28R0zu38+effpah/v4/uvCln7xfiA+ohx56Y0p4AxcdkfBJfevd79hZqdb++p49pcIvf+JtplWtyr68QYQrTE2PcPniFRrVBnv37+TSuRkmxkfoH+7npZMzTE6MYQvNyy+dQwWKoeECE1PDuF4SpQ0IgdZ6S0BCCBCglUJHIWBi2200s1fnWKlUadUbSCvB5dkKjdoGQafNxNQ0Lx4/yebmBl2/y9DgAJHSSEsisBDEvjh+YsAYrnsjrjtqLBCCKOpSLGUYGxnm+WdO0ao3GdmxE6Mt+vvS1DYX6LZ8/HaXe971VnHmxGWzuLDq3HFw4t0/8LZdn3vH4X9ZMUeOyAePHTN/mx0gAO45fE9yba326ZGSGPpff+7tKuh0ZS6lEdE6I6P9zM8tMDe3yB1vuoNz5y4QhhYnZ64QRRE37ZriwsxZLp67QiLhMD5VYmxyGKSNVhGoCBWGIMCgEcKgdEgUdgmDDioKiFSE6yZYr9SZvbrM2vIqu/bu4u4338xASrG5ssIdb7qTqZ1DbJ8aotsOESoiioIbfqaFQMSrXuvYBAliJSiFViHGRAhhQCswGr8T4aYSfN/3fx/V1SrPPf4EozffTL3dZWFuBWnbNOo1Lr88wwd//O3yhVNLaubM2tDO7blPP/Trv5DkV8CY7+xn5Xex+xIe1EunxG84dnDbL3zkvigpA8vRdWxZo1BMU6+3uXh2kZ3bx5idvcDEtgmCQJPwEjQ2Nqgur7C2uEoi6bFteoS+/iKRMrF50RqlFBiFiUJUFBIEXaLQxyiDwEJaNpZlEUUBfeUB+vpHGRoaJZVM0Nqo0dzcABSVpWXCVptt0xPcftdt7Ni5E7RAShshLIyUXDc8WzvMKEzvgY5QUYRRIegIoU3soy2PVhBx/3seQHXg2S99jdLQGKMTO6g3OoTGwrEtEPCjH3q79V+OvhB5lnPb2+4OfiOGKg7Lv6EJOmwxc1RN77/3g51O69/9yLt2Rz/wjn12q7pKfz7AEj6JRIoTL5zhzrv2srayQm2tDgSUh8q4josOFatLa2SyWcYmynhJF6WITYqObbBSEVrr3iNCYGFZDpa0sSwHIeWWomxHMjLcT76QRmuNZXucvbBKN1AMDfeTTCUJwpBUslemNAYhJAgbed359hak6NkiYQxG6/g5IISF5UhsxyLUsLRcQUiB7dlM7d7LpRMvU6mssOeWm1CRZPu2HZTK/SjfpzSQxa+35YsnLkR3vWXXXT/xA7ecLWz/41MPPXTYOnp0xnwvCpAwY2655W2jG/XWZw/uLKR+8aP3yubmmigXgHCTTMbjxRfPMrVthJHREgCVSrOH5ZRJpx3mZpfIZouMT5eRiSQIGUMGUhIpRRQGRGEIiDhbReK4SaTlEKneijQGiURaNkI6REZgkBjLAUcwuX2MobFh+gf7EA7YqSTC8RCWg5EWCoFGQs+pCyFfHQlpgxAGbSKkMESRobKxwWqlytLyGjnXwrMMF89dIEJy0237OfnMc2hpMX3LTehOg3Zzk0Z9A8922bl7mG8+PCPyGY/hoez9H/0nD/zFfT/4u/Vf4bX9weso4LCEGe1mB383lVB3/9KHbtelVCQTXkQhZUBtMj9XASG56cAuahtViv0FbM/Dy5QwUZvK8ipuIsfo5ABL1xYo9Y/huhIVRYRhSBSGaK2RIl7xBhAyjtkj7ROFIbbt4LgOoRH4oUKhsB0LpaHVarO6ssHSQpWFhTXOnrnKpUtLXLu2RmW1QrfTQkpDOpMimUojvRS+Bh1FsSKkQAqJ0BphNKCxbYeLF87TqK1T36xjWUnanQ7VWhvbSVLIpbFdxbbJcZ5+9AX6+vvIFNJsri3z4rMvMjhYJlkoUirmxBf++ml9/1t3ZYKwNZzb9ux/3f+zA/K1doF4TdPDUTV94P7va9brX/7g24bVv/jRQ1a7ucr2iTzVlbMIE3H29DxvOXQbQlo8+8wJSn1pdmyfYLNWZ/bqNVwnyZ6bdrOyssmLz55n1+5xkuUig+Uk7XodA1hWbGa0NjGbIQ7NkbbETSbpdkJanS6u5yLQLC63OHdpg/OXqixUfDZahjByUDhbnBZjNCgfR4bkE4Lhfpu9O8vccXAXu2/aQSKTxW82CNstXAFGGDCgdYTlOjz75PPccustpLMpojDOIaTlEvgB60tz2GmPkYkpVucrPP30Cd73w+8mai2i220sN0k7FBQG+vnj3/lvTAxn1H0P7LeubqTevfMtR75iHnrIEh/4wKvQU/vbFbLPHD582H3i+au/Nj3s8WPvu1tsrK2wbVs/mxtXcW04d2aJPfsmkRKU0Uxt34ZSAa1mm0sXr2JbHuOTI2gFKysbZEpZqvUmq21DMj1JOpVEhQLLslAqNjNKaQwa10ugcVhabWAjCLTg+ZPzPHNynQsLET4pvNQQbiJFMu2Ssiwscd2mgxYgjMAYTRiEXGq2OXVslc987THGBx7j7W/dwdvffpDy8ACd6iaqXcORLtLuxUhKEQYR3XYXoxUaTatZ4+KFOZJJyXDaI2iHDExOMjZf4ZnHHufN993KZrNGyspTmb/E5sYy7/m+O/mDP/iiePObdpGK6r925KGHHubw6ciYnit6TRN0+LDFzCe1b5V+IgrDn/7YP9mndo0mrVTGI5MM8ZvzVCoNjDFMTvUT+CHGKNyEJJ9LcfniJcIQhkf6KRSKnDp5jt27xrGlwU2m2L9rkBeeP0OhPEIm5RAE3TjjVRopBa6XoLLRob7ZQSvBMy+t8KdfuMyTM9BghGzfKJlcGcdNIK+XgLRGaxU7c6VARRgVYdBYlkUymaRQHCTZN0o9yPLkC3N8/etP4W+us3f/dlJ9A3RbDUzkYzkO89fmGBgcwE0k0Vrhug4b65u0Ww1GJoYxURs3lUOQYHRskBPPnaBYyBL6ATOnz2I5Ho16g5237GXu8pzYWK2qW26fGE6tz8+N7f3V53/lVx6yHnzw6GsqQDAzY9785vdnV6vVv7hpez7/4ffuIew2xfi2AVqbV5Em5NrcCjt2TrFeWSSbyxD4AcoIahsbtBot+sp9DAz18cLxGUZGBwgiTaXSRGFRb/ns3TPG2bOzSCdJOpNGhT5Cgo4ks9c2EdLi6mKLP/3sRZ48b2HlJskW+mPbr2J4whgdJ2biRiMqeuGl2Mq2jDForYh6ykl4HqX+UYw7zOPPXOaxR55hfCjL1M37CNoddLfKxuoGfeUyluvESKox2K5LN/BptXy63ZDBoWEMEktKcmmP554+wW1338LywhLbt2+j26njRz7bJkd57ulT3Lx/G5sN/8DJ560//Mmf+4/+gw++8q2tV6Gcs7PaLQx+TCj14Y9//169czRjJZM2qUSXoLHM2mqFgYEymICZ08somUYSoXyfeq1GIpUFqWnV2wyOD6ElPP/8OQZHBinlbF58/mWSiSQqVNTXqwyN5DHaUK+FLCw28dIZvnLsGg89uonO7CBXGEAahdLqhgLsq93WddOzFdnEFJgb3n8l7NRaE0UhlmVTHpliM0jy3//7Y/jri9xz7y1oFBdePsvE1CTpXAFL2ICPZ1kU8klyKQ/Ps0hn8xgkWikK/XkWri2gNOzZv4Mrl84jJbh2ktHJMWZOXxGWFHrb9FBJWeHVux+Yef7hI4fsPzk2q2/8NQJg3+F9zuYLmeP7xpM3/btfeKfpNCtyz54RNpdPYfwNllcabN82QavTwLZznDi9xPiohysCOt0uff1DvPTiIuMTGTzX5dK1dXbsHqZT9wk6XUbGBliaW8VNpzlzZombD06QSyWpVRVd2+FPP3eZpWaRYv8IURRhtNoymELEpEGD+TZBXxf29fduVMb1z+L7xK+FAW0MruNhhOHMC09z/80O//uv/jgnnz3B6sIapXIRv9XB97uEkUJaIDDs3jPN6NR2Ii0RMt4FtfVVnnzyOO9+972cfflZ+ooFmu0OqUyB9fUuL5+Y0R/68LvE549de/n9P/0ndxhjwt73MtYrkc+MziZvebdqt3/hYz9wwEwNJmShlMW2m3Rq86xX6nhJlyDwqVbr9PWl2DE9ROR3qNVquG6KXCGFEQ6XrqyTyQ0wOVVkablFuVzEiIBavUW+kKHrdxgbHyDh2WAilhuG3/rLi7TtaTKFAkEQ9KzI62fxNwr+9XbDt73m1YpSWmG0ZnRqmpfOrHDymaf50I+8m2yxgCsDBob6GB4tMzU5yNTUONt3biNXKBBGIVLaGAOhUuSLeeauXMOyBYP9Gc6ePEkynaDQP8bw0ABPPnlSjI8UTS6XG5pdEs/82Ed/6vzhw4etmZkZ00uT9xmAdrX9U9vHshzc2WdCv0Mu41FbuoyOAuqNNv19WTY2fRwvDZZDs1anXt9ESpd8PkOn1WFkyOGBe6fZ3Nyk1hTs2N7PtatrrC+3KOQzLC5v4DoepbzEtRTnFwyf/Mw8srgPz3MJ/Vj41zPZ1xL86ynj283PDWzo3v2+9Z7GGDqtNrtuuZMXF3L8rw/+KaPbhhnbMUVfIUWxmCeZyWF7LpHR+GEAJsLoGMeyhCCKNHv3THP29AXyxX68dBqkx+zVy3SDBsNjQ7zw0iUzPZHk9lsGfwrgoYdimcv48aA++Kb3TqL9d9y2p0whZclkyiXsrhD5daobbYr5LIuLdUbHBpGOw/Jyg0azRhQq0ulk7PsMBF1Fu9nipr1ZlubmqHUk09NFhkaK1GoN0qkEpZJDq9Xm/ILg9z+3RLJvDxKD0urbVv1rCez1hHujKXqt614PbhQSOs06u286yLOXHX7r//qveMkUbb9Np10nCLuEYYDQOi78a4VWPpgQtCIIIoZG+wmDgEqlzsjEFNX1KsVshlTKY/fuES7PrkopDFPD6XeQGJqU8kHNEaTFoUMWs7M6mRv6cMIOf+AnfuAOlZAdWSrnaFQvo1WX2maLoYF+ElmPuWsrFHJpCjmXtfV1bNshm830tmW8oaTj0PVDxoZyzF5doNMMGRwpYLAp5ixU6FNppvmdv5oj0bcnTp7ewCr/bte8nql6gxcSBiHDYxM88vhJxvIB+/Zvp9mq40rrepwVQyNCxNCGlBgjQUgcV9BtNlhdrbJ3/05ymTTlgTKb1Sq5bIIXXrgipqfKKpVKJ148Xbu0sLT07CEOWZJjx7QxRjSarX+6f7qfwYLEGE3KFfitTdqtLomEy0a1xnqlwfBIH0uLi2xWN0EZvESSOJEHIwVagDJx6Ke0YmgwzcJyjcW5TcR1iNnp4w8/fw2d3Qa9kPLGVXvj629977VW+Hda8W94JxDXCKIwYnjn7fx//vA5VlfqpNJpwsgHYdCoePXrCBWFGKUxOkQaRegrJqdG2VivEoUKaQkMEWvLC9iEjA7nmL26yPbRJJNj6X8KiEfuv19LQN905/eNSSHedGBHHzpoyb5ynmZ1AUdCt90llfAoF1OkXIvGZptyX4Fms4mUFo5rE/VWv1axVfO7EVJadIMIKQVT2wr4YRcpNIlskU99ZY6KP0TC8npxvUH0gPO48GJeV5DfSfCv9fq1FPraviBe40EYkskU6Nij/JdPP0YqnY7zPaV7pc0QdAhG9ap0AUr7qEiRK2SREqqVDTarm5x+aYZuy2dxcZmJiTLLK1WZzTrsGC+8CUbG5L95UEuAWtN/az5lpacGE0oILWzLp9lYwRAhhU2jGbC4ssraSoVs1sVxYiE7rgdGoFVc2MZAEIRxuGcEUaAIw4BS3mG4P0mumOLEuQ4vXJCkswXCSGN6JYkeWSF+/hqC/lb7/j3Z+df582qlGkzPKYadDqNTu/n606tcPL9COpdDhR3o+YCt7yNiUM/oEK19QNFfzjO/sMrAQD8jAyV27NjG0MgYpWKG5UpLCKHVvulSujzc91ZjegWZbrdz73ApwfhAynTaDWxCgqCFH0SkMx5Ih1rDQhuLxbkVNjZaWJaL47hEkUKp61jO9SgEIhURRgYLF78TITG0uzaffbRCIj8aQwdCYXrlRoPp1WtfEa7W+tuev97qfj2n/FrKel3lGYNGoITGdlxUeoK/+uJLeOkkRmi0CuNrtMEYUDqKS14qwqguod9laKhApbKJ49g0m+tcvHCeU6fOk88m8buKdqNjpkaSDJcz9wJIY45IraI7dk3lqa5XZD6dIeg2EBKiIMKyXIaGi0xODeKlc3jpPN2uj+06aCEIw7iGq40hUlEca2sIgthZKaUII0Umm+XxE5usd0tYluwV201sR40hhuK+s7C+04p/PV/xWtd8a/IWP5evZM1AEPqUh8Z4+uQqK3NrOF6CMArR5hU/YFSADjsoFaCjkChSZDNJTOTTaLVYXN5g+85p8imBJUI8z2N5eVMOlRNkU+4dcETKfbc9N5525HQpqbClLWxH0WpUEToOKb1EEmUURkeMjOQQ+FjCxrHj1R+vBokxAm1ijF0pE8fJwhAqjRSa5Rp882QHL11EReErtmbL7sevv5vd/m4KetVn3+Ga17qHMWz9rZTCSyaphXmefPoCmWTM0NMqXvUqCtA6iBFTHcVmSGkcJy7xt5stCrkiL714lkiD5bjkchaVSkP0FVLkMnKawqPjcrPR2J32rOLOybLpdlrCtRVK+UShQhuDH4aUBso4Scna0hrdVojjODHdQ4EtLYw2aGVQkSYII8KwF6Jpg1KKdDLJMy9VqHayCKG/zdR8N0EKvr1T67Udbsx4663tuNx4/X0htlgRW3jdt+YDPRBP967XypDID/LYc7NEgcKgiVQXTGzztQpQyo+dsjao0AetSCYdqht1tk8PcWDfNOW+In63Q7GYp1ptC8/WJpOxi6WCvdtudtp7dgwmhSDSlmVE5LdjhDOISGayVNbqLC2vI4Uk4Qp8PyKRSsVFbq0RQiEt2avxClTvRysFEoknBZ3A4dlzG9iJMlEU9URqXhOzudF2cwODJJbqdTyn94mJKS3XYQZj4kK6kFZcgNcxpyiWrkYb0SM8aKS0iNOWuCSJ0kRhiCXBsj1Mz3zm8mXOzp5hfnGVUjFBp9VFK42OQgRguxopnd5XMUSRJp1O0u12adZbXL2yiLAtPM8hlUqxvLCKI5Up5hzpOe09dsJx9yZdC62U6R/qo9FcxnUEURizisfH8oShodXSVDcrKBOzyVRk4rgfGdtxQPaIVFprJJJIRSQ8yZm5Fss1l0Re9ArgZgs+fjWAxquUY3oCvi5kemwGg0CKWJCxkEWvqibAsYg6fkzssiSO4xC3Dkg8S5NJGDKZFM3AorLZxLYswiDkph157n/rXeTyWb5+7DhPvXiZZCKD4zk0oyxnLy5y312TdDs+jifJFAoYYRO0O6jQ3wqfLQtSKYf1ygZSJOgrl8gPDNBotIjWu3Q7XaRlTDYlsGCvLU24vZDLYLQSzWaNXEphjCFU0Ky2WVlu0jeYxrIFzXZAynMwQqK0jkPPOAVDShETqXQMclk2hH6A52Y4M9tEyQJG97g/iJgMtcVMiGsrsS7i8qQUPUabEPhhiI4ijBAICY6UOK7EtgSOLXBsQzqVxI8kriPZtW2cbDZNq+3ztSfOYrkJdLfL+LjLT//UhymUyjzy+HP88ae/hpMrETYqTE/v4773fJCoW+UvP/tNMBYajcbgJHJcvLLBWw4Ook3E0lJA/XLI0FRMT/EcQauyjIo6SOUjhabV6iCkxcraKhGSvoFBWo2AMIpQUSDSnsS1re22Y8uhfDpBp9sV2UyBKKhiI/C7Pv39OVptxWqlydRUPzpS2JkUysRRTwxE9fgzWmMJq0d6stA6Fm6rq5hbBctx4nBNSowwdIIu6JiV5lggpcGRAsu2CZSgHWi8RAKpu9y6c4Cx4T7S6QTZTLbXI5winUlj2xbSkpQHB3js8eN86lOf4t8e+V9IFYZYuHqWR596GY3E9xsMDe5lcu+bCIOAndvWSdigtcEmYHxkEq0F8/MrLCxWsJ301g7zUhnmlyuEQYRSEcmERadd59RTj/PU1+DOt9xCX3+OTjciZXyE0EShxnFc8ukkm8tL1DeqWIkcSoFSkXAdgZB6yHYsWXZkRCaTJfKbyOu73nZYXa5w95tvplLvsLa0gVHgeAlUpLaofMZolBZYgphqEvVWjYoZB2t1w0pTYicstFEobcjYAe+4ZwelUp5UyiOdTpJOJfESCRKpPGEU8eQzL/D4s+epLC9x+z+7n/d/8Mfo1Js4iRTIuDpmCRfbS4AKwUpRLC9z8eI8F64ssvfAGKlUif5ymsV1BSZkatsUWmm6nS5Dw0OUCynW6iGOEAwODSOlZGFxjmY7JJmSvZBT47pp1huKdsuPy6eWYGgoxehwlpVKneNPPMs733EbjqWRrt1z9pJWs4MRkrGdO8nlUswvrsUEYQNSaMCUbWmZTDppo6OAMOqS8OLCtkJQqyuefOoMwk6Q8GyMiFe772uklCilXlUajKOb2LH6oYJIsd4Q+NohgUGZOHOsbSzw/h/6n9m26xaiIMJOJXvFOQsw+J0mt91xD9ncp/jPv3kKpWwQWTphnY7fQNpJpGUR+DVOn/gm65UKm40W1+bmcJM5zs7McOC2O0mmU4yPjnB1+RJJ1zCxbXuvuCPJFPrYPjnK7NNnmSglKfcPgQm4ePESShEbHxMTxqQl6bTBD0IwkjDUBEaDiRguJ8gcnOL545fI5lMcODiK7dlEUUC7G2F5HvWOz/JKBYzAlvH/r5QGKTK258icLS3CoCMsKeLUWoW4jk25nGdqxyAhDhfOzeE4bi9WFwjBVnZq23Y8r0GDQWELQRQpLCxWNiMwbux8e5hPEIQ02wHdQNCsN5k9+RKtRoN6s87UxART03vBSXDvvW/hLz79GR76zOd4+LGnqW2sg2rwr//f/46p3QdYnr/Cv/3VXyXUCRCQy5dI5/o4efIUPxxGWI7Hju3beeTJU5QGcoxPTrNRWSHwu4yMTbBn7y6+8vBxBgfHyRX68DsNLl2aRdp27/vGplVIgTEuoTIoQqJIIgSk3Djp7HYjXE/w0sl5pAnZvbuI7Vh0fcXctSX6R4axpUUQQhRpRCxmLClytiXB6BDPcVFRG+FKYqqkwpgup2euMT41gGsZumEcgbyy0uMYO/C7JBIeLT9kdHyIfD7JqRcvIh3JRsP0OlN07K9lDFuoyJBIelw8e5Vf/sVfRlspbMsiaFf45G//FntuvgNhWZSK/VQampWLiySSOWguE3TaGCNxbRgaGiMgi5CgtEFaPjNnz1KrVsgVB5iYHCcKmgyURyj2T/D4Nz5HvVljdHIXU1PbEKrO+PgkTirLwtWLzM0vY9tOLHgERsSZfqQVSgkiI4g0JBwQVkS16TK3WOHmm8cp9aV45ulLDAzF/kNrTTbfRyafwxKaYL21xV0KQw1IpCCO4dvtLu1OBykk0pbUG12kTLBnxxhzl5ep130czyJSGm0MyYRNX7lIsdTH+OQY+VKJZlcyv7RBtxvhWAIjBPW23jJPGE2vLwKtFRiD61hkCoOk8oPkikMkEw6djo/lJOh2mjTbPqlMlky2SCKZxBDTGoUw0OsP7vg+QRAShgGOl2S1UufylUvYtkP/YD9pRzM6NgzC4eLlizzzxJOAYGBogJH+DOOTkyBsrl67ysZms8fUM2he2QW2AwgbFWlsS2LRBZHk6uwyk9vKtNo+hWKKVDbJzNllPDuBFNA3UESHESqKoRrHMWhh0elqpOVgG2PwVUR1s8FQwULYkigwZAtpWk2fy1dXkLaH3+qQ7lWDjIaVlXWszZBmy6CiNq7rsrjaIupGBC1NFHRIZHL4YS9Z6gFYYivdV6DBsW3uOThJNpUj6cH0rnez96YDdFpVvvzlb9ANDamEikNcqWJaY+9eIJAy3rExqBdnbQqXmZdnuPOeQ+QKfUyM5BkfnwQ065UaM+cuE7RrZPIF9u8ZZ2BoENBcunSZIILkdUxKGCzEVleOtGKGtW26uIk0p2eWGRgsYNsWYWQIIsWe3SPUanUMAUIYHCskWyghvRSVSpV02sVg0QkthABbG1WPlMlZCc8oHQpM7CSibpMdEwUszwHpcuLk1R6xVdINAjbWO+zdN0gm3UGSZmiwj3KxwsLCJsWiy9WrEU7KoIwGI2OBmxvQSa1QUUjfwBi/9L/9v7Clg5CCSNv4SrN0ZYaZF49jOYnY1/SaN+JsuOdPhOhVpcxWCUGpiHSmxOmXzxCpCNtxOXhgJxOTUwT+JksrG2xUW8zPzzG1fQc3HzhAsW+AKGpz6dI1pOVtNYugBVgQRCEJ14ppiiIin0lx4eImTsImm3UIgthRR4GmWEySSEqqK6toZagurVBdq+DkSuhQkUw5BIE2641AGOPVpdE0BbC2tkGjEyEAS0o6fsSFK+tcvLzJ3EKNdjcAIdFGgBYkUx7Do0WqG5vkC2WMlWBgKEcum8ayPNoBGCMRcRE1hgbM9W0tQcfPjZC025q5xSVmZs5SWVvFlhbDk7v5V//qlylkZEwLuc5mRvQSQIMtY0z+RlxJhRHpdJZLV2apblQwlsOe/XcwMDjK0sIc65tNkB7nzp1CSsG+2+4nXxqgurbG7PwyjuNu0eXpKTzwu/TlLDCG+bkmF6+26IZdRoZzdP2otyDiBD6KNGE3xPVswjBAEedG7XqNKAjJZ7K02hHVWoBtyabUWleUNnQiRb0Zbm1j203Q6ApaXU2rY2i3eow0FNoofF9xbXadS1cDXnxpjuPPnmVhoUmj2abTbRFGFkYLkp67Bb5drxhESuGHEbZjs7m2xL/46Z/iJz/+s/z8/+OX+KmPfoTnnngUYTtM7LyJ22/dRbfT3kI3VY+GeB1c+zbkVCts12Fjs87Vi+dwhM30/rvJl8pcvnyZaq2D7aU48cIJDJDJlUkkM8zNz7NRrWPZsgeXvNKnhgoY6ssQhAHNbsjK2iYjoyV8399C9YwxqEhhtCEKQ6SAVMolVczQP7md4bEx2n6HTC5DrR3S7AqEoCKNYVkbiUaaVjfCCIk0UCimGR4qUch7ZHMukZFgJLYEz7MxOqLb7dJXTlLbrGJJeo4XQqURQiKkIJvy4pj3Op3QgDKGIIwQ0kIY6EYg0/2URnZR78Ln/vtDOLYk0oJMNhuTtOL4l0hplFZsgSB6q6tvq+cLYYi0xakTJ3Eci9BIEIJzZy/i+yFeMsPZs+fptuqEYYSF5vLla/iB6Zm46+iqIFSQsEPGBlN0ugG7tvWxd3eZsBsgiJFgY+J/o0y8OIKgQ9JzWVut0qo3WV1ap15rEQYR2WyajXrXdAMLIeSyrZW6bLBRoTZBGKN5rmshg4iBPpdOJ8JNJZGWIYwMjm3Tbm5yy61TZDIpCtk0jWaeye3DqKBLpdKi0wHLFoSholxwUaqJwI7BYmPiUFZHcUbo2GgjaDdbCBNgCc2eXdOoSCOFoLrZ3GJPSykIexB3/I+t2DQZDcaKW1pl3NznJFKcPH0aYwye5WJJwZXZWQyQcBPML81T3awyMjoJKM6cPRs3dWjTY2nEAGCkIgbzguFyhiiq9VpbzVb1T6sYRlFGX++7RKsI18uxslZnuFCmPDpM0O7iCEEx53H84qZpdTWJpHXZbgfBmVq9Tkpawvd9Al+RcSxqNZ/LV1cp5dMUCuC5kjAKkFaO2flV3EQCW9ZpdmzW1mrML7dIJl1CZVHMOtTqDt22TyFv9SIUC3TEdWQ5/qEGieFNB0YxwqWvr8DA0AD33PtuwijCbzV48cRZvEQCpa7XGARGSaRl4SVTCMtG6wB6Td3GxESpRDLL+fOXmJ+9hHQSXLkyw9z8GpadQGHQIsl//D//A/lCiUplg/mVKgkvgel9x+s1hDDw2TbukkkYNmoGbQsszA3mT8cFqV7kFIZxz1sUdZneO0GoBKtLS9jGJpW2SaaTzC6tCN9Ikvhn7IbfPdsKjMkmbdH1G2hjMEQk0g5DXhmMJgqglM/j+z6ebZHK5Hj+5BqD5TTjoxmmt+ewevi67TgIocjlHDZWm5RLDlLGTkojsNC9NlBFGAR4yRw/+7/8S1zPw7I9ZCIRp/uBz6//5m+xtLpBOltCqQjLdgijkFanTavZYG1pGT+M68qqF4bGatA4lk1LufyLn/1FNJogiEhkykjLwQ8C8qVBTpyZR+s5XNcjkcx8GxkAA1J32D2RwQ86Wz1lkTGvVP6Iy5laRXE/WxiScGy0trh04RrlwT4y2Qydepd0NkGoJWeutoUUrsHos3bQic6FoagmiolSp6FNx1eCrI00ktlri6RTSVzPA2HodhRKKcZHSoyMCjzbxrUkoQpBKMBC67hgkssluDa7wUTCkE9AM1BIGfsBpTWpdAo3mSWrA4yBVieg06mwWasxO3uNz33+Cxx/6QKFfBml4hJmFEWkskX+43/6bT75//1Tuu022Jk4dLyhmiZF3PGSypZ6JVFB0rUwQm+ZF60MuWwfPc4vkX71gEQpBH6oGS1ETA1KWs0A27Z70Vvc53YdV4I4YNJaY6II27bJZDzaLUGzsoHf7CKFxfBggbVNZebWImFZyQ1tyXN2d/Ojc93gy5csxys12qHxfSOMEFiWJl8oUMy6hEAn0HT9FsIS6Agsx6CVJtBxI4SUYovXI4QgnYyzScIuk0MJXrwUkXQlujf55FMP/RVf++ZTrK2u0W63aTabtNpdWm2fIFS4qTy5wgBhFG6VD7UKSWb6iCJF25dYbvGVtiQjtspnugfWGlQMutBjMNxQh9Q9hcZwQy+yvaEwZBCooMlt0w4iaqO0wTKx/9EYdO9elhXvZh0ZpBWHBsKy6EQhu27dT2WtTuRHVNfWyOVHeeFSw1TqUji2den97/rinA0PaqXuOY7l3dnpKt3yA6m1jedYbDbaVDfrtAPD9GR/XJw3AscRBEoi7HjohdlqlNCvUAGNIpfLsLK2zq27J3j+3CIi4aHCiFxxkOMvXSUML2DbDpbt4dgW0klhZ7IkLDuOKnqN1tcR1uvFcmlJpJBxmH69s/46bf1GIQsQKo6KRC+qMfKVzxXEhDDTK3MKqzccBCIUxXTE/qk0rfY6npPa2omxFRUIYXpEYmIIBw0WeF6Ca1c3WFquMTAyglYBttQkUhlOX17QvvakZ9TxBx8kJmY1uuFjXV+jsMR6tUsUShIJG2PZDAz2ce/d02Qzcbrfbgd4SXoNzlvF2q15DNfLjFobhoezLC1tsG/Co5gVROp6tmrI5UuUyoNkCyWS6RS258Xb2ug4gbnOnHgNJoMxPQ5RTMV7fUpjLyw1+pVM+ToH6dvuGXfqxR2TEkLf5+7dCVyrix/1VoGJlX6dpxT/FrUFW0CIJS0c12L79gHo+FTmVgjqbQqFLK3A4sVzTeG6SSyHx7Y65Vcb3cdb7aAlpWetrLdNyzdIockmBNXNGmcvrLGx3sGyXDZqbTLpBKB7NA69VTyXQiKEwJI2UaTpK7pEWqPade7c34/vB3H8bjRBFBFGEZFSW1NQdA8C/k508u9GWdFbCdkN799YY+7lIjd+pntQxvVfEkSGgUzEXbsTrK1t4LkeURSi0SgMVm+hbClPxwtCipimE0Qh2YEhJm/aTak/i0BRLJeYXWiaq6vGsi2rZdvmcQB55Ahy8dLp+U5gnkqm0qxtNHU70EhpSCZdanWNFoaNpsZLJFlebZFOuPG6lxLVc7pCxtBCXO819FpvmZoqc2pmlrffNUzSAUU8o+fGVXoj5eT1OEDf+rc2BiVe430MWvTMjzY9END0Qs/XoD32/IHu0VG0gDDo8H13F/FEE8uyoVft87vduEx5A5lARfH3d9BYMvYHlcV1Tj13muWlDZSOsG1DLpfh+JlV3eomsaR46vhjX52HI1I+8sghCZhOEH3WTWRYWmuzVu0QKptyIUG+mCKTdpkaL9FXdFhd7RKEBteztvp7tY5XRUwNieFqIcD3IyZHCqxXG2TsFm85OITf7mJ9Cxvi9czMd31o/dq74DqN8boZeo3rX4vqKISg60cc3O5w6zbJ8mqVXDaF8n0y2QTje3eT7isR9hiAOlI9H6Jw7LjGkS3kGJka4sCt0/QXUqhuh1IpQ7MteepUG9wkCPVZwBw69IiUx44d0wAbHfH5MDLNjm+s5UrHNFoR6YyD61qEfkgubTFUzmEMrKy1KeRTRFGIuYGic2PXou5lhpZj2D09wLPPnuL7H5gkl4gZF6IHJrwRSvprcUWv23F9nQpjetno9YxUa5TRvfzgW8zTt96zB7wpDXm3xfvfkmV1dQ4v6aFCjWNFlAf6yBUH2X/HnZSH+2N6uibO0IXBdSEMIxZXqiQLZTqBT6RDPM+QL+R56WLVXFp2LEeaptbq8wDHjh2L6elHjiCfeuqpWW3srztekoW1hm52NAlPkklZbDYDnnvhAq1Wl8HhPBevrpPLedgyrp1KKXpC6MHF4pXOE9/vsm2qSH2jQXdjjsPfv59Wq4WUVoyKInuC5btyOl/12rBlirZ4pdd95XX4mi2Q8jXvteUfjIjnSnQbvP/NJQgqtNshtmWD7pDNFznxwhU+/btH+dJDX6KUsXEsiVbxTk4kJH4nwHZdUqk0j33jOZrrDaJOF89LgUxz7PlNHZg0Uuivv/jUF2c5ckRCLwqamTksAHxlfj+RyrCw2hKtwBBGgkLOxks65PoG6Pqa/pLD8mqDbleTStkxuKZiJyqQaKW3QsYoinr11IiDt03x2MPPcd8tae45MEK71UJaVlwvuIHJ+Vqr/TtGOvA9ma1vM3fagCUIO23uvyXJge2C5aUVcrksRAF9fTmuzi5jWRG33TFFvbLByrXFHv4XkXDBtaDeUtiOQyHvMjUxyEa1iS0jcrk0l5d8npkJhXBsjFG/D3B4ZkZsRUFHjx7VxiC8Yu1rruOcajcDsVTp6EYroFTI4UnIpiTStJmeLFHuy3Dm/BqDA1m0Ur1pVAKle2w5o7fiY4wgCEIGypKB4QyPfPmb/PxHDzI6kKbT9bEsgTHidVf665Fpv9euGfMt/uB6y5GQkiiI2D3c4V13Zbh86Qp9/f0QRaRcwepqjfF9O9l1805cmhzYP8BSpdUjJigSSYtms4PjWNhuSC6XIJ1yKRYSWI4kkSzwjWcquhZmhWWiU81172uAOHr0qL5xYJO5/36so0dnAmEn/rMWCXHhyrpZ2whJpFxc2+PKlSrLazUuX5nnpj39XJ6tYrsZUgnZm/PWg5r1KwMDhQRpCWxpiKwC73zvvVSrHU4+/TD/2/90L/mUJPSDnhK++wzHN0JV/9b3X+03bmjG6NFpVKiZyK/xz+7Pc+3iJfLFLLYUbNTaNNohCpe11TahcCj3l7gyv4qXSKCVIelZSK1otwOktLh4do3zZxdjUpoKKZfLXFuLePxk1zjJjDDG/OeZmaPBoUOHrOtbfqtTvofUirc+8O7zzdrKjzYareLUSMHkc7bIZBJcnd3AsS1sYdHfn2at0iGIYNtkH2trVSwrrnFa14m6Jo6UVNBlY6PJWiWgWatyYP8oxx49x0Cf5n3vfYCnn79KvdXGdZ1X09Vfo+/3jTTxfasCbmzUfuVvgxAWQvnsG+7ww/f3UVtbodhXIJGw8GyLS1c28AOD5VgkXbh2+SpXr1VJZzMkvQTGKAoFl1q1Rnl8hHx/Fq0iHDcBJiSTtskWBvjMN1b1c5c9aQlmG1r/7PrcuXB2dva1h3UcPoz153/+YveOm6fblY3N9xfzjs6npBwfy1OpNJFC0u222WyETGwrc+LkVfbtm8TvtlGRQgqDbVvYlhXnBdqwuryOlAZLSJrry7h2yC23TvP44zP05RQ/9IPv5OWZRRZWNkkkEgjMG+6KfL0u+Vc3ZxNzSnsP3QPQEiLkTXvg3Xenqa0t01fOkPAkKqLXoa/J5BJs1psYy+XOO3axvrJOrpBFRRF9hQRR0MH3IzY36yRLAwwNFWjVWlgyoq9U4NKK5k++tKGNPSiFCX/5pSc++1SvQVu/pgJmZuAIyPt/9adOPffoqfd3u93hicGsLqY9kcsmWJhfY2xykEIuSV8uSaupWVqpcuDmbaytbuA4Vi+ejkEqISyuXttgeGySRMKl2+5SHBzGtgJ2To/xzFNnCBvzfPRD76PW0py9MIcRFo5jb9VjX3sOxA3DOd7ATpG9xoDrc/pGCpr33pVg/3hIbaPC4HApLvUrg5QWfrtOIpmk0Qq57+0HmbsyT9Cokctl6XZCslkbKUKq6y36hss0Njc5+9JlpJGkHUMi6eCkSvzpXy/ri9VBK5GwXhot83OHDx82n/zkJ813nJg1APLBo8ei7RNDV9bWqj8+NJDVnhXKqakyV2arlAppTNDm6vw6e/eP8vzzswyP9pPL2LTbAZYdD14SQuA4Np4j2FjboOsrEJLNrqTcX0LS4uCtezh9boXzp57n8A/czc379nFpdpWV1SpCxHPbRC9DvXHcgEG8Mn5yS9hyi9ourl8rRW8unUEbKKU1b97n8a5bHDKiioo6jIyW42YUpRBCEnRbeJbHeq3D3FKbuasrDBddghDaviKTtEkmBYsLa+TyGbTjMLptAuW3EdImkTD0lcs8c7rLXz7S0U6qKJUJP/aVLxw9PzAwIG9c/a+pgBkwh8H68nL1QjHr7kaZA0N9nspkHFks5XnqqXOMTgyRybooHTA+McyxR85w19276HSacWOGBM9xaNSbdP2Im2/ejtAdxkZLRH6byvIm+UKG+cUKe/Zup9tq8Ng3n2Rq1OKH/+n9DI6NsrK6yWplkyBU2NKKWdAi7gtAxni9EDFFUEoRv5YSK7Y5hNoQRBESGCkneMuBPO+83WMsU6VZW6VUSjM4UKDT7mK0QUgLPwh7hAODQrNtoownQqRlsb4ZUCimKWZtNiqb2F6albUKWddibWWdwaERbBFSLGZp+Cl+66FZVdVDltHRp5555DP//sajXb7rzLgZEMYY7tyz++mL84sfHhsqpKUJ2b93VFQbPmEQ4klFsxmSTzs0moqFpXVuv30nyysxrcSybUr9/cwvrJLJF0gkodsJWV/vkPQEGxttrs1uYtpr7Ns/Qf9AnplT57ly5jg3TRd4z7tu56bdU0jLpt3s0my16fgBQRAQqRh9VUqhlSGMdO/oqhAVGVxHMNCX4I6bBnnXW4d5680uI6kNuuvzOI5gcqqM5zm0W+24u1/EoXCr5XPm7Br79o2QzLhI1SSRcLg816S/v0gxK2k1WoAhX8wxNDGM41i0GwEWhlTaIZ3r59NfXTSPnvOE5bgVJwp+eH7+QnNm5jBw7I3MjHv1yRjTI4kP7hgrffr9905EO3eX7XJ/jq99+QX6S2l0pFBRwME7b+abD7/E7j1j7N49yAvPnGV5ZZOBgX5SKcHmRp3RiRKFYpbnn5ujUCowNpZBRYJU2sayDLZl49oWq2tdLpy/hgHGprYxPLUL4/WxXNXMLrVZWmtSqdRod/xeiKnxXIds1qUvl2Kg5FHOa3KuT9TdpFVdRgRtkmmH4eESjiXo+AGqd5ycFJIgDAkCjVKCrz98kXe++yB3vmU38+cu8Myz5ykWCoz1J+h0GviRRcKRdLoR7VDR15dFaInrhAwMDvL82Ta//lAl6shhW4fBj5w8/oW/fL3V/0amp1sg1ETB+Z1/+n27f+b2nanotrt22rOX1nj+xAWmJ8p02l0yGZdyucjjz5znne+8E0soXnrxPAPlPEvLTRK5PAcPjtDa3KQ4MMCJZ19iaHiAXD61hQfFYazAtiWu67Gx2WRutspmtY7jWGQLJXJ9ZbLFAWw3jZYuQsQDvZXfRUVtgnaNbn2DsFtFRyFSWgwNFCn1ZUEYfD8gDFSv7vDK4NgwVKjeBMf1apezZzfo788gZUBfOcvYYJra5iZRqJnaPsGVq1cZGRliYXEdz02SThpKpTybjQS/9peL0Vxj2Daq87vHn/z8J76T8N+IAsQREA+Cd8fewuM//p49t40N2OrmW3dbX/3aCdr1JgN9GTqdNv39BSzX5dnjl3n/Dx7CES3W1zZIJhOcv1wjny+Rslu0AxgsZ0gkYmJt3FgnsazYidp2nKNYtoVtuSil6XQCqut1ms0GkYl6jXZW75yY2BckPUEiJUinEhSKGdLpDK5NXMRvd3uYDxgtbhgUG0daURT1GrBj/6W0pNbyyaVTlHIOKytrdLsCxwYvpRkYHmV5foMgEmTTmkI+je0V+f3Prqpn5gcsaTkvDBc6b923b5//4IMPmu90Gt8bGSUihRDaMWbnD75t6tF33j0wNDnVp8v9ffK/feYJygMFCoUUUkCpkGSzEXLq5at88EffQ9jaYH1lCYPk3Pl5crksruOAjpiaHvy2OT8Aruv2GhgUgniyomVLbEdiW1acbUeKyOi4e1LHB/g4FiSycTIUhW2MkPh+iAoVlrTQJl7t17v6pbQATdTr9onC+HPLtogiQ8Jz8ZyIzY0a9aZifHwQLQPmF9ZJJxJkslmIFNghQ4OjPPT1Ff3Z51PSSeWXI9O975mv/7cL8eDz73zS0hsZsW4OH8Y6dUZUKqubz/f15X/ENYE9Mt5nJrePiMW5NWzXodVRVCoN7r5jF7aMeO7Zl9ixbw995SIXL1xDKcHA8CCZXJJOu0E2l31Ve6plxYcrRJFGKb0FIWhtCMOASMXMaK0UVjJBKl8gnUqSLORIFTM4XoJaPSDd14ftOtiZPMXhQSK/RafR3ipJCimxLRspLaIoih9KxXXnniJs22DbhsXFColEmn237eXqpUvgJMiW+ug2IxwhgC5jwxN8/bmKPvoEQth9fhBs/OBzx77wQpxwffK7HnP1hmbcz8zEoemzobhSr7cvDfYXf7i1sc6+W3bgeLZYml/DsRPMXl0mbK8zMd5PNpXkhWdfYmB0jB17Jlm4tozleKBCCoV8HFZKsWV+hJBIKeIxBvrVdQIh4oKPbTs0mm28ZJIwFKwsr7OxXuPatVUiBAsLq5x+/iyLV1c4cfwijc0uw/1p/E4n7uKXYmsWdRiGMWVSSIwSCCWBGOG1pGF+YR1jHDIZlyhoUiqkuDCzit+V5JISS0ZMTm/nqRMV8wdf7RDZAwIdfOS5J77whe9m979nBVzPD44cOmT/11MXTvZlElcGyskfbG+um1vvvsV0/UBcujDHUH+agb4UyVSSfCnH+PgY3/jK4zhegvvedjetxjquLSkVsoRRSKA0th07X6S5zjYEY3pTz8UW9VwIh3ptk/pmh8W5Na5dmae6XqO52SSftHn2yTNMjhXpL6boK+cpZtNcOH2NhGvheDGTToiYLhkG4VboiY7nViQSNoWcR6vTZHWtAViMjRRZXFxDSodmq4uXSGNJ6LRr7Nm3i5MX6vpTj2ra3pRISPdjjz/8qT8/dOiQ/cUvfvENny32hhUAcGx2Vh85csj+vT976cVbdo5fTrr80ObaqrjjzQd0c7MtFuZWsdMpLCfF0vwCxsDIyACnTp7n2uwCd9x7D8lMhrXlOTzHQl4/cK1HdBKCXp9ZzDwzvQqLkGBbkgsXlkmnHAYHcowNFxkcLHDxaoXJ7WWa1TphFDE6VSKVT5PJeSgVEEaadMqLcV/zSvO36fkSy5bk8kksCUvLVdrNkOkdQzi2xdUrS9x1104WljeQpFGRptGsc/DW3Rw/W9V/9KWmrJoxYXvmow9/8Y//7NChQ/axY9/bIT7fkwLiMtqsPnLokP1/fOHJEwf2jZ8n8t9bW11x3/TA7UoKS1aWazRbLZZXmgQRZNMeN9+yA9t2eebRZ8gW+5net4ew20F1WjGTwuqFhSYOCY2OizpSxtCcJQ2eZ/PiyTXKQzn2H9iG40lKg0Xm5uoEgeLO+24mm/HoH5nA8tJoJaiu1bAtQbEv25tgFeM9URSfSZPLpchkU6yt1rh0eQHbcRnoS7O0uEI+6+IHmtWNBsVsiVarjbAUBw/s4anTa+r3v9KyNvV4J/JrH33iaw/9+d9E+H8jBdy4E/7333j85JtunXqy02i+q7Gxkrvn3oORk/BkfaNG/0A/lm2xWVlhfmGDQqnIrh2jnH7pDKdfvszQxHaGJyYwKPx2M2Y0W/EcTq1i+qJSYTxaXoNlW+jQMHN6mWwxTxBZVCt1skmX82eXadY6tOodzs1cZOHqApXlCqmUw+hYzJ4LA0UUKVzbJl/IkculaTTanD0zhzKG7eMlPM/C95tEgaJe9zEiidYe9UaTVMJi395pHjuxFv3JVzp2g7GlhOf98JMPH/38oUNH7GPH/uQf8iC33ukyRw7ZDz54LPrVn33rrozT+YvR0fTtB996l1pbqsmTx0+K6maII322TxaZm11GeHluvnkHKwvXuHBhgf7xMQ7ccYC+Yorm+grN6jphEGCMwLLdHsYDlhRoo0ilPM6d3WBpaZNiPkUqoXA9m3I5Q7Ppk0p7JJMxwUtaVo8qHmK0wnU9MrkMBsFapcbiwhrNWod8MUenqxjqt9nYrDM6XKCy2kKRwkumWFlcZ2AgxejooDn2fFX/1fPSaurS81qaH3vuG395/m+68v/ODvN86PBh6wNHj6ojR/5JarC19uvFvPzETXfux/Ec9fSxGevatRrTkwksAUrbrC0vMTqUY3SizMpal9XVNaSTYnLXDobHhvBcSbe2QafVIvTjKVSY+AQY25akMm7vwAcLS9pooQiandh5W5JIxUCd6zrYrh0XeoSi1YxYWa2yWa1hlCaZzDA0XCQIQ06+tEguJ3ETLpsbLfbumaTbDdmo1BgeLoC01NeOt62vzXgou+93br1v1y/+3oMPtr+XaOfv9TjbI0eOyAcfjBOO3/yl238sCoPfOHjH9oFtu3ebK+fnzMvHZ2Qyk0SHPjYKx5GUihkyaQ8nlaXV6HD23GUiY5Mp9DEyOcLAUB/pdBLXEqhui7DbQvnx1EVhCYS0EULGB7ARYksby3FwU2kkkk67S6PeZK1SobpRRxqJhaI8VKRUyjM3W6HZ6tA3UKS+GbGwsMT2yQGS6RT1ah0v4dFXzurltUj81dMtMbOYWU2mh3/h4a/+wV/0frTkwf8xjrPdutdDh5EfOIr6dz//lgk7XP+341ODH77r0B2Eka1eevK4uHZ5WYZRyMhoP1Fzg1wGljYM+UyeodEE0ghanZD1jQaNlo+bSpLOZEmn4knryWQCx5Y4SQ/XddBhQBiFqMCn0/bpdLr4nTZR4NPtdEgnbRKJFJYlyGVTrK5u0vGbbNs2SKdjc21uI+5TzqbIZhNEvk+jGdBXzGo7kTBPn25YX31RsR6U/iyf3/Wvvv6FX7vG4cMWcUH9f6gDnb/NJAH8p//5pvd5Cevf3Hz7TbeNTo1TWV5XLzz9smhVGzKdANuzmJgc4eLMeRKpBFJGDA+XQSZRYYCRFpYEv+ujjGFttU6tKZBCk06C57rxjNIohhuSSYdyMY1lQyGfYW5ujXw+yfz8Oomkg0DiJR2yGZdGS2DZFknP7YWrAa6d0OlUxlyab1hPnJGcmJUvbESZf3322b/667hk+7c3OX/vCujRycXRD8S74fjv/nPn6ZljP5HM5n9p/4HtO0YmxqlUGvrqhatm/sqCTLiWwIQopejLZzCqDY5Lp9XGS+cxpkMxnyOZzhOEPmGoSaYswk48Ui1fyGIJhRSaq/NVpNFEyqevlKW6XqdQTNNqxfMepBZs1Dt4SYfyQImkI1CBMn5gdDKREtVmKJ890+Lxc8HFtfbAf3jz7Z//w9/7PRHGgn9I92Z38T+8Al5rN/yfPz6Y9hOZD01NDX5i34H9B0e3jbG2XOHC6ctqeXGFTq0hhdHCS1j09efJpB1a3Yja+jqZVJoIjeN4NBodRkdy1JqKpYVV+oopcrkkqbTH8kqbjcompXyWyESMj+aQlk3gK6pVn2w+Ra6UwrGl0aHSRhlcN2XV2/DsmSpPnWu/eH7e/Z3k+P/05ye/9pHW39eq/wdTwJZveOiw/EDv6O9/fjvO1G1T7xmZGP346NjoOyZ3DGbSqRwb622W5xf00vyiXltZk5mEK/wgEmEYUcilSGdtVGQTRIpOu4XleASBz9hgfAioIx3qtQ7Ndjw4BMuQz9pkCimKpbzJpFJGR5EOolCGLS2VkqzUIs5eqjVPXet+/YWr5o8unfu5L8HPhDcI/u/M1v9jKuA68VAcvUERAB95sze9+6aJ905Mjr1/bGLk7tGxcjabSxFEhvWVdSprFRN0fdOs1UwURMKxhYizY0sEYXyufDqTIJdP43o2trSMtARewjLJpGMsyxUaS0RBIIJGi3ZbU28pFta7jbnlzjMnL9Q/98Unr30R/EvXhfHP/oEE/w+ugFdHS4fl4X37jLghjPvYHYzvv2PyLcX+/vsK5dIdxUJmWyaTKmczSZKeh+W5hDqugFlaYYJufD6MsOLBfEYQ+i0Cv0un2aLd7NLpRjSaEX6gK5GWVxodcXyl0n70a8cXnzh+enFua3EcOSI/MPOgOHqUfzDB/2Mq4Ib8AQmH5K9wvxbfElMfPsC2HbsHduSLmb3pdGpPvpCddhPesO24fcborI6iLMS1A6kN2oiGUWGj1fXXW+1oSStxCeGeNW7izNKqvPjr/+WxK68OFI7I++9/5Do9X/9jyeD/B9WWu/2p8HyOAAAAAElFTkSuQmCC" alt="Bitworld BTW" width="28" height="28" style="border-radius:50%"><span>Bitworld</span></div>
   <div class="hright">
-    <button id="acc-btn" class="accbtn" type="button">Log in</button>
-    <div class="lang" role="group" aria-label="Language">
-      <button id="lang-id" type="button">ID</button>
-      <button id="lang-en" class="on" type="button">EN</button>
+    <button id="acc-btn" class="accbtn" type="button">Masuk</button>
+    <div class="lang" role="group" aria-label="Bahasa">
+      <button id="lang-id" class="on" type="button">ID</button>
+      <button id="lang-en" type="button">EN</button>
     </div>
   </div>
 </header>
@@ -389,7 +337,8 @@ html .tabs2 button.on{color:#111}
     <div class="panel" id="faqBody"></div>
   </section>
   <!-- AKUN (LOGIN/DAFTAR) -->
-  <section class="view" id="v-auth"><div class="panel fm" id="authBody"></div></section>
+  <section class="view" id="v-auth"><div class="panel fm" id="authBody"></div>
+    <a href="/info.html" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Info proyek &amp; tautan resmi · Project info &amp; official links</a></section>
 
   <!-- MINING -->
   <section class="view" id="v-mine"><div class="panel fm" id="mineBody"></div></section>
@@ -404,24 +353,23 @@ html .tabs2 button.on{color:#111}
 /* ================= DATA ================= */
 var CONTRACT = "0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea";
 var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var lang = "en"; /* bahasa utama: Inggris; pilihan pengunjung diingat */
-try { var _sl = localStorage.getItem("btw_lang"); if (_sl === "id" || _sl === "en") lang = _sl; } catch (e) {}
+var lang = "id";
 
 var UI = {
-  id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek token BTW (BEP-20) di jaringan BNB Smart Chain. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Token BSC","DYOR"]},
-  en: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"A BTW (BEP-20) token project on the BNB Smart Chain network. Learn about Bitworld's vision, whitepaper, and contract.", s_symbol:"Symbol", s_supply:"Supply", s_network:"Network", b_wp:"Read Whitepaper", b_contract:"View Contract", warn_short:"Not investment advice. DYOR.", prev:"← Previous", next:"Next →", copy:"Copy Address", bscscan:"Open BscScan", copied:"Address copied", copyfail:"Copy failed", n_home:"Home", n_wp:"Whitepaper", n_vision:"Vision", n_token:"Token", n_contract:"Contract", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21,000,000","BSC Network","BEP-20","Token BSC","DYOR"]}
+  id: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"Proyek Layer 2 di jaringan BSC dengan token BTW. Pelajari visi, whitepaper, dan kontrak Bitworld.", s_symbol:"Simbol", s_supply:"Supply", s_network:"Jaringan", b_wp:"Baca Whitepaper", b_contract:"Lihat Kontrak", warn_short:"Bukan ajakan investasi. DYOR.", prev:"← Sebelumnya", next:"Berikutnya →", copy:"Salin Alamat", bscscan:"Buka BscScan", copied:"Alamat disalin", copyfail:"Gagal menyalin", n_home:"Beranda", n_wp:"Whitepaper", n_vision:"Visi", n_token:"Token", n_contract:"Kontrak", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21.000.000","Jaringan BSC","BEP-20","Layer 2 BSC","DYOR"]},
+  en: {badge:"BEP-20 • BNB SMART CHAIN", tagline:"A Layer 2 project on the BSC network with the BTW token. Learn about Bitworld's vision, whitepaper, and contract.", s_symbol:"Symbol", s_supply:"Supply", s_network:"Network", b_wp:"Read Whitepaper", b_contract:"View Contract", warn_short:"Not investment advice. DYOR.", prev:"← Previous", next:"Next →", copy:"Copy Address", bscscan:"Open BscScan", copied:"Address copied", copyfail:"Copy failed", n_home:"Home", n_wp:"Whitepaper", n_vision:"Vision", n_token:"Token", n_contract:"Contract", n_faq:"FAQ", ticker:["BTW Bitworld","Supply 21,000,000","BSC Network","BEP-20","Layer 2 BSC","DYOR"]}
 };
 
 var WP = [
   {t:{id:"Ringkasan",en:"Summary"},
-   b:{id:["Bitworld (BTW) adalah token BEP-20 yang berjalan di BNB Smart Chain (BSC). Proyek ini memanfaatkan jaringan BSC yang cepat dan berbiaya relatif rendah untuk menghadirkan pengalaman yang sederhana bagi pengguna.","Whitepaper ini menjelaskan masalah yang ingin diselesaikan, pendekatan teknis, struktur token, dan orientasi jangka panjang Bitworld.","Makna nama Bitworld: \"Bit\" merujuk pada data digital, fondasi dari setiap transaksi dan aplikasi di jaringan blockchain. \"World\" merujuk pada ekosistem tempat pengguna, pengembang, dan komunitas saling terhubung. Bitworld adalah dunia digital yang dibangun di atas BNB Smart Chain, dengan token BTW sebagai bagian dari ekosistem tersebut. Nama ini tidak berhubungan dengan Bitcoin (BTC) maupun proyek lain."],
-      en:["Bitworld (BTW) is a BEP-20 token running on BNB Smart Chain (BSC). The project leverages the fast, relatively low-cost BSC network to deliver a simple experience for users.","This whitepaper outlines the problem being addressed, the technical approach, the token structure, and Bitworld's long-term direction.","Meaning of the name Bitworld: \"Bit\" refers to digital data, the foundation of every transaction and application on a blockchain. \"World\" refers to an ecosystem where users, developers, and communities connect. Bitworld is a digital world built on BNB Smart Chain, with the BTW token as part of that ecosystem. The name is not related to Bitcoin (BTC) or any other project."]}},
+   b:{id:["Bitworld (BTW) adalah token BEP-20 yang berjalan di BNB Smart Chain (BSC). Proyek ini dirancang sebagai solusi Layer 2 dengan tujuan menghadirkan transaksi yang lebih cepat dan biaya yang lebih terjangkau.","Whitepaper ini menjelaskan masalah yang ingin diselesaikan, pendekatan teknis, struktur token, dan orientasi jangka panjang Bitworld.","Makna nama Bitworld: \"Bit\" merujuk pada data digital, fondasi dari setiap transaksi dan aplikasi di jaringan blockchain. \"World\" merujuk pada ekosistem tempat pengguna, pengembang, dan komunitas saling terhubung. Bitworld adalah dunia digital yang dibangun di atas BNB Smart Chain, dengan token BTW sebagai bagian dari ekosistem tersebut. Nama ini tidak berhubungan dengan Bitcoin (BTC) maupun proyek lain."],
+      en:["Bitworld (BTW) is a BEP-20 token running on BNB Smart Chain (BSC). The project is designed as a Layer 2 solution aiming to deliver faster transactions and more affordable fees.","This whitepaper outlines the problem being addressed, the technical approach, the token structure, and Bitworld's long-term direction.","Meaning of the name Bitworld: \"Bit\" refers to digital data, the foundation of every transaction and application on a blockchain. \"World\" refers to an ecosystem where users, developers, and communities connect. Bitworld is a digital world built on BNB Smart Chain, with the BTW token as part of that ecosystem. The name is not related to Bitcoin (BTC) or any other project."]}},
   {t:{id:"Masalah",en:"Problem"},
    b:{id:["Pengguna dan pengembang sering menghadapi biaya transaksi yang tidak stabil serta proses yang rumit saat berinteraksi dengan aplikasi terdesentralisasi.","Masih dibutuhkan infrastruktur yang sederhana, transparan, dan dapat diandalkan."],
       en:["Users and developers often face unstable transaction fees and complicated processes when interacting with decentralized applications.","There remains a need for simple, transparent, and reliable infrastructure."]}},
   {t:{id:"Solusi",en:"Solution"},
-   b:{id:["Bitworld berjalan di jaringan BSC untuk mendukung aplikasi dengan pengalaman yang lebih sederhana.","Rincian utilitas token BTW akan dijelaskan lebih lanjut seiring perkembangan proyek."],
-      en:["Bitworld runs on the BSC network to support applications with a simpler user experience.","Details on the utility of the BTW token will be expanded as the project develops."]}},
+   b:{id:["Bitworld menyediakan lapisan kedua di atas jaringan BSC untuk mendukung aplikasi dengan pengalaman yang lebih sederhana.","Rincian utilitas token BTW akan dijelaskan lebih lanjut seiring perkembangan proyek."],
+      en:["Bitworld provides a second layer on top of the BSC network to support applications with a simpler user experience.","Details on the utility of the BTW token will be expanded as the project develops."]}},
   {t:{id:"Teknologi",en:"Technology"},
    b:{id:["Token BTW mengikuti standar BEP-20 dan berjalan di BNB Smart Chain.","Alamat smart contract resmi token BTW:"],
       en:["The BTW token follows the BEP-20 standard and runs on BNB Smart Chain.","Official BTW token smart contract address:"]},
@@ -443,7 +391,7 @@ var WP = [
 ];
 
 var VISION = {
-  vis:{id:"Menjadi proyek yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.",en:"To become a trusted project on BNB Smart Chain, offering a simple experience for all users over the long term."},
+  vis:{id:"Menjadi infrastruktur Layer 2 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.",en:"To become a trusted Layer 2 infrastructure on BNB Smart Chain, offering a simple experience for all users over the long term."},
   mis:{id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang.","Menjaga transparansi melalui kontrak yang dapat diverifikasi publik.","Membangun komunitas yang bertumbuh secara bertahap dan berkelanjutan."],
        en:["Provide fast transactions and affordable fees.","Build open documentation and tools for developers.","Maintain transparency through publicly verifiable contracts.","Grow a community that develops gradually and sustainably."]},
   lt:{id:"Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek.",en:"Long-term focus: building a sustainable project, not short-term gains."}
@@ -532,7 +480,7 @@ function renderVision(){
 function renderToken(){
   var isId = lang === "id";
   var cats = [
-    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e"},
+    {n:isId?"Komunitas":"Community",     p:50, c:"#f5b82e", a:"0x3cce806978300525acb416f77d28b9699bd611f0"},
     {n:isId?"Tim":"Team",                p:15, c:"#22d3ee"},
     {n:isId?"Pengembangan":"Development",p:10, c:"#a78bfa"},
     {n:isId?"Likuiditas":"Liquidity",    p:10, c:"#34d399"},
@@ -554,8 +502,10 @@ function renderToken(){
   });
   h += "</table></div>";
   h += "<p class='muted' style='margin-top:10px;font-size:12px'>" + (isId
-      ? "Jadwal vesting akan diumumkan melalui kanal resmi."
-      : "Vesting schedules will be announced through official channels.") + "</p>";
+      ? "Dompet komunitas: " : "Community wallet: ") + "<span class='mono' style='display:inline;padding:2px 4px;font-size:11px'>" + esc(cats[0].a) + "</span></p>";
+  h += "<p class='muted' style='font-size:12px'>" + (isId
+      ? "Alamat dompet kategori lain akan dicantumkan setelah dipisahkan. Jadwal vesting akan diumumkan melalui kanal resmi."
+      : "Wallet addresses for other categories will be listed after separation. Vesting schedules will be announced through official channels.") + "</p>";
   $("tokenBody").innerHTML = h;
 }
 
@@ -641,20 +591,22 @@ function renderMore(){
   var isId = lang === "id";
   var W = "https://bscscan.com/token/" + CONTRACT + "?a=";
   var wallets = [
-    {n: isId ? "Komunitas" : "Community", p: 50},
-    {n: isId ? "Tim" : "Team", p: 15},
-    {n: isId ? "Pengembangan" : "Development", p: 10},
-    {n: isId ? "Likuiditas" : "Liquidity", p: 10},
-    {n: isId ? "Pemasaran & Ekosistem" : "Marketing & Ecosystem", p: 10},
-    {n: isId ? "Cadangan" : "Reserve", p: 5}
+    {n: isId ? "Komunitas" : "Community", p: 50, a: "0x3cce806978300525acb416f77d28b9699bd611f0"},
+    {n: isId ? "Tim" : "Team", p: 15, a: "0x090b...813f"},
+    {n: isId ? "Pengembangan" : "Development", p: 10, a: "0x60988ac58B48337335De3f6d70B0A65aFf902455"},
+    {n: isId ? "Likuiditas" : "Liquidity", p: 10, a: "0xeceb4365dde67be55ba46018b647a2087084789d"},
+    {n: isId ? "Pemasaran & Ekosistem" : "Marketing & Ecosystem", p: 10, a: "0x10BA662fd08eD7E2F961E5E5EfCba039f62165a8"},
+    {n: isId ? "Cadangan" : "Reserve", p: 5, a: "0x0857...56e2"}
   ];
-  var al = "<h2>" + (isId ? "Alokasi Token" : "Token Allocation") + "</h2>";
+  var al = "<h2>" + (isId ? "Dompet Alokasi" : "Allocation Wallets") + "</h2>";
   al += "<p class='muted' style='font-size:12px;margin-bottom:10px'>" + (isId
-      ? "Pembagian total 21.000.000 BTW per kategori."
-      : "Breakdown of the 21,000,000 BTW total supply by category.") + "</p>";
+      ? "Setiap dompet bisa dicek saldonya di BscScan. Alamat yang masih disingkat akan dilengkapi sebelum publikasi."
+      : "Each wallet balance can be checked on BscScan. Shortened addresses will be completed before publication.") + "</p>";
   wallets.forEach(function(w){
     var amt = Math.round(21000000 * w.p / 100).toLocaleString(isId ? "id-ID" : "en-US");
-    al += "<p style='margin-bottom:8px'><strong>" + esc(w.n) + "</strong> · " + w.p + "% · " + amt + " BTW</p>";
+    var full = w.a.indexOf("...") === -1;
+    var link = full ? "<a href='https://bscscan.com/address/" + w.a + "' target='_blank' rel='noopener noreferrer' style='color:var(--accent2)'>BscScan</a>" : "<span class='muted'>" + (isId ? "Alamat lengkap menyusul" : "Full address to follow") + "</span>";
+    al += "<p style='margin-bottom:8px'><strong>" + esc(w.n) + "</strong> · " + w.p + "% · " + amt + " BTW<br><span class='mono' style='display:inline;font-size:10.5px;padding:2px 4px'>" + esc(w.a) + "</span> " + link + "</p>";
   });
   $("allocBody").innerHTML = al;
 
@@ -673,7 +625,7 @@ function renderMore(){
   var terms = isId ? [
     ["BEP-20", "Standar token di BNB Smart Chain, mirip ERC-20 di Ethereum."],
     ["BSC", "BNB Smart Chain, jaringan blockchain tempat token BTW berjalan."],
-    ["Gas fee", "Biaya jaringan yang dibayar dengan BNB untuk memproses transaksi di BSC."],
+    ["Layer 2", "Lapisan tambahan di atas jaringan untuk transaksi yang lebih cepat dan murah."],
     ["DEX", "Bursa terdesentralisasi, tempat token diperdagangkan langsung dari dompet."],
     ["Likuiditas", "Dana di pool perdagangan yang memungkinkan token dibeli dan dijual."],
     ["LP token", "Bukti kepemilikan atas dana likuiditas. Siapa pun yang memegangnya bisa menarik likuiditas."],
@@ -683,7 +635,7 @@ function renderMore(){
   ] : [
     ["BEP-20", "Token standard on BNB Smart Chain, similar to ERC-20 on Ethereum."],
     ["BSC", "BNB Smart Chain, the blockchain where the BTW token runs."],
-    ["Gas fee", "A network fee, paid in BNB, to process transactions on BSC."],
+    ["Layer 2", "An extra layer on top of a network for faster and cheaper transactions."],
     ["DEX", "Decentralized exchange, where tokens are traded directly from wallets."],
     ["Liquidity", "Funds in a trading pool that let a token be bought and sold."],
     ["LP token", "Proof of ownership of liquidity funds. Whoever holds it can withdraw the liquidity."],
@@ -778,8 +730,8 @@ document.addEventListener("click", function(e){
 $("wpPrev").addEventListener("click", function(){ if (wpIndex > 0) { wpIndex--; renderWP(); } });
 $("wpNext").addEventListener("click", function(){ if (wpIndex < WP.length - 1) { wpIndex++; renderWP(); } });
 
-$("lang-id").addEventListener("click", function(){ lang = "id"; try { localStorage.setItem("btw_lang", "id"); } catch (e) {} applyUI(); });
-$("lang-en").addEventListener("click", function(){ lang = "en"; try { localStorage.setItem("btw_lang", "en"); } catch (e) {} applyUI(); });
+$("lang-id").addEventListener("click", function(){ lang = "id"; applyUI(); });
+$("lang-en").addEventListener("click", function(){ lang = "en"; applyUI(); });
 
 function copyText(text){
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -941,13 +893,14 @@ function initScene(){
   }
   function msg(text, ok){ var e = g("fmsg"); if (!e) return; e.textContent = text; e.className = "fmsg " + (ok ? "ok" : "err"); }
 
-  var authKnown = false;
+  var authKnown = false, guestForced = false;
   function setAuthUI(){
     var a = user ? "1" : "0";
     document.documentElement.setAttribute("data-auth", a);
     try { localStorage.setItem("btw_auth", a); } catch(e) {}
     var cur = document.querySelector(".view.active");
-    if (!user && cur && cur.id !== "v-home" && cur.id !== "v-auth") go("home");
+    if (!user) { if (!cur || cur.id !== "v-auth") go("auth"); }
+    else { if (guestForced && cur && cur.id === "v-auth") go("home"); guestForced = false; }
   }
   function loadMe(){
     return api("me").then(function(r){
@@ -1128,12 +1081,13 @@ function initScene(){
   var _go = go;
   go = function(n){
     if (n === "mine" && !user) { toast(T("Masuk dulu untuk mining", "Log in to mine")); n = "auth"; }
-    else if (authKnown && !user && n !== "home" && n !== "auth") { toast(T("Masuk dulu untuk membuka menu ini", "Log in to open this menu")); n = "auth"; }
+    else if (!user && n !== "auth" && (authKnown || document.documentElement.getAttribute("data-auth") === "0")) { guestForced = !authKnown; n = "auth"; }
     _go(n);
     var ab = document.querySelector("nav.bottom button.on");
     if (ab && ab.scrollIntoView) ab.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
     if (n === "mine") loadMe().then(renderMine);
   };
+  if (document.documentElement.getAttribute("data-auth") === "0") { guestForced = true; go("auth"); }
 
   var qs = new URLSearchParams(location.search), vt = qs.get("verify"), rt = qs.get("reset");
   if (vt || rt) history.replaceState(null, "", location.pathname + location.hash);
@@ -1151,7 +1105,7 @@ function initScene(){
   });
 })();
 </script>
-<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/ambassador.js"></script><script src="/tim.js"></script><script src="/logo-koin.js"></script><script>
+<script src="/profil.js"></script><script src="/refcard.js"></script><script src="/captcha.js"></script><script src="/tema.js"></script><script src="/logo-koin.js"></script><script>
 (function(){
   var data=null, el=null;
   function f(n){try{return Number(n).toLocaleString((window.lang==="en")?"en-US":"id-ID")}catch(e){return n}}
@@ -1184,6 +1138,5 @@ function initScene(){
 </script>
 <script src="pool-ui.js" defer></script>
 <script src="tugas-ui.js" defer></script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})}</script>
 </body>
 </html>
