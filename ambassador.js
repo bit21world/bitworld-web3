@@ -9,6 +9,7 @@
   var AMB = {
     FORM_URL: "https://forms.gle/uteqzkg5WP4BeoNW8",   // link Google Form (harus diawali https://)
     TELEGRAM_URL: "https://t.me/Bitworld_Official",
+    REQUIRE_KYC: false,                                 // true = tombol daftar hanya untuk akun dengan KYC terverifikasi
     POOL: 50000,                                        // kuota total reward program (BTW)
     CUTOFF_DAY: 23,                                     // batas tanggal laporan poin setiap bulan
 
@@ -53,8 +54,7 @@
   }
   function safeUrl(u) { return /^https:\/\/[^\s"'<>]+$/i.test(u || "") ? u : ""; }
 
-  /* ============ Status KYC (endpoint yang sama dengan kyc.html) ============
-     Balasan: { status: "approved" | "pending" | "rejected" | lainnya = belum mulai }.
+  /* ============ Status KYC (dibaca dari /api/me -> user.kyc) ============
      kycRaw: null = belum dimuat / gagal dimuat (tidak diblokir), selain itu string status. */
   var kycRaw = null, kycBusy = false;
   function loadKyc() {
@@ -247,9 +247,9 @@
     /* Tombol daftar */
     var form = safeUrl(AMB.FORM_URL);
     h += "<div class='actions' style='margin-top:2px'>";
-    if (kycRaw === "pending") {
+    if (AMB.REQUIRE_KYC && kycRaw === "pending") {
       h += "<button class='btn primary' type='button' disabled>" + T("KYC sedang diproses", "KYC in progress") + "</button>";
-    } else if (kycState() === false) {
+    } else if (AMB.REQUIRE_KYC && kycState() === false) {
       h += "<a class='btn primary' href='kyc.html'>" + T("Selesaikan KYC dulu", "Complete KYC first") + "</a>";
     } else if (form) {
       h += "<a class='btn primary' href='" + esc(form) + "' target='_blank' rel='noopener noreferrer'>" + T("Daftar Ambassador", "Apply as Ambassador") + "</a>";
