@@ -1,4 +1,4 @@
-const { sql, send, getUid, settle, limit } = require("./_lib");
+const { sql, send, getUid, settle, limit, RATE, HOURS } = require("./_lib");
 
 const REQUIRE_KYC_FOR_TRANSFER = true; // ubah ke false jika transfer tidak perlu KYC
 
@@ -128,7 +128,15 @@ module.exports = async (req, res) => {
       const r = await sql`select total, used from bw_pool where id = 1`;
       const total = r.length ? Number(r[0].total) : 10500000;
       const used = r.length ? Number(r[0].used) : 0;
-      return send(res, 200, { total, used, remaining: Math.max(0, total - used), percent: total ? Math.min(100, used / total * 100) : 0 });
+      // Halving: 4 era, rate turun separuh tiap seperempat pool terbagi.
+      const eraSize = total / 4;
+      const era = Math.min(3, Math.floor(used / eraSize));
+      const rate = RATE / 2 ** era;
+      const halving = {
+        era: era + 1, eras: 4, rate, perSession: rate * HOURS,
+        untilNext: era < 3 ? (era + 1) * eraSize - used : null
+      };
+      return send(res, 200, { total, used, remaining: Math.max(0, total - used), percent: total ? Math.min(100, used / total * 100) : 0, halving });
     }
 
     /* ---------- TUGAS (hadiah dari pool mining) ---------- */
