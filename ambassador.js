@@ -60,12 +60,12 @@
   function loadKyc() {
     if (kycBusy || typeof fetch !== "function") return;
     kycBusy = true;
-    fetch("/api/me?kyc=status", { credentials: "same-origin" })
+    fetch("/api/me", { credentials: "same-origin" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; })
       .then(function (d) {
         kycBusy = false;
-        if (d && typeof d === "object") { kycRaw = String(d.status || "none"); render(); }
+        if (d && d.user) { var k = String(d.user.kyc || "none"); kycRaw = (k === "review" || k === "started") ? "pending" : k; render(); }
       });
   }
   function kycState() {            // true = terverifikasi, false = belum, null = tidak diketahui
@@ -75,6 +75,7 @@
   function kycLabel() {
     if (kycRaw === "approved") return T("Terverifikasi", "Verified");
     if (kycRaw === "pending") return T("Sedang diproses", "In progress");
+    if (kycRaw === "retry") return T("Perlu kirim ulang", "Resubmission needed");
     if (kycRaw === "rejected") return T("Ditolak", "Rejected");
     return T("Belum terverifikasi", "Not verified");
   }
@@ -151,8 +152,8 @@
       "The highest monthly reward is " + num(top.btw) + " BTW. If your total is below " + num(AMB.REWARDS[0].pts) + " points, there is no reward that month."
     ) + "</p>";
     h += "<p class='muted' style='font-size:12px;margin-top:10px'>" + T(
-      "Reward hanya diberikan kepada akun dengan status KYC terverifikasi. Reward berupa poin BTW internal yang dicatat di akun Anda. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
-      "Rewards are only granted to accounts with a verified KYC status. Rewards are internal BTW points recorded in your account. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
+      "Reward hanya diberikan kepada akun dengan status KYC terverifikasi. Reward berupa saldo BTW yang dicatat di akun Anda. Total kuota program " + num(AMB.POOL) + " BTW, dibagikan sampai kuota habis.",
+      "Rewards are only granted to accounts with a verified KYC status. Rewards are BTW balance recorded in your account. The total program quota is " + num(AMB.POOL) + " BTW, distributed until it runs out."
     ) + "</p></div>";
 
     /* Tier */
