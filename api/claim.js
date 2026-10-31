@@ -6,10 +6,15 @@ const REF_BONUS = Number(lib.REF_BONUS) || 0;
 const REF_MAX = Number(lib.REF_MAX) || 0;
 const REF_MIN_SESSIONS = Number(lib.REF_MIN_SESSIONS) || 3;
 
+// HALVING: rate turun separuh setiap seperempat pool terbagi (4 era).
+// Era 1: 0-25% pool = RATE, era 2 = RATE/2, era 3 = RATE/4, era 4 = RATE/8.
+// Rate era dikunci di kolom bw_users.mine_rate saat sesi DIMULAI, dan dipakai saat sesi itu dihitung.
+const HALVING_ERAS = 4;
+
 // Memulai sesi mining 24 jam. Satu query atomik: tidak bisa dimulai dua kali / dicurangi.
-// Poin sesi sebelumnya (RATE x HOURS x (1 + bonus referral)) dimasukkan ke saldo saat sesi baru dimulai;
+// Poin sesi sebelumnya (mine_rate x HOURS x (1 + bonus referral)) dimasukkan ke saldo saat sesi baru dimulai;
 // poin sesi yang sedang berjalan dihitung otomatis di /api/me.
-// POOL: setiap reward yang dicetak dikurangkan dari bw_pool (10.500.000 BTW) dalam query yang sama.
+// POOL: setiap reward yang dicetak dikurangkan dari bw_pool dalam query yang sama.
 // Jika pool tidak cukup, saldo TIDAK bertambah dan sesi tidak di-reset (error "pool_empty").
 module.exports = async (req, res) => {
   try {
@@ -17,9 +22,18 @@ module.exports = async (req, res) => {
     const uid = getUid(req);
     if (!uid) return send(res, 401, { error: "not_logged_in" });
     const rows = await sql`
-      with old as (select id, mine_start from bw_users where id = ${uid} for update),
+      with old as (select id, mine_start, mine_rate from bw_users where id = ${uid} for update),
       ref as (select count(*)::int as n from bw_referrals where referrer_id = ${uid} and status = 'active'),
-      calc as (select ${RATE}::numeric * ${HOURS}::numeric * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt from ref),
+      cur as (
+        select ${RATE}::numeric / power(2::numeric,
+          least(${HALVING_ERAS - 1}::numeric, floor(p.used / nullif(p.total / ${HALVING_ERAS}::numeric, 0)))) as rate
+        from bw_pool p where p.id = 1
+      ),
+      calc as (
+        select coalesce(old.mine_rate, ${RATE}::numeric) * ${HOURS}::numeric
+               * (1 + least(ref.n, ${REF_MAX}::int) * ${REF_BONUS}::numeric) as amt
+        from old, ref
+      ),
       need as (
         select case when old.mine_start is not null then calc.amt else 0 end as amt
         from old, calc
@@ -34,8 +48,9 @@ module.exports = async (req, res) => {
       upd as (
         update bw_users u set
           balance = u.balance + pool.amt,
-          mine_start = now()
-        from old, pool
+          mine_start = now(),
+          mine_rate = cur.rate
+        from old, pool, cur
         where u.id = old.id
         returning u.balance, u.mine_start, (old.mine_start is not null) as settled, pool.amt as amt
       )
