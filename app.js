@@ -1,4 +1,4 @@
-const { sql, send, getUid, settle, limit } = require("./_lib");
+const { sql, send, getUid, settle, limit, RATE, HOURS } = require("./_lib");
 
 const REQUIRE_KYC_FOR_TRANSFER = true; // ubah ke false jika transfer tidak perlu KYC
 
@@ -65,6 +65,13 @@ function normProof(kind, raw) {
     const h = m[1].toLowerCase();
     return { key: "tg:" + h + "/" + m[2], canon: "https://t.me/" + h + "/" + m[2] };
   }
+  if (kind === "tgc") {
+    // tautan pesan di grup Telegram privat: https://t.me/c/<id grup>/<id pesan> (atau .../<id topik>/<id pesan>)
+    const m = s.match(/^https:\/\/t\.me\/c\/(\d{5,20})\/(\d+)(?:\/(\d+))?(?:\?\S*)?$/i);
+    if (!m) return null;
+    const msg = m[3] || m[2];
+    return { key: "tgc:" + m[1] + "/" + msg, canon: "https://t.me/c/" + m[1] + "/" + msg };
+  }
   if (kind === "fb") {
     let u;
     try { u = new URL(s); } catch (e) { return null; }
@@ -121,7 +128,15 @@ module.exports = async (req, res) => {
       const r = await sql`select total, used from bw_pool where id = 1`;
       const total = r.length ? Number(r[0].total) : 10500000;
       const used = r.length ? Number(r[0].used) : 0;
-      return send(res, 200, { total, used, remaining: Math.max(0, total - used), percent: total ? Math.min(100, used / total * 100) : 0 });
+      // Halving: 4 era, rate turun separuh tiap seperempat pool terbagi.
+      const eraSize = total / 4;
+      const era = Math.min(3, Math.floor(used / eraSize));
+      const rate = RATE / 2 ** era;
+      const halving = {
+        era: era + 1, eras: 4, rate, perSession: rate * HOURS,
+        untilNext: era < 3 ? (era + 1) * eraSize - used : null
+      };
+      return send(res, 200, { total, used, remaining: Math.max(0, total - used), percent: total ? Math.min(100, used / total * 100) : 0, halving });
     }
 
     /* ---------- TUGAS (hadiah dari pool mining) ---------- */
@@ -182,6 +197,7 @@ module.exports = async (req, res) => {
       // proof: jenis tautan bukti. auto: true = dicek otomatis lalu hadiah langsung cair;
       // auto: false = bukti masuk antrean, hadiah cair setelah disetujui admin.
       const DAILY = {
+        tgchat:  { reward: 0.02, proof: "tgc", auto: false },  // kirim pesan di grup Telegram komunitas (privat, ditinjau admin)
         xlike:   { reward: 0.02, proof: "x",  auto: false },  // suka, repost, komentar di X (isi komentar tidak bisa dicek otomatis)
         xpost:   { reward: 0.02, proof: "x",  auto: true  },  // posting tentang Bitworld di X
         fbpost:  { reward: 0.02, proof: "fb", auto: false },  // posting tentang Bitworld di Facebook (ditinjau manual)
