@@ -1,4 +1,4 @@
-/* Bitworld - kartu Pool Mining (Komunitas 10.500.000 BTW).
+/* Bitworld - kartu Pool Mining (Komunitas 10.500.000 BTW) + info Halving.
    Data dari /api/app?a=pool (harus login). Ditaruh di dalam panel Mining (#mineBody) dan Token (#tokenBody).
    Warna mengikuti tema aplikasi (variabel CSS --card, --fg, --muted, --line, --accent). */
 (function () {
@@ -44,6 +44,10 @@
     return null;
   }
 
+  function row(l, v, valStyle) {
+    return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span data-k="' + l + '" style="color:var(--muted,#6b6f9a)"></span><b data-k="' + v + '"' + (valStyle ? ' style="' + valStyle + '"' : '') + '></b></div>';
+  }
+
   function build(id) {
     var wrap = document.createElement('div');
     wrap.id = id;
@@ -53,9 +57,11 @@
       '<div style="height:10px;border-radius:999px;background:var(--line,#e3e5f8);overflow:hidden">' +
         '<div data-k="bar" style="height:100%;width:0%;border-radius:999px;background:var(--accent,#f5b82e);transition:width .6s"></div></div>' +
       '<div data-k="pct" style="margin:8px 0 10px;font-size:12px;color:var(--muted,#6b6f9a)"></div>' +
-      '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span data-k="l1" style="color:var(--muted,#6b6f9a)"></span><b data-k="v1"></b></div>' +
-      '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span data-k="l2" style="color:var(--muted,#6b6f9a)"></span><b data-k="v2"></b></div>' +
-      '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span data-k="l3" style="color:var(--muted,#6b6f9a)"></span><b data-k="v3" style="color:var(--accent,#d4a006)"></b></div>';
+      row('l1', 'v1') + row('l2', 'v2') + row('l3', 'v3', 'color:var(--accent,#d4a006)') +
+      '<div data-k="hv" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line,#e3e5f8)">' +
+        '<div data-k="htitle" style="font-weight:700;font-size:14px;margin-bottom:4px"></div>' +
+        row('l4', 'v4') + row('l5', 'v5') + row('l6', 'v6') +
+      '</div>';
     return wrap;
   }
 
@@ -74,6 +80,20 @@
     s('pct', nf(p, 4) + '% ' + (en ? 'distributed' : 'terpakai'));
     var bar = wrap.querySelector('[data-k="bar"]');
     if (bar) bar.style.width = Math.max(p, p > 0 ? 1 : 0) + '%';
+
+    /* Halving: tampil hanya jika server mengirim data.halving */
+    var h = data.halving;
+    var hv = wrap.querySelector('[data-k="hv"]');
+    if (hv) hv.style.display = h ? 'block' : 'none';
+    if (h) {
+      s('htitle', 'Halving');
+      s('l4', en ? 'Mining era' : 'Era mining');
+      s('v4', h.era + ' / ' + h.eras);
+      s('l5', en ? 'Current rate' : 'Rate saat ini');
+      s('v5', nf(h.rate, 4) + ' BTW / ' + (en ? 'hr' : 'jam'));
+      s('l6', en ? 'Next halving in' : 'Halving berikutnya');
+      s('v6', h.untilNext == null ? (en ? 'Final era' : 'Era terakhir') : nf(h.untilNext, 0) + ' BTW');
+    }
   }
 
   function ensure() {
