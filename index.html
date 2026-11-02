@@ -547,8 +547,7 @@ function renderExtra(){
       ? "Unduh dokumen resmi dan cara mengecek kontrak sendiri di BscScan."
       : "Download official documents and how to check the contract yourself on BscScan.") + "</p>";
   var files = [
-    {n: isId ? "Whitepaper (PDF)" : "Whitepaper (PDF)", u: "whitepaper-bitworld-btw-publik.pdf"},
-    {n: isId ? "Data token (info.json)" : "Token data (info.json)", u: "info.json"}
+    {n: isId ? "Whitepaper (PDF)" : "Whitepaper (PDF)", u: "whitepaper-bitworld-btw-publik.pdf"}
   ];
   files.forEach(function(f){
     d += "<p style='margin-bottom:8px'><a href='" + f.u + "' download style='color:var(--accent);font-weight:700'>" + esc(f.n) + "</a></p>";
