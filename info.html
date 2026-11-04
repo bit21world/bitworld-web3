@@ -54,7 +54,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offse
       <tr><td data-t="c5"></td><td>10%</td><td>2,100,000</td></tr>
       <tr><td data-t="c6"></td><td>5%</td><td>1,050,000</td></tr>
     </table></div>
-    <p class="mut" style="margin-top:10px"><span data-t="comAddr"></span> <a id="com-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+    <p class="mut" id="com-row" style="margin-top:10px"><span data-t="comAddr"></span> <a id="com-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
     <p class="mut" data-t="otherAddr"></p>
   </section>
 
@@ -76,7 +76,8 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offse
   <p class="note" data-t="disc"></p>
 </main>
 <script>
-var CONTRACT="0x9c8a29b9b9866464bb34aae32fd94a1594b1f3ea", COMM="0x3cce806978300525acb416f77d28b9699bd611f0";
+/* COMM: isi dengan alamat lengkap dompet alokasi Komunitas. Jika kosong, baris dompet disembunyikan. */
+var CONTRACT="0x05931E2821D7ab52e845E54380f13500f4B70Ea9", COMM="";
 var T={
 en:{badge:"BEP-20 • BNB SMART CHAIN",aboutH:"About",about:"Bitworld (BTW) is a BEP-20 token on BNB Smart Chain with a fixed supply of 21,000,000, built for the Bitworld ecosystem: mobile mining, community tasks and Web3 tools.",about2:"Rewards from mining and tasks are drawn from the Community Pool allocation shown below.",tokenH:"Token information",name:"Name",symbol:"Symbol",network:"Network",supply:"Total supply",contract:"Contract",tokH:"Tokenomics",cat:"Category",c1:"Community",c2:"Team",c3:"Development",c4:"Liquidity",c5:"Marketing & Ecosystem",c6:"Reserve",comAddr:"Community allocation wallet:",otherAddr:"Wallet addresses and vesting schedules for the other categories will be published on the official channels once they are separated.",linksH:"Official links",app:"Open the Bitworld app (login required) →",contactH:"Contact",contactT:"Official email:",disc:"This page is for information only and is not investment advice. Do your own research and only use funds you can afford to lose."},
 id:{badge:"BEP-20 • BNB SMART CHAIN",aboutH:"Tentang",about:"Bitworld (BTW) adalah token BEP-20 di BNB Smart Chain dengan suplai tetap 21.000.000, untuk ekosistem Bitworld: mining lewat HP, tugas komunitas, dan alat Web3.",about2:"Hadiah mining dan tugas diambil dari alokasi Pool Komunitas yang tertera di bawah.",tokenH:"Informasi token",name:"Nama",symbol:"Simbol",network:"Jaringan",supply:"Total suplai",contract:"Kontrak",tokH:"Tokenomics",cat:"Kategori",c1:"Komunitas",c2:"Tim",c3:"Pengembangan",c4:"Likuiditas",c5:"Pemasaran & Ekosistem",c6:"Cadangan",comAddr:"Dompet alokasi Komunitas:",otherAddr:"Alamat dompet dan jadwal vesting kategori lain akan diumumkan di kanal resmi setelah dipisahkan.",linksH:"Tautan resmi",app:"Buka aplikasi Bitworld (perlu login) →",contactH:"Kontak",contactT:"Email resmi:",disc:"Halaman ini hanya informasi dan bukan nasihat investasi. Lakukan riset sendiri dan gunakan hanya dana yang siap Anda risikokan."}
@@ -89,7 +90,9 @@ function set(l){
   try{localStorage.setItem("info_lang",l)}catch(e){}
 }
 var c=document.getElementById("c-link");c.href="https://bscscan.com/token/"+CONTRACT;c.textContent=CONTRACT;
-var m=document.getElementById("com-link");m.href="https://bscscan.com/address/"+COMM;m.textContent=short(COMM);
+var m=document.getElementById("com-link");
+if(COMM){m.href="https://bscscan.com/address/"+COMM;m.textContent=short(COMM)}
+else{document.getElementById("com-row").style.display="none"}
 document.getElementById("b-link").href="https://bscscan.com/token/"+CONTRACT;
 document.getElementById("w-link").href=location.origin+"/info.html";document.getElementById("w-link").textContent=location.host;
 document.getElementById("l-en").onclick=function(){set("en")};document.getElementById("l-id").onclick=function(){set("id")};
