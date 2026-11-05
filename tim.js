@@ -1,42 +1,28 @@
-/* Menu Tim Bitworld (add-on): kartu peran yang rapi, tanpa mengubah index.html.
+/* Menu Tim Bitworld (add-on): kartu founder, tanpa mengubah index.html.
    Pasang: upload file ini ke folder yang sama dengan index.html, lalu tambahkan
    <script src="/tim.js"></script> tepat di bawah baris <script src="/ambassador.js"></script>.
-   Nama, foto, dan deskripsi peran diubah di bagian PENGATURAN di bawah. */
+   Nama, foto, dan link profil diubah di bagian PENGATURAN di bawah. */
 (function () {
   "use strict";
 
   /* ============ PENGATURAN: ubah di sini ============ */
-  /* name kosong ("") = tampil "Segera diumumkan". photo kosong = tampil huruf awal.
-     photo boleh berupa "/foto-juan.jpg" (file di folder yang sama) atau link https://. */
+  /* photo kosong ("") = tampil huruf awal. photo boleh "/foto-juan.jpg" (file di folder
+     yang sama) atau link https://.
+     links: isi alamat https:// lengkap. Yang dikosongkan ("") tidak ditampilkan. */
   var TEAM = [
     {
       tag: "FOUNDER",
       role: { id: "Founder & Lead Developer", en: "Founder & Lead Developer" },
-      name: "Juan",
+      name: "Juandri Juan",
       photo: "/foto-juan.jpg",
       desc: {
         id: "Memimpin arah proyek dan membangun produk Bitworld.",
         en: "Leads the project's direction and builds the Bitworld product."
-      }
-    },
-    {
-      tag: "TREASURY",
-      role: { id: "Treasury Lead (Bendahara)", en: "Treasury Lead" },
-      name: "",
-      photo: "",
-      desc: {
-        id: "Memegang dompet alokasi dan membayar reward Ambassador sebulan sekali. Setiap pembayaran dicatat di menu Distribusi.",
-        en: "Manages the allocation wallets and pays Ambassador rewards once a month. Every payment is recorded in the Distribution menu."
-      }
-    },
-    {
-      tag: "COMMUNITY",
-      role: { id: "Community & Support Lead", en: "Community & Support Lead" },
-      name: "",
-      photo: "",
-      desc: {
-        id: "Menjaga kanal resmi dan menjawab pertanyaan anggota komunitas.",
-        en: "Looks after the official channels and answers community questions."
+      },
+      links: {
+        linkedin: "https://www.linkedin.com/in/juandri-juan-2b5602449",
+        x: "https://x.com/bitworld_btw",
+        github: ""
       }
     }
   ];
@@ -50,27 +36,38 @@
     });
   }
   function safePhoto(u) { return /^(https:\/\/|\/)[^\s"'<>]+$/i.test(u || "") ? u : ""; }
+  function safeLink(u) { return /^https:\/\/[^\s"'<>]+$/i.test(u || "") ? u : ""; }
 
   /* ============ Halaman ============ */
+  function linkRow(m) {
+    var ln = m.links || {};
+    var items = [["LinkedIn", ln.linkedin], ["X", ln.x], ["GitHub", ln.github]];
+    var out = "";
+    items.forEach(function (it) {
+      var u = safeLink(it[1]);
+      if (u) {
+        out += "<a href='" + esc(u) + "' target='_blank' rel='noopener noreferrer' style='display:inline-block;margin:6px 8px 0 0;font-size:12.5px;font-weight:700;color:#5b52e8;text-decoration:none;padding:4px 10px;border-radius:999px;background:#ecebff'>" + it[0] + "</a>";
+      }
+    });
+    return out ? "<div>" + out + "</div>" : "";
+  }
+
   function card(m) {
-    var open = !m.name;
     var photo = safePhoto(m.photo);
     var av;
     var base = "width:68px;height:68px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;";
-    if (photo && !open) {
+    if (photo) {
       av = "<div style='" + base + "box-shadow:0 6px 16px rgba(107,95,240,.35);border:2px solid #fff'><img src='" + esc(photo) + "' alt='" + esc(m.name) + "' style='width:100%;height:100%;object-fit:cover'></div>";
-    } else if (open) {
-      av = "<div style='" + base + "background:#e4efff;color:#6f7fa6;border:2px dashed rgba(88,76,214,.35);font-size:24px;font-weight:800'>?</div>";
     } else {
       av = "<div style='" + base + "background:linear-gradient(135deg,#6b5ff0,#3b96ff);color:#fff;font-size:26px;font-weight:800;box-shadow:0 6px 16px rgba(107,95,240,.35)'>" + esc(m.name.charAt(0).toUpperCase()) + "</div>";
     }
-    var tagBg = open ? "#e4efff" : "#ecebff";
     return "<div class='panel' style='margin:0;display:flex;gap:14px;align-items:center'>" + av +
       "<div style='min-width:0'>" +
-      "<span style='display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:" + tagBg + ";color:#5b52e8'>" + esc(m.tag) + "</span>" +
+      "<span style='display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:#ecebff;color:#5b52e8'>" + esc(m.tag) + "</span>" +
       "<h2 style='font-size:17px;margin:6px 0 2px'>" + esc(m.role[L()]) + "</h2>" +
-      "<div style='font-weight:700;font-size:14px;" + (open ? "color:#6f7fa6" : "") + "'>" + (open ? T("Segera diumumkan", "To be announced") : esc(m.name)) + "</div>" +
+      "<div style='font-weight:700;font-size:14px'>" + esc(m.name) + "</div>" +
       "<p style='font-size:12.5px;margin-top:6px'>" + esc(m.desc[L()]) + "</p>" +
+      linkRow(m) +
       "</div></div>";
   }
 
@@ -79,19 +76,17 @@
     if (!v) return;
     var h = "<div class='panel' style='margin:0'><h2>" + T("Tim Bitworld", "Bitworld Team") + "</h2>" +
       "<p>" + T(
-        "Orang-orang di balik Bitworld dan tugas masing-masing. Nama dan foto hanya ditampilkan setelah yang bersangkutan setuju.",
-        "The people behind Bitworld and what each one does. Names and photos are shown only after the person agrees."
+        "Orang di balik Bitworld dan tugasnya.",
+        "The person behind Bitworld and what they do."
       ) + "</p></div>";
     TEAM.forEach(function (m) { h += card(m); });
 
     h += "<div class='panel' style='margin:0'><h2>" + T("Prinsip kerja", "How we work") + "</h2><ul class='list'>";
     (L() === "en" ? [
       "Transparent: allocation wallets and every distribution can be checked on BscScan and in the Distribution menu.",
-      "Two sets of eyes: every reward payout is prepared by one person and approved by another.",
       "The team never asks for your seed phrase, private key, or payment."
     ] : [
       "Transparan: dompet alokasi dan setiap distribusi bisa dicek di BscScan dan menu Distribusi.",
-      "Dua pasang mata: setiap pembayaran reward disusun satu orang dan disetujui orang lain.",
       "Tim tidak pernah meminta seed phrase, private key, atau pembayaran."
     ]).forEach(function (x) { h += "<li>" + esc(x) + "</li>"; });
     h += "</ul></div>";
