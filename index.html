@@ -346,7 +346,7 @@ html[lang=hi] body{font-family:Inter,"Noto Sans Devanagari","Nirmala UI",system-
   </section>
   <!-- AKUN (LOGIN/DAFTAR) -->
   <section class="view" id="v-auth"><div class="panel fm" id="authBody"></div>
-    <a id="pl-wp" href="/whitepaper-bitworld-btw-publik-v2.pdf" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Whitepaper (PDF)</a>
+    <a id="pl-wp" href="/whitepaper.html" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Whitepaper</a>
     <a id="pl-token" href="/token.html" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Official token info</a>
     <a id="pl-team" href="/team.html" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Team</a>
     <a id="pl-info" href="/info.html" target="_blank" rel="noopener" style="font-size:13px;color:var(--muted,#8a8fb0);margin-top:4px">Project info &amp; official links</a></section>
@@ -441,11 +441,11 @@ function langExtras(){
   var N = NAVTR[ulang], ids = {news:"n-news",docs:"n-docs",sec:"n-sec",alloc:"n-alloc",dist:"n-dist",gloss:"n-gloss",road:"n-road",chan:"n-chan",mine:"n-mine"};
   Object.keys(ids).forEach(function(k){ var el = $(ids[k]); if (!el) return; if (N) el.textContent = N[k]; else if (k === "mine") el.textContent = "Mining"; });
   var PL = {
-    en:{wp:"Whitepaper (PDF)", token:"Official token info", team:"Team", info:"Project info & official links"},
-    id:{wp:"Whitepaper (PDF)", token:"Info token resmi", team:"Tim", info:"Info proyek & tautan resmi"},
-    hi:{wp:"व्हाइटपेपर (PDF)", token:"आधिकारिक टोकन जानकारी", team:"टीम", info:"प्रोजेक्ट जानकारी और आधिकारिक लिंक"},
-    ur:{wp:"وائٹ پیپر (PDF)", token:"سرکاری ٹوکن معلومات", team:"ٹیم", info:"پروجیکٹ کی معلومات اور سرکاری لنکس"},
-    vi:{wp:"Whitepaper (PDF)", token:"Thông tin token chính thức", team:"Đội ngũ", info:"Thông tin dự án & liên kết chính thức"}
+    en:{wp:"Whitepaper", token:"Official token info", team:"Team", info:"Project info & official links"},
+    id:{wp:"Whitepaper", token:"Info token resmi", team:"Tim", info:"Info proyek & tautan resmi"},
+    hi:{wp:"व्हाइटपेपर", token:"आधिकारिक टोकन जानकारी", team:"टीम", info:"प्रोजेक्ट जानकारी और आधिकारिक लिंक"},
+    ur:{wp:"وائٹ پیپر", token:"سرکاری ٹوکن معلومات", team:"ٹیم", info:"پروجیکٹ کی معلومات اور سرکاری لنکس"},
+    vi:{wp:"Whitepaper", token:"Thông tin token chính thức", team:"Đội ngũ", info:"Thông tin dự án & liên kết chính thức"}
   };
   var P = PL[ulang] || PL.en;
   [["pl-wp","wp"],["pl-token","token"],["pl-team","team"],["pl-info","info"]].forEach(function(x){ var el = $(x[0]); if (el) el.textContent = P[x[1]]; });
