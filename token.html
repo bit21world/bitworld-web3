@@ -28,7 +28,7 @@ section ul,section ol{padding-left:20px;font-size:14px;opacity:.93;margin-bottom
 section li{margin-bottom:6px}
 .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a9bddb;word-break:break-all;background:#0e141e;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
 table{width:100%;border-collapse:collapse;font-size:13px}
-td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
 td:first-child{color:var(--muted);width:38%}
 .alloc{margin-top:6px}
 .alloc .row{margin-bottom:10px}
@@ -85,14 +85,22 @@ var PAGE = {
 var SECTIONS = [
   {t:{en:"Token Details",id:"Detail Token"},
    table:{
-     en:[["Name","Bitworld"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Mint / burn / pause","None"]],
-     id:[["Nama","Bitworld"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Mint / burn / pause","Tidak ada"]]}},
+     en:[["Name","BITWORLD21"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Mint / burn / pause","None"],["Contract source code","Verified"],["Contract ownership","Renounced"]],
+     id:[["Nama","BITWORLD21"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Mint / burn / pause","Tidak ada"],["Source code kontrak","Terverifikasi"],["Kepemilikan kontrak","Dilepas (renounced)"]]}},
   {t:{en:"Smart Contract",id:"Smart Contract"},
    b:{en:["Official BTW token address on BNB Smart Chain:"],
       id:["Alamat resmi token BTW di BNB Smart Chain:"]},
    code:true, actions:true,
    list:{en:["Match this address with BscScan before interacting with any contract.","Never send your seed phrase or private key."],
          id:["Cocokkan alamat ini dengan BscScan sebelum berinteraksi dengan kontrak apa pun.","Jangan pernah mengirim seed phrase atau private key."]}},
+  {t:{en:"Previous Bitworld Token",id:"Token Bitworld Sebelumnya"},
+   b:{en:["BITWORLD21 is the new token identity within the same Bitworld ecosystem. The previous Bitworld token was developed by the same project team, but it is a separate contract on BNB Smart Chain and is no longer actively used by the project.","Previous token details:"],
+      id:["BITWORLD21 adalah identitas token baru dalam ekosistem Bitworld yang sama. Token Bitworld sebelumnya dikembangkan oleh tim proyek yang sama, tetapi merupakan kontrak terpisah di BNB Smart Chain dan tidak lagi digunakan secara aktif oleh proyek.","Detail token sebelumnya:"]},
+   table:{
+     en:[["Name","Bitworld"],["Symbol","BTW"],["Network","BNB Smart Chain (BSC)"],["Contract","0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea"],["Total supply","21,000,000 BTW"],["Ownership","Renounced"]],
+     id:[["Nama","Bitworld"],["Simbol","BTW"],["Jaringan","BNB Smart Chain (BSC)"],["Kontrak","0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea"],["Total supply","21.000.000 BTW"],["Kepemilikan","Dilepas (renounced)"]]},
+   list:{en:["There has been no automatic migration or transfer of balances from the previous contract to the new contract.","Both contracts are separate token contracts. Some holders may still retain balances in the previous contract.","The official contract for BITWORLD21 is the address shown in the Smart Contract section above. Always verify addresses on BscScan."],
+         id:["Tidak ada migrasi otomatis atau pemindahan saldo dari kontrak lama ke kontrak baru.","Kedua kontrak adalah kontrak token yang terpisah. Sebagian pemegang token mungkin masih memiliki saldo di kontrak lama.","Kontrak resmi BITWORLD21 adalah alamat yang tercantum di bagian Smart Contract di atas. Selalu verifikasi alamat di BscScan."]}},
   {t:{en:"Token Allocation",id:"Alokasi Token"},
    b:{en:["The total supply of 21,000,000 BTW is split into the six categories below.","Vesting schedules will be announced through official channels."],
       id:["Total suplai 21.000.000 BTW dibagi ke enam kategori berikut.","Jadwal vesting akan diumumkan melalui kanal resmi."]},
