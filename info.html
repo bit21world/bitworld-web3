@@ -1,103 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bitworld (BTW) – Project Info</title>
-<meta name="description" content="Official project information for Bitworld (BTW), a BEP-20 token on BNB Smart Chain: contract address, tokenomics and official channels.">
+<meta name="theme-color" content="#0b0e14">
+<title>Project Info &amp; Official Links - Bitworld (BTW)</title>
 <style>
-:root{--bg:#f4f5fb;--card:#fff;--ink:#14163a;--mut:#6a6e92;--pri:#5a4fe0;--gold:#b88a00;--line:#e4e6f6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root{--bg:#0b0e14;--card:#151a26;--ink:#eef0ff;--mut:#9ba0c4;--pri:#8f86ff;--gold:#f0c23a;--line:#262c40}}
-*{box-sizing:inherit}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
-main{max-width:640px;margin:0 auto;padding:18px 16px 40px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-h1{font-size:24px;margin:0}h2{font-size:17px;margin:0 0 10px}
-.badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.4px;color:var(--gold);border:1px solid var(--line);border-radius:99px;padding:3px 10px;margin:8px 0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
-p{margin:0 0 8px}.mut{color:var(--mut);font-size:14px}
-dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}dt{color:var(--mut)}dd{margin:0;word-break:break-all;text-align:right}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 4px;border-top:1px solid var(--line);text-align:left}th{color:var(--mut);font-weight:600;border-top:0}td:nth-child(n+2),th:nth-child(n+2){text-align:right}
-.scroll{overflow-x:auto}
-a{color:var(--pri);font-weight:600}
-.links{display:flex;flex-wrap:wrap;gap:8px}.links a{border:1px solid var(--line);border-radius:99px;padding:8px 14px;text-decoration:none;background:var(--card)}
-.lang{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden}.lang button{font:inherit;font-size:13px;font-weight:700;border:0;padding:6px 12px;background:transparent;color:var(--mut);cursor:pointer}.lang button.on{background:var(--pri);color:#fff}
-button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.note{font-size:13px;color:var(--mut);margin-top:18px;border-left:3px solid var(--gold);padding-left:10px}
+:root{--bg:#0b0e14;--fg:#e8ebf2;--muted:#8a93a6;--accent:#f0b90b;--card:#121823;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;padding:0 0 40px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:rgba(11,14,20,.95);border-bottom:1px solid var(--line)}
+header a.back{color:var(--accent);text-decoration:none;font-weight:700;font-size:14px}
+.lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lang button{background:transparent;border:0;color:var(--muted);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.lang button.on{background:#1a2233;color:#fff}
+main{max-width:720px;margin:0 auto;padding:18px 16px}
+h1{font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.toc a{border:1px solid var(--line);color:var(--muted);text-decoration:none;border-radius:999px;padding:5px 11px;font-size:12px}
+.toc a:active{color:var(--accent);border-color:var(--accent)}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;scroll-margin-top:70px}
+section h2{font-size:18px;color:var(--accent);margin-bottom:8px}
+section p{font-size:14px;opacity:.93;margin-bottom:8px}
+section p:last-child{margin-bottom:0}
+section ul,section ol{padding-left:20px;font-size:14px;opacity:.93;margin-bottom:8px}
+section li{margin-bottom:6px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a9bddb;word-break:break-all;background:#0e141e;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--muted);width:38%}
+.alloc{margin-top:6px}
+.alloc .row{margin-bottom:10px}
+.alloc .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
+.alloc .bar{height:8px;border-radius:999px;background:#0e141e;overflow:hidden}
+.alloc .bar i{display:block;height:100%;border-radius:999px}
+.links a.card{display:block;text-decoration:none;color:var(--fg);background:#0e141e;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.links a.card b{color:var(--accent);font-size:14px}
+.links a.card span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.links a.card:active{border-color:var(--accent)}
+.btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.14);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}
+.foot{text-align:center;margin-top:18px}
+.pages{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px}
+.pages a{border:1px solid var(--line);color:var(--muted);text-decoration:none;border-radius:999px;padding:6px 12px;font-size:12.5px}
+.pages a.cur{border-color:rgba(240,185,11,.5);color:var(--accent);background:rgba(240,185,11,.1)}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(100px);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .4s,opacity .4s;z-index:9;white-space:nowrap;opacity:0;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
 </head>
 <body>
+<header>
+  <a class="back" href="/" id="back"></a>
+  <div class="lang" role="group" aria-label="Language">
+    <button id="l-en" type="button">EN</button>
+    <button id="l-id" type="button">ID</button>
+  </div>
+</header>
 <main>
-  <header>
-    <div><h1>Bitworld (BTW)</h1><span class="badge" data-t="badge"></span></div>
-    <div class="lang" role="group" aria-label="Language"><button type="button" id="l-en" class="on">EN</button><button type="button" id="l-id">ID</button></div>
-  </header>
-
-  <section class="card"><h2 data-t="aboutH"></h2><p data-t="about"></p><p class="mut" data-t="about2"></p></section>
-
-  <section class="card"><h2 data-t="tokenH"></h2>
-    <dl>
-      <dt data-t="name"></dt><dd>Bitworld</dd>
-      <dt data-t="symbol"></dt><dd>BTW</dd>
-      <dt data-t="network"></dt><dd>BNB Smart Chain (BEP-20)</dd>
-      <dt data-t="supply"></dt><dd>21,000,000</dd>
-      <dt data-t="contract"></dt><dd><a id="c-link" href="#" target="_blank" rel="noopener noreferrer"></a></dd>
-    </dl>
-  </section>
-
-  <section class="card"><h2 data-t="tokH"></h2>
-    <div class="scroll"><table>
-      <tr><th data-t="cat"></th><th>%</th><th>BTW</th></tr>
-      <tr><td data-t="c1"></td><td>50%</td><td>10,500,000</td></tr>
-      <tr><td data-t="c2"></td><td>15%</td><td>3,150,000</td></tr>
-      <tr><td data-t="c3"></td><td>10%</td><td>2,100,000</td></tr>
-      <tr><td data-t="c4"></td><td>10%</td><td>2,100,000</td></tr>
-      <tr><td data-t="c5"></td><td>10%</td><td>2,100,000</td></tr>
-      <tr><td data-t="c6"></td><td>5%</td><td>1,050,000</td></tr>
-    </table></div>
-    <p class="mut" id="com-row" style="margin-top:10px"><span data-t="comAddr"></span> <a id="com-link" href="#" target="_blank" rel="noopener noreferrer"></a></p>
-    <p class="mut" data-t="otherAddr"></p>
-  </section>
-
-  <section class="card"><h2 data-t="linksH"></h2>
-    <div class="links">
-      <a id="w-link" href="#" target="_blank" rel="noopener">Website</a>
-      <a href="https://x.com/bitworld_btw" target="_blank" rel="noopener noreferrer">X (Twitter)</a>
-      <a href="https://t.me/Bitworld_Official" target="_blank" rel="noopener noreferrer">Telegram</a>
-      <a href="https://www.facebook.com/share/1FKuR8i7rT/" target="_blank" rel="noopener noreferrer">Facebook</a>
-      <a id="b-link" href="#" target="_blank" rel="noopener noreferrer">BscScan</a>
-    </div>
-    <p class="mut" style="margin-top:12px"><a href="/" data-t="app"></a></p>
-  </section>
-
-  <section class="card"><h2 data-t="contactH"></h2>
-    <p><span data-t="contactT"></span> <a href="mailto:juandri@bitworld21.com">juandri@bitworld21.com</a></p>
-  </section>
-
-  <p class="note" data-t="disc"></p>
+  <h1 id="h1"></h1>
+  <p class="sub" id="sub"></p>
+  <nav class="toc" id="toc"></nav>
+  <div id="content"></div>
+  <nav class="pages" id="pages" aria-label="Pages"></nav>
 </main>
+<div id="toast"></div>
 <script>
-/* COMM: isi dengan alamat lengkap dompet alokasi Komunitas. Jika kosong, baris dompet disembunyikan. */
-var CONTRACT="0x05931E2821D7ab52e845E54380f13500f4B70Ea9", COMM="";
-var T={
-en:{badge:"BEP-20 • BNB SMART CHAIN",aboutH:"About",about:"Bitworld (BTW) is a BEP-20 token on BNB Smart Chain with a fixed supply of 21,000,000, built for the Bitworld ecosystem: mobile mining, community tasks and Web3 tools.",about2:"Rewards from mining and tasks are drawn from the Community Pool allocation shown below.",tokenH:"Token information",name:"Name",symbol:"Symbol",network:"Network",supply:"Total supply",contract:"Contract",tokH:"Tokenomics",cat:"Category",c1:"Community",c2:"Team",c3:"Development",c4:"Liquidity",c5:"Marketing & Ecosystem",c6:"Reserve",comAddr:"Community allocation wallet:",otherAddr:"Wallet addresses and vesting schedules for the other categories will be published on the official channels once they are separated.",linksH:"Official links",app:"Open the Bitworld app (login required) →",contactH:"Contact",contactT:"Official email:",disc:"This page is for information only and is not investment advice. Do your own research and only use funds you can afford to lose."},
-id:{badge:"BEP-20 • BNB SMART CHAIN",aboutH:"Tentang",about:"Bitworld (BTW) adalah token BEP-20 di BNB Smart Chain dengan suplai tetap 21.000.000, untuk ekosistem Bitworld: mining lewat HP, tugas komunitas, dan alat Web3.",about2:"Hadiah mining dan tugas diambil dari alokasi Pool Komunitas yang tertera di bawah.",tokenH:"Informasi token",name:"Nama",symbol:"Simbol",network:"Jaringan",supply:"Total suplai",contract:"Kontrak",tokH:"Tokenomics",cat:"Kategori",c1:"Komunitas",c2:"Tim",c3:"Pengembangan",c4:"Likuiditas",c5:"Pemasaran & Ekosistem",c6:"Cadangan",comAddr:"Dompet alokasi Komunitas:",otherAddr:"Alamat dompet dan jadwal vesting kategori lain akan diumumkan di kanal resmi setelah dipisahkan.",linksH:"Tautan resmi",app:"Buka aplikasi Bitworld (perlu login) →",contactH:"Kontak",contactT:"Email resmi:",disc:"Halaman ini hanya informasi dan bukan nasihat investasi. Lakukan riset sendiri dan gunakan hanya dana yang siap Anda risikokan."}
+var CONTRACT = "0x05931E2821D7ab52e845E54380f13500f4B70Ea9";
+var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
+var CUR = "info";
+var lang = "en";
+try { if (localStorage.getItem("btw_lang") === "id") lang = "id"; } catch (e) {}
+
+var UI = {
+  en: {pdf:"Download PDF", back:"← Bitworld", copy:"Copy Address", copied:"Address copied", copyfail:"Copy failed", bsc:"Open BscScan", wp:"Whitepaper", token:"Token", team:"Team", info:"Project info"},
+  id: {pdf:"Unduh PDF", back:"← Bitworld", copy:"Salin Alamat", copied:"Alamat disalin", copyfail:"Gagal menyalin", bsc:"Buka BscScan", wp:"Whitepaper", token:"Token", team:"Tim", info:"Info proyek"}
 };
-function short(a){return a.slice(0,8)+"…"+a.slice(-6)}
-function set(l){
-  document.documentElement.lang=l;
-  document.querySelectorAll("[data-t]").forEach(function(e){e.textContent=T[l][e.dataset.t]});
-  document.getElementById("l-en").className=l==="en"?"on":"";document.getElementById("l-id").className=l==="id"?"on":"";
-  try{localStorage.setItem("info_lang",l)}catch(e){}
+var PAGES = [["wp","/whitepaper.html"],["token","/token.html"],["team","/team.html"],["info","/info.html"]];
+
+var PAGE = {
+  title: {en:"Project Info & Official Links", id:"Info Proyek & Tautan Resmi"},
+  sub: {en:"Bitworld (BTW) • Channels, FAQ, news, and roadmap", id:"Bitworld (BTW) • Kanal, FAQ, berita, dan roadmap"}
+};
+var SECTIONS = [
+  {t:{en:"Official Links",id:"Tautan Resmi"},
+   b:{en:["Official information only comes from these channels. Be wary of accounts that contact you first."],
+      id:["Informasi resmi hanya dari kanal berikut. Waspadai akun yang menghubungi Anda lebih dulu."]},
+   links:[
+     {n:{en:"Website"}, u:"https://bitworld21.com", d:{en:"Whitepaper, tokenomics, and contract",id:"Whitepaper, tokenomics, dan kontrak"}},
+     {n:{en:"X (Twitter)"}, u:"https://x.com/bitworld_btw", d:{en:"Short announcements",id:"Pengumuman singkat"}},
+     {n:{en:"Facebook"}, u:"https://www.facebook.com/share/1FKuR8i7rT/", d:{en:"Official Bitworld - BTW page",id:"Halaman resmi Bitworld - BTW"}},
+     {n:{en:"Telegram"}, u:"https://t.me/Bitworld_Official", d:{en:"Official announcements and discussion",id:"Pengumuman dan diskusi resmi"}},
+     {n:{en:"LinkedIn"}, u:"https://www.linkedin.com/in/juandri-juan-2b5602449", d:{en:"Official LinkedIn profile",id:"Profil LinkedIn resmi"}},
+     {n:{en:"BscScan"}, u:"https://bscscan.com/token/0x05931E2821D7ab52e845E54380f13500f4B70Ea9", d:{en:"Verify the official token contract",id:"Verifikasi kontrak token resmi"}}
+   ]},
+  {t:{en:"About the Project",id:"Tentang Proyek"},
+   b:{en:["BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem.","This is not investment advice. Do your own research and only use funds you can afford to risk."],
+      id:["BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld.","Ini bukan nasihat investasi. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan."]}},
+  {t:{en:"News & Announcements",id:"Berita & Pengumuman"},
+   table:{
+     en:[["20 Oct 2026","Bitworld (BTW) website and public whitepaper released."]],
+     id:[["20 Okt 2026","Website Bitworld (BTW) dan whitepaper versi publik dirilis."]]}},
+  {t:{en:"FAQ",id:"FAQ"},
+   table:{
+     en:[["What is BTW?","BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem."],
+         ["Is there an airdrop?","BTW is distributed through daily mining and tasks, taken from the Community Pool and recorded in your account. Connect your MetaMask wallet in the Profile menu. Information about withdrawing to your wallet, and any separate airdrop, is announced only through the project's official channels."],
+         ["How do I verify the contract?","Match the address on this page with BscScan before interacting with anything."],
+         ["Is this investment advice?","No. Do your own research and only use funds you can afford to risk."]],
+     id:[["Apa itu BTW?","BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld."],
+         ["Apakah ada airdrop?","BTW dibagikan lewat mining harian dan tugas, diambil dari Pool Komunitas dan tercatat di akun Anda. Hubungkan wallet MetaMask di menu Profil. Info penarikan ke wallet dan airdrop terpisah (jika ada) hanya diumumkan lewat kanal resmi proyek."],
+         ["Bagaimana cara memverifikasi kontrak?","Cocokkan alamat di halaman ini dengan BscScan sebelum berinteraksi apa pun."],
+         ["Apakah ini nasihat investasi?","Tidak. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan."]]}},
+  {t:{en:"Roadmap",id:"Roadmap"},
+   b:{en:["General plan. Dates have not been set and may change."],
+      id:["Rencana umum. Tanggal belum ditetapkan dan dapat berubah."]},
+   list:{en:["Phase 1, Foundation: token, contract, and public documentation.","Phase 2, Growth: application development and ecosystem partnerships.","Phase 3, Sustainability: stronger governance and long-term utility."],
+         id:["Fase 1, Fondasi: token, kontrak, dan dokumentasi publik.","Fase 2, Pertumbuhan: pengembangan aplikasi dan kemitraan ekosistem.","Fase 3, Keberlanjutan: penguatan tata kelola dan utilitas jangka panjang."]}},
+  {t:{en:"Privacy",id:"Privasi"},
+   b:{en:["This website only records anonymous visit counts through Vercel Web Analytics. No cookies, no accounts, and no personal data are collected."],
+      id:["Website ini hanya mencatat jumlah kunjungan secara anonim melalui Vercel Web Analytics. Tidak ada cookie, tidak ada akun, dan tidak ada data pribadi yang dikumpulkan."]}}
+];
+
+
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function toast(m){ var t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1600); }
+function copyText(text){
+  function legacy(){
+    var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove(); toast(ok ? UI[lang].copied : UI[lang].copyfail);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ toast(UI[lang].copied); }, legacy);
+  else legacy();
 }
-var c=document.getElementById("c-link");c.href="https://bscscan.com/token/"+CONTRACT;c.textContent=CONTRACT;
-var m=document.getElementById("com-link");
-if(COMM){m.href="https://bscscan.com/address/"+COMM;m.textContent=short(COMM)}
-else{document.getElementById("com-row").style.display="none"}
-document.getElementById("b-link").href="https://bscscan.com/token/"+CONTRACT;
-document.getElementById("w-link").href=location.origin+"/info.html";document.getElementById("w-link").textContent=location.host;
-document.getElementById("l-en").onclick=function(){set("en")};document.getElementById("l-id").onclick=function(){set("id")};
-var l0="en";try{l0=localStorage.getItem("info_lang")||((navigator.language||"").slice(0,2)==="id"?"id":"en")}catch(e){}
-set(l0);
+
+function render(){
+  var u = UI[lang];
+  document.documentElement.lang = lang;
+  document.title = PAGE.title[lang] + " - Bitworld (BTW)";
+  document.getElementById("l-en").classList.toggle("on", lang === "en");
+  document.getElementById("l-id").classList.toggle("on", lang === "id");
+  document.getElementById("back").textContent = u.back;
+  document.getElementById("h1").textContent = PAGE.title[lang];
+  document.getElementById("sub").textContent = PAGE.sub[lang];
+  var toc = "", html = "";
+  SECTIONS.forEach(function(s, i){
+    toc += '<a href="#s' + i + '">' + esc(s.t[lang]) + '</a>';
+    html += '<section id="s' + i + '"><h2>' + (i + 1) + '. ' + esc(s.t[lang]) + '</h2>';
+    (s.b ? s.b[lang] : []).forEach(function(p){ html += "<p>" + esc(p) + "</p>"; });
+    if (s.table) {
+      html += "<table>" + s.table[lang].map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table>";
+    }
+    if (s.alloc) {
+      html += '<div class="alloc">' + s.alloc.map(function(a){
+        return '<div class="row"><div class="top"><span>' + esc(a.n[lang]) + '</span><b>' + a.p + '%</b></div><div class="bar"><i style="width:' + a.p + '%;background:' + a.c + '"></i></div></div>';
+      }).join("") + "</div>";
+    }
+    if (s.list) {
+      var tag = s.ordered ? "ol" : "ul";
+      html += "<" + tag + ">" + s.list[lang].map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</" + tag + ">";
+    }
+    if (s.members) {
+      html += s.members.map(function(m){
+        return '<div class="links"><a class="card" style="pointer-events:none"><b>' + esc(m.name) + '</b><span>' + esc(m.role[lang] || m.role.en) + '</span></a></div>';
+      }).join("");
+    }
+    if (s.links) {
+      html += '<div class="links">' + s.links.map(function(l){
+        var ext = /^https?:/.test(l.u);
+        return '<a class="card" href="' + esc(l.u) + '"' + (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '><b>' + esc(l.n[lang] || l.n.en) + '</b><span>' + esc(l.d[lang]) + '</span></a>';
+      }).join("") + "</div>";
+    }
+    if (s.code) html += '<div class="mono">' + esc(CONTRACT) + "</div>";
+    if (s.actions) {
+      html += '<button class="btn primary" type="button" data-copy="1">' + esc(u.copy) + '</button>' +
+        '<a class="btn" href="' + BSCSCAN + '" target="_blank" rel="noopener noreferrer">' + esc(u.bsc) + '</a>';
+    }
+    html += "</section>";
+  });
+  if (PAGE.pdf) html += '<div class="foot"><a class="btn" href="/whitepaper-bitworld-btw-publik-v2.pdf" download>' + esc(u.pdf) + '</a></div>';
+  document.getElementById("toc").innerHTML = toc;
+  document.getElementById("content").innerHTML = html;
+  document.getElementById("pages").innerHTML = PAGES.map(function(p){
+    return '<a href="' + p[1] + '"' + (p[0] === CUR ? ' class="cur"' : '') + '>' + esc(u[p[0]]) + '</a>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(b){ b.onclick = function(){ copyText(CONTRACT); }; });
+}
+function setLang(l){ lang = l; try { localStorage.setItem("btw_lang", l); } catch (e) {} render(); }
+document.getElementById("l-en").onclick = function(){ setLang("en"); };
+document.getElementById("l-id").onclick = function(){ setLang("id"); };
+render();
 </script>
 </body>
 </html>
