@@ -28,7 +28,7 @@ section ul,section ol{padding-left:20px;font-size:14px;opacity:.93;margin-bottom
 section li{margin-bottom:6px}
 .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a9bddb;word-break:break-all;background:#0e141e;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
 table{width:100%;border-collapse:collapse;font-size:13px}
-td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
 td:first-child{color:var(--muted);width:38%}
 .alloc{margin-top:6px}
 .alloc .row{margin-bottom:10px}
@@ -39,6 +39,15 @@ td:first-child{color:var(--muted);width:38%}
 .links a.card b{color:var(--accent);font-size:14px}
 .links a.card span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .links a.card:active{border-color:var(--accent)}
+.member{display:flex;gap:14px;align-items:center;margin-top:10px;background:#0e141e;border:1px solid var(--line);border-radius:14px;padding:14px}
+.av{width:72px;height:72px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;background:#1a2233;font-weight:800;font-size:28px;color:var(--accent)}
+.av img{width:100%;height:100%;object-fit:cover}
+.mi{min-width:0}
+.tag{display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(240,185,11,.14);color:var(--accent)}
+.member h3{font-size:16px;margin:6px 0 2px}
+.member .nm{font-weight:700;font-size:14px}
+.member p{font-size:12.5px;margin:6px 0 0}
+.pills a{display:inline-block;margin:6px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none;padding:4px 10px;border-radius:999px;background:rgba(240,185,11,.12)}
 .btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.14);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#111}
 .foot{text-align:center;margin-top:18px}
@@ -83,14 +92,24 @@ var PAGE = {
   sub: {en:"Bitworld (BTW) • Vision, mission, and official support", id:"Bitworld (BTW) • Visi, misi, dan dukungan resmi"}
 };
 var SECTIONS = [
+  {t:{en:"Team Profile",id:"Profil Tim"},
+   b:{en:["The person behind Bitworld and what they do."],
+      id:["Orang di balik Bitworld dan tugasnya."]},
+   members:[
+     {tag:"FOUNDER", name:"Juandri Juan", photo:"/foto-juan.jpg",
+      role:{en:"Founder & Lead Developer",id:"Founder & Lead Developer"},
+      desc:{en:"Leads the project's direction and builds the Bitworld product.",id:"Memimpin arah proyek dan membangun produk Bitworld."},
+      links:{linkedin:"https://www.linkedin.com/in/juandri-juan-2b5602449", x:"https://x.com/bitworld_btw", github:""}}
+   ]},
+  {t:{en:"How We Work",id:"Prinsip Kerja"},
+   list:{en:["Transparent: allocation wallets and every distribution can be checked on BscScan and in the Distribution menu.","The team never asks for your seed phrase, private key, or payment."],
+         id:["Transparan: dompet alokasi dan setiap distribusi bisa dicek di BscScan dan menu Distribusi.","Tim tidak pernah meminta seed phrase, private key, atau pembayaran."]}},
   {t:{en:"Vision",id:"Visi"},
-   b:{en:["To become a trusted Web3 ecosystem on BNB Smart Chain, offering a simple experience for all users over the long term."],
-      id:["Menjadi ekosistem Web3 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang."]}},
+   b:{en:["To become a trusted Web3 ecosystem on BNB Smart Chain, offering a simple experience for all users over the long term.","Long-term focus: building a sustainable project, not short-term gains."],
+      id:["Menjadi ekosistem Web3 yang terpercaya di BNB Smart Chain, dengan pengalaman yang sederhana bagi semua pengguna dalam jangka panjang.","Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek."]}},
   {t:{en:"Mission",id:"Misi"},
    list:{en:["Provide fast transactions and affordable fees.","Build open documentation and tools for developers.","Maintain transparency through publicly verifiable contracts.","Grow a community that develops gradually and sustainably."],
-         id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang.","Menjaga transparansi melalui kontrak yang dapat diverifikasi publik.","Membangun komunitas yang bertumbuh secara bertahap dan berkelanjutan."]},
-   b:{en:["Long-term focus: building a sustainable project, not short-term gains."],
-      id:["Orientasi jangka panjang: membangun proyek yang berkelanjutan, bukan keuntungan jangka pendek."]}},
+         id:["Menyediakan transaksi yang cepat dan biaya yang terjangkau.","Membangun dokumentasi dan alat yang terbuka bagi pengembang.","Menjaga transparansi melalui kontrak yang dapat diverifikasi publik.","Membangun komunitas yang bertumbuh secara bertahap dan berkelanjutan."]}},
   {t:{en:"Team Allocation",id:"Alokasi Tim"},
    b:{en:["15% of the total supply of 21,000,000 BTW is allocated to the team. Vesting schedules will be announced through official channels."],
       id:["15% dari total suplai 21.000.000 BTW dialokasikan untuk tim. Jadwal vesting akan diumumkan melalui kanal resmi."]},
@@ -101,8 +120,7 @@ var SECTIONS = [
    links:[
      {n:{en:"X (Twitter)"}, u:"https://x.com/bitworld_btw", d:{en:"Short announcements",id:"Pengumuman singkat"}},
      {n:{en:"Facebook"}, u:"https://www.facebook.com/share/1FKuR8i7rT/", d:{en:"Official Bitworld - BTW page",id:"Halaman resmi Bitworld - BTW"}},
-     {n:{en:"Telegram"}, u:"https://t.me/Bitworld_Official", d:{en:"Official announcements and discussion",id:"Pengumuman dan diskusi resmi"}},
-     {n:{en:"LinkedIn"}, u:"https://www.linkedin.com/in/juandri-juan-2b5602449", d:{en:"Official LinkedIn profile",id:"Profil LinkedIn resmi"}}
+     {n:{en:"Telegram"}, u:"https://t.me/Bitworld_Official", d:{en:"Official announcements and discussion",id:"Pengumuman dan diskusi resmi"}}
    ]},
   {t:{en:"Security",id:"Keamanan"},
    list:{en:["The BTW team never asks for your seed phrase, private key, or payment.","No promises of price, profit, or fixed returns.","Be wary of accounts that contact you first, including those claiming to be admins.","Only trust the official channels listed on this page."],
@@ -150,7 +168,14 @@ function render(){
     }
     if (s.members) {
       html += s.members.map(function(m){
-        return '<div class="links"><a class="card" style="pointer-events:none"><b>' + esc(m.name) + '</b><span>' + esc(m.role[lang] || m.role.en) + '</span></a></div>';
+        var ph = /^(https:\/\/|\/)[^\s"'<>]+$/i.test(m.photo || "") ? m.photo : "";
+        var ini = esc(m.name.charAt(0).toUpperCase());
+        var av = ph ? '<div class="av"><img src="' + esc(ph) + '" alt="' + esc(m.name) + '" data-ini="' + ini + '"></div>' : '<div class="av">' + ini + '</div>';
+        var pills = "";
+        [["LinkedIn", m.links.linkedin], ["X", m.links.x], ["GitHub", m.links.github]].forEach(function(it){
+          if (/^https:\/\/[^\s"'<>]+$/i.test(it[1] || "")) pills += '<a href="' + esc(it[1]) + '" target="_blank" rel="noopener noreferrer">' + it[0] + '</a>';
+        });
+        return '<div class="member">' + av + '<div class="mi"><span class="tag">' + esc(m.tag) + '</span><h3>' + esc(m.role[lang]) + '</h3><div class="nm">' + esc(m.name) + '</div><p>' + esc(m.desc[lang]) + '</p><div class="pills">' + pills + '</div></div></div>';
       }).join("");
     }
     if (s.links) {
@@ -172,6 +197,9 @@ function render(){
   document.getElementById("pages").innerHTML = PAGES.map(function(p){
     return '<a href="' + p[1] + '"' + (p[0] === CUR ? ' class="cur"' : '') + '>' + esc(u[p[0]]) + '</a>';
   }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".av img"), function(im){
+    im.addEventListener("error", function(){ im.parentNode.textContent = im.getAttribute("data-ini") || ""; });
+  });
   Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(b){ b.onclick = function(){ copyText(CONTRACT); }; });
 }
 function setLang(l){ lang = l; try { localStorage.setItem("btw_lang", l); } catch (e) {} render(); }
