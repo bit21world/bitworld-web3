@@ -39,6 +39,15 @@ td:first-child{color:var(--muted);width:38%}
 .links a.card b{color:var(--accent);font-size:14px}
 .links a.card span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .links a.card:active{border-color:var(--accent)}
+.member{display:flex;gap:14px;align-items:center;margin-top:10px;background:#0e141e;border:1px solid var(--line);border-radius:14px;padding:14px}
+.av{width:72px;height:72px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;background:#1a2233;font-weight:800;font-size:28px;color:var(--accent)}
+.av img{width:100%;height:100%;object-fit:cover}
+.mi{min-width:0}
+.tag{display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(240,185,11,.14);color:var(--accent)}
+.member h3{font-size:16px;margin:6px 0 2px}
+.member .nm{font-weight:700;font-size:14px}
+.member p{font-size:12.5px;margin:6px 0 0}
+.pills a{display:inline-block;margin:6px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none;padding:4px 10px;border-radius:999px;background:rgba(240,185,11,.12)}
 .btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.14);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#111}
 .foot{text-align:center;margin-top:18px}
@@ -85,14 +94,14 @@ var PAGE = {
 var SECTIONS = [
   {t:{en:"Token Details",id:"Detail Token"},
    table:{
-     en:[["Name","BITWORLD21"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Mint / burn / pause","None"],["Contract source code","Verified"],["Contract ownership","Renounced"]],
-     id:[["Nama","BITWORLD21"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Mint / burn / pause","Tidak ada"],["Source code kontrak","Terverifikasi"],["Kepemilikan kontrak","Dilepas (renounced)"]]}},
+     en:[["Name","BITWORLD21"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Mint / pause functions","None"],["Burn","Holders can burn their own tokens (reduces supply)"],["Contract source code","Verified"],["Contract ownership","Renounced"]],
+     id:[["Nama","BITWORLD21"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Fungsi mint / pause","Tidak ada"],["Burn","Pemegang dapat membakar token miliknya (mengurangi suplai)"],["Source code kontrak","Terverifikasi"],["Kepemilikan kontrak","Dilepas (renounced)"]]}},
   {t:{en:"Smart Contract",id:"Smart Contract"},
    b:{en:["Official BTW token address on BNB Smart Chain:"],
       id:["Alamat resmi token BTW di BNB Smart Chain:"]},
    code:true, actions:true,
-   list:{en:["Match this address with BscScan before interacting with any contract.","Never send your seed phrase or private key."],
-         id:["Cocokkan alamat ini dengan BscScan sebelum berinteraksi dengan kontrak apa pun.","Jangan pernah mengirim seed phrase atau private key."]}},
+   list:{en:["Match this address with BscScan before interacting with any contract.","The token is deployed as a minimal proxy (EIP-1167) that points to a fixed, verified implementation. It cannot be upgraded. See the Contract tab on BscScan.","Never send your seed phrase or private key."],
+         id:["Cocokkan alamat ini dengan BscScan sebelum berinteraksi dengan kontrak apa pun.","Token ini dideploy sebagai minimal proxy (EIP-1167) yang menunjuk ke implementasi tetap yang sudah terverifikasi. Kontrak ini tidak bisa di-upgrade. Lihat tab Contract di BscScan.","Jangan pernah mengirim seed phrase atau private key."]}},
   {t:{en:"Previous Bitworld Token",id:"Token Bitworld Sebelumnya"},
    b:{en:["BITWORLD21 is the new token identity within the same Bitworld ecosystem. The previous Bitworld token was developed by the same project team, but it is a separate contract on BNB Smart Chain and is no longer actively used by the project.","Previous token details:"],
       id:["BITWORLD21 adalah identitas token baru dalam ekosistem Bitworld yang sama. Token Bitworld sebelumnya dikembangkan oleh tim proyek yang sama, tetapi merupakan kontrak terpisah di BNB Smart Chain dan tidak lagi digunakan secara aktif oleh proyek.","Detail token sebelumnya:"]},
@@ -114,8 +123,8 @@ var SECTIONS = [
    ]},
   {t:{en:"Check the Contract Yourself",id:"Cek Kontrak Sendiri"},
    ordered:true,
-   list:{en:["Open BscScan and paste the official contract address.","Match the address with the one written on this website.","Open the Contract tab and check that the Source Code is verified.","Check the supply and contract functions. There are no mint, burn, or pause functions."],
-         id:["Buka BscScan dan tempel alamat kontrak resmi.","Cocokkan alamatnya dengan yang tertulis di website ini.","Buka tab Contract, lalu cek apakah Source Code sudah terverifikasi.","Cek supply dan fungsi kontrak. Tidak ada fungsi mint, burn, atau pause."]}},
+   list:{en:["Open BscScan and paste the official contract address.","Match the address with the one written on this website.","Open the Contract tab and check that the Source Code is verified.","Open Write as Proxy and Read as Proxy to see the contract functions. There is no mint or pause function; holders can burn their own tokens."],
+         id:["Buka BscScan dan tempel alamat kontrak resmi.","Cocokkan alamatnya dengan yang tertulis di website ini.","Buka tab Contract, lalu cek apakah Source Code sudah terverifikasi.","Buka Write as Proxy dan Read as Proxy untuk melihat fungsi kontrak. Tidak ada fungsi mint atau pause; pemegang dapat membakar token miliknya."]}},
   {t:{en:"Glossary",id:"Glosarium"},
    table:{
      en:[["BEP-20","Token standard on BNB Smart Chain, similar to ERC-20 on Ethereum."],["BSC","BNB Smart Chain, the blockchain where the BTW token runs."],["DEX","Decentralized exchange, where tokens are traded directly from wallets."],["Liquidity","Funds in a trading pool that let a token be bought and sold."],["LP token","Proof of ownership of liquidity funds. Whoever holds it can withdraw the liquidity."],["Vesting","A schedule that releases tokens gradually, so they cannot all be sold at once."],["Supply","The total number of tokens. For BTW, it is fixed at 21,000,000."],["Seed phrase","Wallet recovery words. Never share them with anyone."]],
@@ -163,7 +172,14 @@ function render(){
     }
     if (s.members) {
       html += s.members.map(function(m){
-        return '<div class="links"><a class="card" style="pointer-events:none"><b>' + esc(m.name) + '</b><span>' + esc(m.role[lang] || m.role.en) + '</span></a></div>';
+        var ph = /^(https:\/\/|\/)[^\s"'<>]+$/i.test(m.photo || "") ? m.photo : "";
+        var ini = esc(m.name.charAt(0).toUpperCase());
+        var av = ph ? '<div class="av"><img src="' + esc(ph) + '" alt="' + esc(m.name) + '" data-ini="' + ini + '"></div>' : '<div class="av">' + ini + '</div>';
+        var pills = "";
+        [["LinkedIn", m.links.linkedin], ["X", m.links.x], ["GitHub", m.links.github]].forEach(function(it){
+          if (/^https:\/\/[^\s"'<>]+$/i.test(it[1] || "")) pills += '<a href="' + esc(it[1]) + '" target="_blank" rel="noopener noreferrer">' + it[0] + '</a>';
+        });
+        return '<div class="member">' + av + '<div class="mi"><span class="tag">' + esc(m.tag) + '</span><h3>' + esc(m.role[lang]) + '</h3><div class="nm">' + esc(m.name) + '</div><p>' + esc(m.desc[lang]) + '</p><div class="pills">' + pills + '</div></div></div>';
       }).join("");
     }
     if (s.links) {
@@ -185,6 +201,9 @@ function render(){
   document.getElementById("pages").innerHTML = PAGES.map(function(p){
     return '<a href="' + p[1] + '"' + (p[0] === CUR ? ' class="cur"' : '') + '>' + esc(u[p[0]]) + '</a>';
   }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".av img"), function(im){
+    im.addEventListener("error", function(){ im.parentNode.textContent = im.getAttribute("data-ini") || ""; });
+  });
   Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(b){ b.onclick = function(){ copyText(CONTRACT); }; });
 }
 function setLang(l){ lang = l; try { localStorage.setItem("btw_lang", l); } catch (e) {} render(); }
