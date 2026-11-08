@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b0e14">
-<title>Project Info &amp; Official Links - Bitworld (BTW)</title>
+<meta name="theme-color" content="#06163a">
+<title>Project Info &amp; Official Links - BITWORLD21 (BTW)</title>
 <style>
-:root{--bg:#0b0e14;--fg:#e8ebf2;--muted:#8a93a6;--accent:#f0b90b;--card:#121823;--line:rgba(255,255,255,.08)}
+:root{--bg:#06163a;--fg:#eaf1ff;--muted:#9db3dc;--accent:#f5b82e;--card:#0d2459;--line:rgba(147,197,253,.18)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;padding:0 0 40px}
-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:rgba(11,14,20,.95);border-bottom:1px solid var(--line)}
+body{background:#06163a radial-gradient(ellipse at 50% -10%,#1d4ed8 0%,#0b2a6b 45%,#06163a 100%) fixed;color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;padding:0 0 40px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:rgba(6,22,58,.95);border-bottom:1px solid var(--line)}
 header a.back{color:var(--accent);text-decoration:none;font-weight:700;font-size:14px}
 .lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .lang button{background:transparent;border:0;color:var(--muted);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer}
-.lang button.on{background:#1a2233;color:#fff}
+.lang button.on{background:#12306e;color:#fff}
 main{max-width:720px;margin:0 auto;padding:18px 16px}
 h1{font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
 .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
@@ -26,25 +26,34 @@ section p{font-size:14px;opacity:.93;margin-bottom:8px}
 section p:last-child{margin-bottom:0}
 section ul,section ol{padding-left:20px;font-size:14px;opacity:.93;margin-bottom:8px}
 section li{margin-bottom:6px}
-.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#a9bddb;word-break:break-all;background:#0e141e;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#bcd2ff;word-break:break-all;background:#0a2150;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
 table{width:100%;border-collapse:collapse;font-size:13px}
-td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
 td:first-child{color:var(--muted);width:38%}
 .alloc{margin-top:6px}
 .alloc .row{margin-bottom:10px}
 .alloc .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
-.alloc .bar{height:8px;border-radius:999px;background:#0e141e;overflow:hidden}
+.alloc .bar{height:8px;border-radius:999px;background:#0a2150;overflow:hidden}
 .alloc .bar i{display:block;height:100%;border-radius:999px}
-.links a.card{display:block;text-decoration:none;color:var(--fg);background:#0e141e;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.links a.card{display:block;text-decoration:none;color:var(--fg);background:#0a2150;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
 .links a.card b{color:var(--accent);font-size:14px}
 .links a.card span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .links a.card:active{border-color:var(--accent)}
-.btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.14);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}
+.member{display:flex;gap:14px;align-items:center;margin-top:10px;background:#0a2150;border:1px solid var(--line);border-radius:14px;padding:14px}
+.av{width:72px;height:72px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;background:#12306e;font-weight:800;font-size:28px;color:var(--accent)}
+.av img{width:100%;height:100%;object-fit:cover}
+.mi{min-width:0}
+.tag{display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,184,46,.14);color:var(--accent)}
+.member h3{font-size:16px;margin:6px 0 2px}
+.member .nm{font-weight:700;font-size:14px}
+.member p{font-size:12.5px;margin:6px 0 0}
+.pills a{display:inline-block;margin:6px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none;padding:4px 10px;border-radius:999px;background:rgba(245,184,46,.12)}
+.btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(147,197,253,.30);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#3b2a00}
 .foot{text-align:center;margin-top:18px}
 .pages{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px}
 .pages a{border:1px solid var(--line);color:var(--muted);text-decoration:none;border-radius:999px;padding:6px 12px;font-size:12.5px}
-.pages a.cur{border-color:rgba(240,185,11,.5);color:var(--accent);background:rgba(240,185,11,.1)}
+.pages a.cur{border-color:rgba(245,184,46,.5);color:var(--accent);background:rgba(245,184,46,.1)}
 #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(100px);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .4s,opacity .4s;z-index:9;white-space:nowrap;opacity:0;pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
@@ -73,14 +82,14 @@ var lang = "en";
 try { if (localStorage.getItem("btw_lang") === "id") lang = "id"; } catch (e) {}
 
 var UI = {
-  en: {pdf:"Download PDF", back:"← Bitworld", copy:"Copy Address", copied:"Address copied", copyfail:"Copy failed", bsc:"Open BscScan", wp:"Whitepaper", token:"Token", team:"Team", info:"Project info"},
-  id: {pdf:"Unduh PDF", back:"← Bitworld", copy:"Salin Alamat", copied:"Alamat disalin", copyfail:"Gagal menyalin", bsc:"Buka BscScan", wp:"Whitepaper", token:"Token", team:"Tim", info:"Info proyek"}
+  en: {pdf:"Download PDF", back:"← BITWORLD21", copy:"Copy Address", copied:"Address copied", copyfail:"Copy failed", bsc:"Open BscScan", wp:"Whitepaper", token:"Token", team:"Team", info:"Project info"},
+  id: {pdf:"Unduh PDF", back:"← BITWORLD21", copy:"Salin Alamat", copied:"Alamat disalin", copyfail:"Gagal menyalin", bsc:"Buka BscScan", wp:"Whitepaper", token:"Token", team:"Tim", info:"Info proyek"}
 };
 var PAGES = [["wp","/whitepaper.html"],["token","/token.html"],["team","/team.html"],["info","/info.html"]];
 
 var PAGE = {
   title: {en:"Project Info & Official Links", id:"Info Proyek & Tautan Resmi"},
-  sub: {en:"Bitworld (BTW) • Channels, FAQ, news, and roadmap", id:"Bitworld (BTW) • Kanal, FAQ, berita, dan roadmap"}
+  sub: {en:"BITWORLD21 (BTW) • Channels, FAQ, news, and roadmap", id:"BITWORLD21 (BTW) • Kanal, FAQ, berita, dan roadmap"}
 };
 var SECTIONS = [
   {t:{en:"Official Links",id:"Tautan Resmi"},
@@ -89,25 +98,25 @@ var SECTIONS = [
    links:[
      {n:{en:"Website"}, u:"https://bitworld21.com", d:{en:"Whitepaper, tokenomics, and contract",id:"Whitepaper, tokenomics, dan kontrak"}},
      {n:{en:"X (Twitter)"}, u:"https://x.com/bitworld_btw", d:{en:"Short announcements",id:"Pengumuman singkat"}},
-     {n:{en:"Facebook"}, u:"https://www.facebook.com/share/1FKuR8i7rT/", d:{en:"Official Bitworld - BTW page",id:"Halaman resmi Bitworld - BTW"}},
+     {n:{en:"Facebook"}, u:"https://www.facebook.com/share/1FKuR8i7rT/", d:{en:"Official BITWORLD21 page",id:"Halaman resmi BITWORLD21"}},
      {n:{en:"Telegram"}, u:"https://t.me/Bitworld_Official", d:{en:"Official announcements and discussion",id:"Pengumuman dan diskusi resmi"}},
      {n:{en:"LinkedIn"}, u:"https://www.linkedin.com/in/juandri-juan-2b5602449", d:{en:"Official LinkedIn profile",id:"Profil LinkedIn resmi"}},
      {n:{en:"BscScan"}, u:"https://bscscan.com/token/0x05931E2821D7ab52e845E54380f13500f4B70Ea9", d:{en:"Verify the official token contract",id:"Verifikasi kontrak token resmi"}}
    ]},
   {t:{en:"About the Project",id:"Tentang Proyek"},
-   b:{en:["BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem.","This is not investment advice. Do your own research and only use funds you can afford to risk."],
-      id:["BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld.","Ini bukan nasihat investasi. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan."]}},
+   b:{en:["BTW is a BEP-20 token on BNB Smart Chain for the BITWORLD21 ecosystem.","This is not investment advice. Do your own research and only use funds you can afford to risk."],
+      id:["BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem BITWORLD21.","Ini bukan nasihat investasi. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan."]}},
   {t:{en:"News & Announcements",id:"Berita & Pengumuman"},
    table:{
-     en:[["20 Oct 2026","Bitworld (BTW) website and public whitepaper released."]],
-     id:[["20 Okt 2026","Website Bitworld (BTW) dan whitepaper versi publik dirilis."]]}},
+     en:[["20 Oct 2026","BITWORLD21 (BTW) website and public whitepaper released."]],
+     id:[["20 Okt 2026","Website BITWORLD21 (BTW) dan whitepaper versi publik dirilis."]]}},
   {t:{en:"FAQ",id:"FAQ"},
    table:{
-     en:[["What is BTW?","BTW is a BEP-20 token on BNB Smart Chain for the Bitworld ecosystem."],
+     en:[["What is BTW?","BTW is a BEP-20 token on BNB Smart Chain for the BITWORLD21 ecosystem."],
          ["Is there an airdrop?","BTW is distributed through daily mining and tasks, taken from the Community Pool and recorded in your account. Connect your MetaMask wallet in the Profile menu. Information about withdrawing to your wallet, and any separate airdrop, is announced only through the project's official channels."],
          ["How do I verify the contract?","Match the address on this page with BscScan before interacting with anything."],
          ["Is this investment advice?","No. Do your own research and only use funds you can afford to risk."]],
-     id:[["Apa itu BTW?","BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem Bitworld."],
+     id:[["Apa itu BTW?","BTW adalah token BEP-20 di BNB Smart Chain untuk ekosistem BITWORLD21."],
          ["Apakah ada airdrop?","BTW dibagikan lewat mining harian dan tugas, diambil dari Pool Komunitas dan tercatat di akun Anda. Hubungkan wallet MetaMask di menu Profil. Info penarikan ke wallet dan airdrop terpisah (jika ada) hanya diumumkan lewat kanal resmi proyek."],
          ["Bagaimana cara memverifikasi kontrak?","Cocokkan alamat di halaman ini dengan BscScan sebelum berinteraksi apa pun."],
          ["Apakah ini nasihat investasi?","Tidak. Lakukan riset sendiri dan hanya gunakan dana yang siap Anda risikokan."]]}},
@@ -137,7 +146,7 @@ function copyText(text){
 function render(){
   var u = UI[lang];
   document.documentElement.lang = lang;
-  document.title = PAGE.title[lang] + " - Bitworld (BTW)";
+  document.title = PAGE.title[lang] + " - BITWORLD21 (BTW)";
   document.getElementById("l-en").classList.toggle("on", lang === "en");
   document.getElementById("l-id").classList.toggle("on", lang === "id");
   document.getElementById("back").textContent = u.back;
@@ -162,7 +171,14 @@ function render(){
     }
     if (s.members) {
       html += s.members.map(function(m){
-        return '<div class="links"><a class="card" style="pointer-events:none"><b>' + esc(m.name) + '</b><span>' + esc(m.role[lang] || m.role.en) + '</span></a></div>';
+        var ph = /^(https:\/\/|\/)[^\s"'<>]+$/i.test(m.photo || "") ? m.photo : "";
+        var ini = esc(m.name.charAt(0).toUpperCase());
+        var av = ph ? '<div class="av"><img src="' + esc(ph) + '" alt="' + esc(m.name) + '" data-ini="' + ini + '"></div>' : '<div class="av">' + ini + '</div>';
+        var pills = "";
+        [["LinkedIn", m.links.linkedin], ["X", m.links.x], ["GitHub", m.links.github]].forEach(function(it){
+          if (/^https:\/\/[^\s"'<>]+$/i.test(it[1] || "")) pills += '<a href="' + esc(it[1]) + '" target="_blank" rel="noopener noreferrer">' + it[0] + '</a>';
+        });
+        return '<div class="member">' + av + '<div class="mi"><span class="tag">' + esc(m.tag) + '</span><h3>' + esc(m.role[lang]) + '</h3><div class="nm">' + esc(m.name) + '</div><p>' + esc(m.desc[lang]) + '</p><div class="pills">' + pills + '</div></div></div>';
       }).join("");
     }
     if (s.links) {
@@ -184,6 +200,9 @@ function render(){
   document.getElementById("pages").innerHTML = PAGES.map(function(p){
     return '<a href="' + p[1] + '"' + (p[0] === CUR ? ' class="cur"' : '') + '>' + esc(u[p[0]]) + '</a>';
   }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".av img"), function(im){
+    im.addEventListener("error", function(){ im.parentNode.textContent = im.getAttribute("data-ini") || ""; });
+  });
   Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(b){ b.onclick = function(){ copyText(CONTRACT); }; });
 }
 function setLang(l){ lang = l; try { localStorage.setItem("btw_lang", l); } catch (e) {} render(); }
