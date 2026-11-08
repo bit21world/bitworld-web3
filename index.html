@@ -596,8 +596,8 @@ function renderExtra(){
   s += "<ul class='list'>" + warn.map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
   s += "<h2 style='margin-top:12px;font-size:16px'>" + (isId ? "Privasi" : "Privacy") + "</h2>";
   s += "<p class='muted' style='font-size:12.5px;line-height:1.6'>" + (isId
-      ? "Website ini hanya mencatat jumlah kunjungan secara anonim melalui Vercel Web Analytics. Tidak ada cookie, tidak ada akun, dan tidak ada data pribadi yang dikumpulkan."
-      : "This website only records anonymous visit counts through Vercel Web Analytics. No cookies, no accounts, and no personal data are collected.") + "</p>";
+      ? "Untuk membuat akun, kami meminta nama, email, dan password. Jika Anda memakai fitur verifikasi identitas (KYC) atau menghubungkan wallet, data yang Anda kirim juga kami simpan untuk keperluan layanan. Data akun disimpan di database terkelola (Neon). Browser Anda menyimpan status login, kode referral, dan bahasa pilihan. Kami juga mencatat jumlah kunjungan anonim melalui Vercel Web Analytics. Kami tidak pernah meminta seed phrase atau private key."
+      : "To create an account, we ask for your name, email, and password. If you use identity verification (KYC) or connect a wallet, the data you submit is also stored to provide the service. Account data is stored in a managed database (Neon). Your browser stores your login status, referral code, and language choice. We also record anonymous visit counts through Vercel Web Analytics. We never ask for your seed phrase or private key.") + "</p>";
   $("secBody").innerHTML = s;
 
   var r = "<h2>Roadmap</h2>";
