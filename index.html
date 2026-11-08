@@ -171,7 +171,9 @@ main{overflow:hidden}
 .mst b{display:block;font-size:16px;color:#fff;margin-top:2px}
 .note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5}
 </style>
-<meta name="theme-color" content="#0b0e14">
+<meta name="theme-color" content="#06163a">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style id="dapp-theme">
@@ -1230,5 +1232,6 @@ function initScene(){
   });
 })();
 </script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})}</script>
 </body>
 </html>
