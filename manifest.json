@@ -1,38 +1,20 @@
 {
+  "name": "BITWORLD21 (BTW)",
+  "short_name": "BITWORLD21",
+  "description": "BITWORLD21 (BTW): BEP-20 token on BNB Smart Chain. Whitepaper, tokenomics, mining and tasks.",
   "id": "/",
-  "name": "Bitworld (BTW)",
-  "short_name": "Bitworld",
-  "description": "Bitworld (BTW) is a BEP-20 token project on BNB Smart Chain. Mine BTW, complete tasks, and explore the whitepaper, token info, and team.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080604",
-  "theme_color": "#0d0a05",
+  "background_color": "#06163a",
+  "theme_color": "#06163a",
   "lang": "en",
   "dir": "ltr",
-  "categories": [
-    "finance",
-    "business"
-  ],
+  "categories": ["finance"],
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ]
 }
