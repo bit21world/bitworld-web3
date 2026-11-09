@@ -3,9 +3,9 @@ const crypto = require("crypto");
 const { verifyMessage, getAddress } = require("ethers");
 const { sql, send, getUid, jsonOnly, limit } = require("./_lib");
 
-// Pesan yang ditandatangani user di MetaMask (gratis, bukan transaksi)
+// Pesan yang ditandatangani user di wallet (MetaMask, Trust Wallet, OKX, dll.; gratis, bukan transaksi)
 const msgFor = (nonce) =>
-  "Hubungkan wallet ke Bitworld.\n\nNonce: " + nonce +
+  "Hubungkan wallet ke BITWORLD21.\n\nNonce: " + nonce +
   "\n\nTanda tangan ini gratis dan tidak mengirim transaksi apa pun.";
 
 module.exports = async (req, res) => {
