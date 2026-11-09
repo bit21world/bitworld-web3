@@ -118,8 +118,8 @@
     if (c === "wallet_taken") return T("Alamat wallet ini sudah dipakai akun lain.", "This wallet is already used by another account.");
     if (c === "invalid_signature") return T("Tanda tangan tidak cocok dengan alamat wallet. Coba lagi.", "The signature does not match the wallet address. Try again.");
     if (c === "invalid_challenge") return T("Permintaan sudah kedaluwarsa. Tekan tombol hubungkan lagi.", "The request expired. Press the connect button again.");
-    if (c === "user_rejected") return T("Permintaan dibatalkan di MetaMask.", "The request was cancelled in MetaMask.");
-    if (c === "no_wallet") return T("MetaMask tidak memberikan alamat akun. Buka kunci MetaMask lalu coba lagi.", "MetaMask did not return an account. Unlock MetaMask and try again.");
+    if (c === "user_rejected") return T("Permintaan dibatalkan di wallet Anda.", "The request was cancelled in your wallet.");
+    if (c === "no_wallet") return T("Wallet tidak memberikan alamat akun. Buka kunci wallet Anda lalu coba lagi.", "The wallet did not return an account. Unlock your wallet and try again.");
     if (c === "unauthorized") return T("Sesi habis. Silakan masuk lagi.", "Session expired. Please log in again.");
     if (c === "cooldown") return T("Sesi mining masih berjalan.", "Mining session is still running.");
     if (c === "rate_limited") return T("Terlalu banyak percobaan. Coba lagi nanti.", "Too many attempts. Try again later.");
@@ -153,9 +153,9 @@
       '<input id="pWallet" placeholder="0x..." readonly autocomplete="off" autocapitalize="off" spellcheck="false">' +
       (has ? '<div class="pbadge">\u2713 ' + T("Wallet terhubung", "Wallet connected") + '</div>' : '') +
       '<button class="btn' + (has ? '' : ' primary') + '" type="button" id="pConnect">' +
-        (has ? T("Ganti Wallet (MetaMask)", "Change Wallet (MetaMask)") : T("Hubungkan MetaMask", "Connect MetaMask")) + '</button>' +
-      '<div class="fmsg" id="pMsg"></div><div class="lnk" id="pLink"></div>' +
-      '<p class="note">' + T("Wallet dihubungkan dengan menandatangani pesan di MetaMask. Ini gratis dan tidak mengirim transaksi. Jangan pernah memasukkan seed phrase atau private key.", "The wallet is linked by signing a message in MetaMask. It is free and sends no transaction. Never enter your seed phrase or private key.") + '</p>' +
+        (has ? T("Ganti Wallet", "Change Wallet") : T("Hubungkan Wallet", "Connect Wallet")) + '</button>' +
+      '<div class="fmsg" id="pMsg"></div><div id="pApps"></div><div class="lnk" id="pLink"></div>' +
+      '<p class="note">' + T("Wallet dihubungkan dengan menandatangani pesan di wallet Anda (MetaMask, Trust Wallet, OKX, Binance Web3, dan lainnya). Ini gratis dan tidak mengirim transaksi. Jangan pernah memasukkan seed phrase atau private key.", "The wallet is linked by signing a message in your wallet (MetaMask, Trust Wallet, OKX, Binance Web3 and others). It is free and sends no transaction. Never enter your seed phrase or private key.") + '</p>' +
       '<h2 style="margin-top:22px">KYC</h2><p class="sub">' + T("Verifikasi identitas akun Anda.", "Verify your account identity.") + '</p>' +
       '<button class="btn primary" type="button" id="pKyc">' + T("Buka KYC", "Open KYC") + '</button>' +
       '<button class="btn" type="button" id="pOut" style="margin-top:14px">' + T("Keluar", "Log out") + '</button>';
@@ -175,7 +175,7 @@
     g("pOut").onclick = function () { api("logout", {}).then(function () { location.reload(); }); };
   }
 
-  /* ---------- MetaMask ---------- */
+  /* ---------- Wallet (MetaMask, Trust Wallet, OKX, Binance Web3, dll.) ---------- */
   function toHex(s) {
     var b = new TextEncoder().encode(s), h = "0x";
     for (var i = 0; i < b.length; i++) h += ("0" + b[i].toString(16)).slice(-2);
@@ -205,12 +205,37 @@
     if (e && e.message) p.push(String(e.message).slice(0, 90));
     return p.length ? " [" + p.join(", ") + "]" : "";
   }
+
+  /* Browser biasa (mis. Chrome di HP) tidak punya wallet: tawarkan membuka situs ini di browser dalam aplikasi wallet */
+  function showWalletHelp() {
+    msg(T("Wallet tidak ditemukan di browser ini. Buka situs ini lewat browser di dalam aplikasi wallet Anda, lalu masuk lagi dan tekan Hubungkan Wallet.",
+          "No wallet found in this browser. Open this site in your wallet app's built-in browser, log in again, and press Connect Wallet."), true);
+    var box = g("pApps"); if (!box) return;
+    box.textContent = "";
+    var u = location.origin + "/", eu = encodeURIComponent(u);
+    var apps = [
+      ["MetaMask", "https://metamask.app.link/dapp/" + location.host + "/"],
+      ["Trust Wallet", "https://link.trustwallet.com/open_url?coin_id=20000714&url=" + eu],
+      ["OKX Wallet", "okx://wallet/dapp/url?dappUrl=" + eu],
+      ["Coinbase Wallet", "https://go.cb-w.com/dapp?cb_url=" + eu]
+    ];
+    apps.forEach(function (a) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn"; b.style.marginTop = "8px";
+      b.textContent = T("Buka di ", "Open in ") + a[0];
+      b.onclick = function () { location.href = a[1]; };
+      box.appendChild(b);
+    });
+    var p = document.createElement("p");
+    p.className = "note";
+    p.textContent = T("Binance Web3 Wallet, SafePal, TokenPocket, atau wallet lain: buka aplikasinya, pilih menu Browser/DApp, lalu ketik bitworld21.com. Belum punya wallet? Pasang Trust Wallet atau MetaMask dari Play Store atau App Store. Jangan pernah membagikan seed phrase.",
+                      "Binance Web3 Wallet, SafePal, TokenPocket or another wallet: open the app, choose Browser/DApp, and type bitworld21.com. No wallet yet? Install Trust Wallet or MetaMask from the Play Store or App Store. Never share your seed phrase.");
+    box.appendChild(p);
+  }
   function connectWallet() {
     var eth = window.ethereum;
     if (!eth) {
-      /* Chrome di HP tidak punya MetaMask: buka situs ini di browser dalam aplikasi MetaMask */
-      msg(T("MetaMask tidak ditemukan di browser ini. Membuka aplikasi MetaMask...", "MetaMask not found in this browser. Opening the MetaMask app..."), true);
-      setTimeout(function () { location.href = "https://metamask.app.link/dapp/" + location.host + "/"; }, 900);
+      showWalletHelp();
       return;
     }
     var bt = g("pConnect"); if (bt) bt.disabled = true;
