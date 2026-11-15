@@ -1,215 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#06163a">
-<title>Official Token Info - BITWORLD21 (BTW)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BITWORLD21 – Official Token Information</title>
+<meta name="description" content="Official token information for BITWORLD21 (BTW) on BNB Smart Chain, and the relationship with the previous Bitworld token.">
 <style>
-:root{--bg:#06163a;--fg:#eaf1ff;--muted:#9db3dc;--accent:#f5b82e;--card:#0d2459;--line:rgba(147,197,253,.18)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#06163a radial-gradient(ellipse at 50% -10%,#1d4ed8 0%,#0b2a6b 45%,#06163a 100%) fixed;color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;padding:0 0 40px}
-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:rgba(6,22,58,.95);border-bottom:1px solid var(--line)}
-header a.back{color:var(--accent);text-decoration:none;font-weight:700;font-size:14px}
-.lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.lang button{background:transparent;border:0;color:var(--muted);padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer}
-.lang button.on{background:#12306e;color:#fff}
-main{max-width:720px;margin:0 auto;padding:18px 16px}
-h1{font-size:26px;letter-spacing:-.5px;margin-bottom:4px}
-.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
-.toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
-.toc a{border:1px solid var(--line);color:var(--muted);text-decoration:none;border-radius:999px;padding:5px 11px;font-size:12px}
-.toc a:active{color:var(--accent);border-color:var(--accent)}
-section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;scroll-margin-top:70px}
-section h2{font-size:18px;color:var(--accent);margin-bottom:8px}
-section p{font-size:14px;opacity:.93;margin-bottom:8px}
-section p:last-child{margin-bottom:0}
-section ul,section ol{padding-left:20px;font-size:14px;opacity:.93;margin-bottom:8px}
-section li{margin-bottom:6px}
-.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#bcd2ff;word-break:break-all;background:#0a2150;border:1px solid var(--line);padding:8px;border-radius:8px;margin:8px 0}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td{padding:8px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
-td:first-child{color:var(--muted);width:38%}
-.alloc{margin-top:6px}
-.alloc .row{margin-bottom:10px}
-.alloc .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
-.alloc .bar{height:8px;border-radius:999px;background:#0a2150;overflow:hidden}
-.alloc .bar i{display:block;height:100%;border-radius:999px}
-.links a.card{display:block;text-decoration:none;color:var(--fg);background:#0a2150;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
-.links a.card b{color:var(--accent);font-size:14px}
-.links a.card span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
-.links a.card:active{border-color:var(--accent)}
-.member{display:flex;gap:14px;align-items:center;margin-top:10px;background:#0a2150;border:1px solid var(--line);border-radius:14px;padding:14px}
-.av{width:72px;height:72px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;background:#12306e;font-weight:800;font-size:28px;color:var(--accent)}
-.av img{width:100%;height:100%;object-fit:cover}
-.mi{min-width:0}
-.tag{display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(245,184,46,.14);color:var(--accent)}
-.member h3{font-size:16px;margin:6px 0 2px}
-.member .nm{font-weight:700;font-size:14px}
-.member p{font-size:12.5px;margin:6px 0 0}
-.pills a{display:inline-block;margin:6px 8px 0 0;font-size:12.5px;font-weight:700;color:var(--accent);text-decoration:none;padding:4px 10px;border-radius:999px;background:rgba(245,184,46,.12)}
-.btn{display:inline-block;margin:6px 6px 0 0;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid rgba(147,197,253,.30);color:var(--fg);background:transparent;cursor:pointer;font-family:inherit}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#3b2a00}
-.foot{text-align:center;margin-top:18px}
-.pages{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px}
-.pages a{border:1px solid var(--line);color:var(--muted);text-decoration:none;border-radius:999px;padding:6px 12px;font-size:12.5px}
-.pages a.cur{border-color:rgba(245,184,46,.5);color:var(--accent);background:rgba(245,184,46,.1)}
-#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(100px);background:#fff;color:#000;padding:8px 16px;border-radius:10px;font-size:13px;transition:transform .4s,opacity .4s;z-index:9;white-space:nowrap;opacity:0;pointer-events:none}
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  :root{--bg:#f1f7ff;--card:#fff;--text:#1f2340;--muted:#5b5f86;--accent:#5b52e8;--line:rgba(88,76,214,.14);--soft:#ecebff;--warn:#fff7e0;--warnline:#f0d58a}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  header a.home{font-weight:700;color:var(--accent);text-decoration:none}
+  .langsel{background:var(--soft);color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:18px;margin:0 0 10px}
+  p{margin:0 0 10px}
+  .lead{color:var(--muted)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+  .tag{display:inline-block;font-size:11px;letter-spacing:1px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--accent);margin-bottom:8px}
+  .tag.old{background:#eee;color:#666}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td:first-child{color:var(--muted);width:42%;padding-right:10px}
+  .addr{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all;direction:ltr;text-align:left;display:block}
+  .row-actions{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--accent);text-decoration:none}
+  .notice{background:var(--warn);border:1px solid var(--warnline)}
+  .notice ul{margin:8px 0 0;padding-left:20px}
+  .links a{display:inline-block;margin:4px 8px 0 0;font-weight:700;color:var(--accent);text-decoration:none;padding:5px 12px;border-radius:999px;background:var(--soft);font-size:13.5px}
+  footer{margin-top:24px;font-size:13px;color:var(--muted);text-align:center}
+  html[dir=rtl] td:first-child{padding-right:0;padding-left:10px}
+  html[dir=rtl] .notice ul{padding-left:0;padding-right:20px}
+  html[dir=rtl] .links a{margin:4px 0 0 8px}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){--bg:#12142b;--card:#1b1e3d;--text:#eceefe;--muted:#a9acd0;--accent:#9b93ff;--line:rgba(155,147,255,.22);--soft:#2a2d57;--warn:#2e2a14;--warnline:#5c5222}
+    .tag.old{background:#33365c;color:#c9cbe8}
+  }
 </style>
 </head>
 <body>
-<header>
-  <a class="back" href="/" id="back"></a>
-  <div class="lang" role="group" aria-label="Language">
-    <button id="l-en" type="button">EN</button>
-    <button id="l-id" type="button">ID</button>
+<div class="wrap">
+  <header>
+    <a class="home" href="/" data-i18n="back">&larr; Bitworld21</a>
+    <select id="langsel" class="langsel" aria-label="Language">
+      <option value="en">English</option>
+      <option value="id">Indonesia</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ur">اردو</option>
+      <option value="vi">Tiếng Việt</option>
+    </select>
+    <a class="home" href="/team.html" data-i18n="team">Team</a>
+  </header>
+
+  <h1 data-i18n="h1">BITWORLD21 &ndash; Official Token Information</h1>
+  <p class="lead" data-i18n="lead">BITWORLD21 is part of the Bitworld21 ecosystem, developed by the same project team.</p>
+  <p data-i18n="intro">To ensure transparency, we would like to clarify the relationship between our previous Bitworld token and the new BITWORLD21 token.</p>
+
+  <div class="card">
+    <span class="tag" data-i18n="tag_new">NEW TOKEN</span>
+    <h2 data-i18n="h_new">BITWORLD21 (current)</h2>
+    <table>
+      <tr><td data-i18n="r_name">Token Name</td><td>BITWORLD21</td></tr>
+      <tr><td data-i18n="r_symbol">Symbol</td><td>BTW</td></tr>
+      <tr><td data-i18n="r_network">Network</td><td>BNB Smart Chain</td></tr>
+      <tr><td data-i18n="r_contract">Contract Address</td><td><span class="addr" id="a-new">0x05931E2821D7ab52e845E54380f13500f4B70Ea9</span>
+        <div class="row-actions">
+          <button class="btn" type="button" data-copy="a-new" data-i18n="copy">Copy</button>
+          <a class="btn" href="https://bscscan.com/token/0x05931E2821D7ab52e845E54380f13500f4B70Ea9" target="_blank" rel="noopener noreferrer" data-i18n="bscscan">View on BscScan</a>
+        </div></td></tr>
+      <tr><td data-i18n="r_supply">Total Supply</td><td data-i18n="v_supply">21,000,000 BTW</td></tr>
+      <tr><td data-i18n="r_source">Contract Source Code</td><td data-i18n="v_verified">Verified</td></tr>
+      <tr><td data-i18n="r_owner">Contract Ownership</td><td data-i18n="v_renounced">Renounced</td></tr>
+    </table>
   </div>
-</header>
-<main>
-  <h1 id="h1"></h1>
-  <p class="sub" id="sub"></p>
-  <nav class="toc" id="toc"></nav>
-  <div id="content"></div>
-  <nav class="pages" id="pages" aria-label="Pages"></nav>
-</main>
-<div id="toast"></div>
+
+  <div class="card">
+    <span class="tag old" data-i18n="tag_old">PREVIOUS TOKEN</span>
+    <h2 data-i18n="h_old">Bitworld (previous)</h2>
+    <table>
+      <tr><td data-i18n="r_name">Token Name</td><td>Bitworld</td></tr>
+      <tr><td data-i18n="r_symbol">Symbol</td><td>BTW</td></tr>
+      <tr><td data-i18n="r_network">Network</td><td>BNB Smart Chain</td></tr>
+      <tr><td data-i18n="r_contract">Contract Address</td><td><span class="addr" id="a-old">0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea</span>
+        <div class="row-actions">
+          <button class="btn" type="button" data-copy="a-old" data-i18n="copy">Copy</button>
+          <a class="btn" href="https://bscscan.com/token/0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea" target="_blank" rel="noopener noreferrer" data-i18n="bscscan">View on BscScan</a>
+        </div></td></tr>
+      <tr><td data-i18n="r_supply">Total Supply</td><td data-i18n="v_supply">21,000,000 BTW</td></tr>
+      <tr><td data-i18n="r_owner">Contract Ownership</td><td data-i18n="v_renounced">Renounced</td></tr>
+    </table>
+    <p style="margin-top:10px" data-i18n="old_note">The previous token is no longer actively used by the project. However, some holders may still retain their balances.</p>
+  </div>
+
+  <div class="card notice">
+    <h2 data-i18n="notice_h">Important Notice</h2>
+    <ul>
+      <li data-i18n="n1">The new BITWORLD21 token is a separate smart contract within the same Bitworld21 ecosystem.</li>
+      <li data-i18n="n2">There has been no automatic migration or transfer of balances from the previous contract to the new contract.</li>
+      <li data-i18n="n3">The previous contract and its remaining holder balances continue to exist on the blockchain.</li>
+      <li data-i18n="n4">Users should always verify the contract address before interacting with either token.</li>
+    </ul>
+  </div>
+
+  <div class="card links">
+    <h2 data-i18n="ch_h">Official Channels</h2>
+    <a href="https://www.bitworld21.com" target="_blank" rel="noopener noreferrer" data-i18n="ch_web">Website</a>
+    <a href="https://x.com/bitworld_btw" target="_blank" rel="noopener noreferrer">X</a>
+    <a href="https://t.me/Bitworld_Official" target="_blank" rel="noopener noreferrer">Telegram</a>
+    <a href="https://www.linkedin.com/in/juandri-juan-2b5602449" target="_blank" rel="noopener noreferrer" data-i18n="ch_li">Founder on LinkedIn</a>
+    <p style="margin-top:12px;font-size:13.5px" class="lead" data-i18n="ch_note">The team never asks for your seed phrase, private key, or payment.</p>
+  </div>
+
+  <footer>&copy; Bitworld21 &middot; <a href="https://www.bitworld21.com" style="color:inherit">bitworld21.com</a></footer>
+</div>
+
 <script>
-var CONTRACT = "0x05931E2821D7ab52e845E54380f13500f4B70Ea9";
-var BSCSCAN = "https://bscscan.com/token/" + CONTRACT;
-var CUR = "token";
-var lang = "en";
-try { if (localStorage.getItem("btw_lang") === "id") lang = "id"; } catch (e) {}
-
-var UI = {
-  en: {pdf:"Download PDF", back:"← BITWORLD21", copy:"Copy Address", copied:"Address copied", copyfail:"Copy failed", bsc:"Open BscScan", wp:"Whitepaper", token:"Token", team:"Team", info:"Project info"},
-  id: {pdf:"Unduh PDF", back:"← BITWORLD21", copy:"Salin Alamat", copied:"Alamat disalin", copyfail:"Gagal menyalin", bsc:"Buka BscScan", wp:"Whitepaper", token:"Token", team:"Tim", info:"Info proyek"}
-};
-var PAGES = [["wp","/whitepaper.html"],["token","/token.html"],["team","/team.html"],["info","/info.html"]];
-
-var PAGE = {
-  title: {en:"Official Token Info", id:"Info Token Resmi"},
-  sub: {en:"BITWORLD21 (BTW) • BEP-20 • BNB Smart Chain", id:"BITWORLD21 (BTW) • BEP-20 • BNB Smart Chain"}
-};
-var SECTIONS = [
-  {t:{en:"Token Details",id:"Detail Token"},
-   table:{
-     en:[["Name","BITWORLD21"],["Symbol","BTW"],["Standard","BEP-20"],["Network","BNB Smart Chain (BSC)"],["Total supply","21,000,000 BTW"],["Mint / pause functions","None"],["Burn","Holders can burn their own tokens (reduces supply)"],["Contract source code","Verified"],["Contract ownership","Renounced"]],
-     id:[["Nama","BITWORLD21"],["Simbol","BTW"],["Standar","BEP-20"],["Jaringan","BNB Smart Chain (BSC)"],["Total supply","21.000.000 BTW"],["Fungsi mint / pause","Tidak ada"],["Burn","Pemegang dapat membakar token miliknya (mengurangi suplai)"],["Source code kontrak","Terverifikasi"],["Kepemilikan kontrak","Dilepas (renounced)"]]}},
-  {t:{en:"Smart Contract",id:"Smart Contract"},
-   b:{en:["Official BTW token address on BNB Smart Chain:"],
-      id:["Alamat resmi token BTW di BNB Smart Chain:"]},
-   code:true, actions:true,
-   list:{en:["Match this address with BscScan before interacting with any contract.","The token is deployed as a minimal proxy (EIP-1167) that points to a fixed, verified implementation. It cannot be upgraded. See the Contract tab on BscScan.","Never send your seed phrase or private key."],
-         id:["Cocokkan alamat ini dengan BscScan sebelum berinteraksi dengan kontrak apa pun.","Token ini dideploy sebagai minimal proxy (EIP-1167) yang menunjuk ke implementasi tetap yang sudah terverifikasi. Kontrak ini tidak bisa di-upgrade. Lihat tab Contract di BscScan.","Jangan pernah mengirim seed phrase atau private key."]}},
-  {t:{en:"Previous Bitworld Token",id:"Token Bitworld Sebelumnya"},
-   b:{en:["BITWORLD21 is the new token identity within the same Bitworld ecosystem. The previous Bitworld token was developed by the same project team, but it is a separate contract on BNB Smart Chain and is no longer actively used by the project.","Previous token details:"],
-      id:["BITWORLD21 adalah identitas token baru dalam ekosistem Bitworld yang sama. Token Bitworld sebelumnya dikembangkan oleh tim proyek yang sama, tetapi merupakan kontrak terpisah di BNB Smart Chain dan tidak lagi digunakan secara aktif oleh proyek.","Detail token sebelumnya:"]},
-   table:{
-     en:[["Name","Bitworld"],["Symbol","BTW"],["Network","BNB Smart Chain (BSC)"],["Contract","0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea"],["Total supply","21,000,000 BTW"],["Ownership","Renounced"]],
-     id:[["Nama","Bitworld"],["Simbol","BTW"],["Jaringan","BNB Smart Chain (BSC)"],["Kontrak","0x9C8A29B9b9866464bb34aAe32FD94A1594B1F3Ea"],["Total supply","21.000.000 BTW"],["Kepemilikan","Dilepas (renounced)"]]},
-   list:{en:["There has been no automatic migration or transfer of balances from the previous contract to the new contract.","Both contracts are separate token contracts. Some holders may still retain balances in the previous contract.","The official contract for BITWORLD21 is the address shown in the Smart Contract section above. Always verify addresses on BscScan."],
-         id:["Tidak ada migrasi otomatis atau pemindahan saldo dari kontrak lama ke kontrak baru.","Kedua kontrak adalah kontrak token yang terpisah. Sebagian pemegang token mungkin masih memiliki saldo di kontrak lama.","Kontrak resmi BITWORLD21 adalah alamat yang tercantum di bagian Smart Contract di atas. Selalu verifikasi alamat di BscScan."]}},
-  {t:{en:"Token Allocation",id:"Alokasi Token"},
-   b:{en:["The total supply of 21,000,000 BTW is split into the six categories below.","Vesting schedules will be announced through official channels."],
-      id:["Total suplai 21.000.000 BTW dibagi ke enam kategori berikut.","Jadwal vesting akan diumumkan melalui kanal resmi."]},
-   alloc:[
-     {n:{en:"Community",id:"Komunitas"}, p:50, c:"#f5b82e"},
-     {n:{en:"Team",id:"Tim"}, p:15, c:"#22d3ee"},
-     {n:{en:"Development",id:"Pengembangan"}, p:10, c:"#a78bfa"},
-     {n:{en:"Liquidity",id:"Likuiditas"}, p:10, c:"#34d399"},
-     {n:{en:"Marketing & Ecosystem",id:"Pemasaran & Ekosistem"}, p:10, c:"#fb7185"},
-     {n:{en:"Reserve",id:"Cadangan"}, p:5, c:"#94a3b8"}
-   ]},
-  {t:{en:"Check the Contract Yourself",id:"Cek Kontrak Sendiri"},
-   ordered:true,
-   list:{en:["Open BscScan and paste the official contract address.","Match the address with the one written on this website.","Open the Contract tab and check that the Source Code is verified.","Open Write as Proxy and Read as Proxy to see the contract functions. There is no mint or pause function; holders can burn their own tokens."],
-         id:["Buka BscScan dan tempel alamat kontrak resmi.","Cocokkan alamatnya dengan yang tertulis di website ini.","Buka tab Contract, lalu cek apakah Source Code sudah terverifikasi.","Buka Write as Proxy dan Read as Proxy untuk melihat fungsi kontrak. Tidak ada fungsi mint atau pause; pemegang dapat membakar token miliknya."]}},
-  {t:{en:"Glossary",id:"Glosarium"},
-   table:{
-     en:[["BEP-20","Token standard on BNB Smart Chain, similar to ERC-20 on Ethereum."],["BSC","BNB Smart Chain, the blockchain where the BTW token runs."],["DEX","Decentralized exchange, where tokens are traded directly from wallets."],["Liquidity","Funds in a trading pool that let a token be bought and sold."],["LP token","Proof of ownership of liquidity funds. Whoever holds it can withdraw the liquidity."],["Vesting","A schedule that releases tokens gradually, so they cannot all be sold at once."],["Supply","The total number of tokens. For BTW, it is fixed at 21,000,000."],["Seed phrase","Wallet recovery words. Never share them with anyone."]],
-     id:[["BEP-20","Standar token di BNB Smart Chain, mirip ERC-20 di Ethereum."],["BSC","BNB Smart Chain, jaringan blockchain tempat token BTW berjalan."],["DEX","Bursa terdesentralisasi, tempat token diperdagangkan langsung dari dompet."],["Likuiditas","Dana di pool perdagangan yang memungkinkan token dibeli dan dijual."],["LP token","Bukti kepemilikan atas dana likuiditas. Siapa pun yang memegangnya bisa menarik likuiditas."],["Vesting","Jadwal pelepasan token secara bertahap, agar tidak langsung bisa dijual semua."],["Supply","Jumlah total token yang ada. Untuk BTW, tetap 21.000.000."],["Seed phrase","Kata-kata pemulihan dompet. Jangan pernah dibagikan kepada siapa pun."]]}}
-];
-
-
-function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-function toast(m){ var t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 1600); }
-function copyText(text){
-  function legacy(){
-    var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
-    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
-    ta.remove(); toast(ok ? UI[lang].copied : UI[lang].copyfail);
+(function(){
+  var D = {
+    en: {title:"BITWORLD21 – Official Token Information", back:"← Bitworld21", team:"Team",
+      h1:"BITWORLD21 – Official Token Information",
+      lead:"BITWORLD21 is part of the Bitworld21 ecosystem, developed by the same project team.",
+      intro:"To ensure transparency, we would like to clarify the relationship between our previous Bitworld token and the new BITWORLD21 token.",
+      tag_new:"NEW TOKEN", h_new:"BITWORLD21 (current)", tag_old:"PREVIOUS TOKEN", h_old:"Bitworld (previous)",
+      r_name:"Token Name", r_symbol:"Symbol", r_network:"Network", r_contract:"Contract Address", r_supply:"Total Supply", r_source:"Contract Source Code", r_owner:"Contract Ownership",
+      v_supply:"21,000,000 BTW", v_verified:"Verified", v_renounced:"Renounced",
+      copy:"Copy", copied:"Copied", bscscan:"View on BscScan",
+      old_note:"The previous token is no longer actively used by the project. However, some holders may still retain their balances.",
+      notice_h:"Important Notice",
+      n1:"The new BITWORLD21 token is a separate smart contract within the same Bitworld21 ecosystem.",
+      n2:"There has been no automatic migration or transfer of balances from the previous contract to the new contract.",
+      n3:"The previous contract and its remaining holder balances continue to exist on the blockchain.",
+      n4:"Users should always verify the contract address before interacting with either token.",
+      ch_h:"Official Channels", ch_web:"Website", ch_li:"Founder on LinkedIn",
+      ch_note:"The team never asks for your seed phrase, private key, or payment."},
+    id: {title:"BITWORLD21 – Informasi Resmi Token", back:"← Bitworld21", team:"Tim",
+      h1:"BITWORLD21 – Informasi Resmi Token",
+      lead:"BITWORLD21 adalah bagian dari ekosistem Bitworld21, dikembangkan oleh tim proyek yang sama.",
+      intro:"Demi transparansi, kami ingin menjelaskan hubungan antara token Bitworld sebelumnya dan token BITWORLD21 yang baru.",
+      tag_new:"TOKEN BARU", h_new:"BITWORLD21 (saat ini)", tag_old:"TOKEN SEBELUMNYA", h_old:"Bitworld (sebelumnya)",
+      r_name:"Nama Token", r_symbol:"Simbol", r_network:"Jaringan", r_contract:"Alamat Kontrak", r_supply:"Total Suplai", r_source:"Kode Sumber Kontrak", r_owner:"Kepemilikan Kontrak",
+      v_supply:"21.000.000 BTW", v_verified:"Terverifikasi", v_renounced:"Dilepaskan (renounced)",
+      copy:"Salin", copied:"Tersalin", bscscan:"Lihat di BscScan",
+      old_note:"Token sebelumnya tidak lagi digunakan secara aktif oleh proyek. Namun, sebagian pemegang mungkin masih memiliki saldo.",
+      notice_h:"Pemberitahuan Penting",
+      n1:"Token BITWORLD21 yang baru adalah smart contract terpisah dalam ekosistem Bitworld21 yang sama.",
+      n2:"Tidak ada migrasi atau transfer saldo otomatis dari kontrak sebelumnya ke kontrak baru.",
+      n3:"Kontrak sebelumnya beserta saldo pemegang yang tersisa tetap ada di blockchain.",
+      n4:"Selalu verifikasi alamat kontrak sebelum berinteraksi dengan token mana pun.",
+      ch_h:"Kanal Resmi", ch_web:"Situs Web", ch_li:"Pendiri di LinkedIn",
+      ch_note:"Tim tidak pernah meminta seed phrase, private key, atau pembayaran."},
+    hi: {title:"BITWORLD21 – आधिकारिक टोकन जानकारी", back:"← Bitworld21", team:"टीम",
+      h1:"BITWORLD21 – आधिकारिक टोकन जानकारी",
+      lead:"BITWORLD21 Bitworld21 इकोसिस्टम का हिस्सा है, जिसे उसी प्रोजेक्ट टीम ने विकसित किया है।",
+      intro:"पारदर्शिता के लिए, हम अपने पिछले Bitworld टोकन और नए BITWORLD21 टोकन के बीच का संबंध स्पष्ट करना चाहते हैं।",
+      tag_new:"नया टोकन", h_new:"BITWORLD21 (वर्तमान)", tag_old:"पिछला टोकन", h_old:"Bitworld (पिछला)",
+      r_name:"टोकन का नाम", r_symbol:"सिंबल", r_network:"नेटवर्क", r_contract:"कॉन्ट्रैक्ट एड्रेस", r_supply:"कुल सप्लाई", r_source:"कॉन्ट्रैक्ट सोर्स कोड", r_owner:"कॉन्ट्रैक्ट स्वामित्व",
+      v_supply:"21,000,000 BTW", v_verified:"सत्यापित", v_renounced:"त्याग दिया गया (Renounced)",
+      copy:"कॉपी करें", copied:"कॉपी हुआ", bscscan:"BscScan पर देखें",
+      old_note:"पिछला टोकन अब प्रोजेक्ट द्वारा सक्रिय रूप से उपयोग नहीं किया जाता। फिर भी कुछ होल्डर्स के पास अभी भी बैलेंस हो सकता है।",
+      notice_h:"महत्वपूर्ण सूचना",
+      n1:"नया BITWORLD21 टोकन उसी Bitworld21 इकोसिस्टम के भीतर एक अलग स्मार्ट कॉन्ट्रैक्ट है।",
+      n2:"पिछले कॉन्ट्रैक्ट से नए कॉन्ट्रैक्ट में बैलेंस का कोई स्वचालित माइग्रेशन या ट्रांसफर नहीं हुआ है।",
+      n3:"पिछला कॉन्ट्रैक्ट और उसके शेष होल्डर बैलेंस ब्लॉकचेन पर मौजूद रहते हैं।",
+      n4:"किसी भी टोकन से इंटरैक्ट करने से पहले हमेशा कॉन्ट्रैक्ट एड्रेस सत्यापित करें।",
+      ch_h:"आधिकारिक चैनल", ch_web:"वेबसाइट", ch_li:"LinkedIn पर संस्थापक",
+      ch_note:"टीम कभी आपका सीड फ्रेज़, प्राइवेट की या भुगतान नहीं माँगती।"},
+    ur: {title:"BITWORLD21 – سرکاری ٹوکن معلومات", back:"← Bitworld21", team:"ٹیم",
+      h1:"BITWORLD21 – سرکاری ٹوکن معلومات",
+      lead:"BITWORLD21 Bitworld21 ایکو سسٹم کا حصہ ہے، جسے اسی پروجیکٹ ٹیم نے تیار کیا ہے۔",
+      intro:"شفافیت کے لیے ہم اپنے سابقہ Bitworld ٹوکن اور نئے BITWORLD21 ٹوکن کے درمیان تعلق واضح کرنا چاہتے ہیں۔",
+      tag_new:"نیا ٹوکن", h_new:"BITWORLD21 (موجودہ)", tag_old:"سابقہ ٹوکن", h_old:"Bitworld (سابقہ)",
+      r_name:"ٹوکن کا نام", r_symbol:"سمبل", r_network:"نیٹ ورک", r_contract:"کانٹریکٹ ایڈریس", r_supply:"کل سپلائی", r_source:"کانٹریکٹ سورس کوڈ", r_owner:"کانٹریکٹ کی ملکیت",
+      v_supply:"21,000,000 BTW", v_verified:"تصدیق شدہ", v_renounced:"دستبردار (Renounced)",
+      copy:"کاپی کریں", copied:"کاپی ہو گیا", bscscan:"BscScan پر دیکھیں",
+      old_note:"سابقہ ٹوکن اب پروجیکٹ کے فعال استعمال میں نہیں ہے۔ تاہم کچھ ہولڈرز کے پاس اب بھی بیلنس ہو سکتا ہے۔",
+      notice_h:"اہم اطلاع",
+      n1:"نیا BITWORLD21 ٹوکن اسی Bitworld21 ایکو سسٹم کے اندر ایک الگ اسمارٹ کانٹریکٹ ہے۔",
+      n2:"سابقہ کانٹریکٹ سے نئے کانٹریکٹ میں بیلنس کی کوئی خودکار منتقلی نہیں ہوئی ہے۔",
+      n3:"سابقہ کانٹریکٹ اور اس کے باقی ہولڈر بیلنس بلاک چین پر موجود رہتے ہیں۔",
+      n4:"کسی بھی ٹوکن کے ساتھ تعامل سے پہلے ہمیشہ کانٹریکٹ ایڈریس کی تصدیق کریں۔",
+      ch_h:"سرکاری چینلز", ch_web:"ویب سائٹ", ch_li:"LinkedIn پر بانی",
+      ch_note:"ٹیم کبھی آپ کا سیڈ فریز، پرائیویٹ کی یا ادائیگی نہیں مانگتی۔"},
+    vi: {title:"BITWORLD21 – Thông tin token chính thức", back:"← Bitworld21", team:"Đội ngũ",
+      h1:"BITWORLD21 – Thông tin token chính thức",
+      lead:"BITWORLD21 là một phần của hệ sinh thái Bitworld21, do cùng đội ngũ dự án phát triển.",
+      intro:"Để đảm bảo minh bạch, chúng tôi muốn làm rõ mối quan hệ giữa token Bitworld trước đây và token BITWORLD21 mới.",
+      tag_new:"TOKEN MỚI", h_new:"BITWORLD21 (hiện tại)", tag_old:"TOKEN TRƯỚC ĐÂY", h_old:"Bitworld (trước đây)",
+      r_name:"Tên token", r_symbol:"Ký hiệu", r_network:"Mạng", r_contract:"Địa chỉ hợp đồng", r_supply:"Tổng cung", r_source:"Mã nguồn hợp đồng", r_owner:"Quyền sở hữu hợp đồng",
+      v_supply:"21.000.000 BTW", v_verified:"Đã xác minh", v_renounced:"Đã từ bỏ (Renounced)",
+      copy:"Sao chép", copied:"Đã sao chép", bscscan:"Xem trên BscScan",
+      old_note:"Token trước đây không còn được dự án sử dụng tích cực. Tuy nhiên, một số chủ sở hữu có thể vẫn còn số dư.",
+      notice_h:"Lưu ý quan trọng",
+      n1:"Token BITWORLD21 mới là một hợp đồng thông minh riêng biệt trong cùng hệ sinh thái Bitworld21.",
+      n2:"Không có việc di chuyển hay chuyển số dư tự động từ hợp đồng cũ sang hợp đồng mới.",
+      n3:"Hợp đồng cũ và số dư còn lại của các chủ sở hữu vẫn tồn tại trên blockchain.",
+      n4:"Luôn xác minh địa chỉ hợp đồng trước khi tương tác với bất kỳ token nào.",
+      ch_h:"Kênh chính thức", ch_web:"Trang web", ch_li:"Nhà sáng lập trên LinkedIn",
+      ch_note:"Đội ngũ không bao giờ yêu cầu cụm từ khôi phục, khóa riêng tư hoặc thanh toán."}
+  };
+  var cur = "en";
+  try { var sv = localStorage.getItem("btw_lang"); if (sv && D[sv]) cur = sv; } catch (e) {}
+  var sel = document.getElementById("langsel");
+  function apply(l){
+    cur = l; var d = D[l], b = D.en;
+    var els = document.querySelectorAll("[data-i18n]");
+    for (var i = 0; i < els.length; i++) {
+      var k = els[i].getAttribute("data-i18n");
+      els[i].textContent = d[k] !== undefined ? d[k] : b[k];
+    }
+    document.title = d.title;
+    document.documentElement.lang = l;
+    document.documentElement.dir = (l === "ur") ? "rtl" : "ltr";
+    if (sel) sel.value = l;
   }
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ toast(UI[lang].copied); }, legacy);
-  else legacy();
-}
+  if (sel) sel.addEventListener("change", function(){
+    if (!D[sel.value]) return;
+    try { localStorage.setItem("btw_lang", sel.value); } catch (e) {}
+    apply(sel.value);
+  });
+  apply(cur);
 
-function render(){
-  var u = UI[lang];
-  document.documentElement.lang = lang;
-  document.title = PAGE.title[lang] + " - BITWORLD21 (BTW)";
-  document.getElementById("l-en").classList.toggle("on", lang === "en");
-  document.getElementById("l-id").classList.toggle("on", lang === "id");
-  document.getElementById("back").textContent = u.back;
-  document.getElementById("h1").textContent = PAGE.title[lang];
-  document.getElementById("sub").textContent = PAGE.sub[lang];
-  var toc = "", html = "";
-  SECTIONS.forEach(function(s, i){
-    toc += '<a href="#s' + i + '">' + esc(s.t[lang]) + '</a>';
-    html += '<section id="s' + i + '"><h2>' + (i + 1) + '. ' + esc(s.t[lang]) + '</h2>';
-    (s.b ? s.b[lang] : []).forEach(function(p){ html += "<p>" + esc(p) + "</p>"; });
-    if (s.table) {
-      html += "<table>" + s.table[lang].map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</table>";
-    }
-    if (s.alloc) {
-      html += '<div class="alloc">' + s.alloc.map(function(a){
-        return '<div class="row"><div class="top"><span>' + esc(a.n[lang]) + '</span><b>' + a.p + '%</b></div><div class="bar"><i style="width:' + a.p + '%;background:' + a.c + '"></i></div></div>';
-      }).join("") + "</div>";
-    }
-    if (s.list) {
-      var tag = s.ordered ? "ol" : "ul";
-      html += "<" + tag + ">" + s.list[lang].map(function(x){ return "<li>" + esc(x) + "</li>"; }).join("") + "</" + tag + ">";
-    }
-    if (s.members) {
-      html += s.members.map(function(m){
-        var ph = /^(https:\/\/|\/)[^\s"'<>]+$/i.test(m.photo || "") ? m.photo : "";
-        var ini = esc(m.name.charAt(0).toUpperCase());
-        var av = ph ? '<div class="av"><img src="' + esc(ph) + '" alt="' + esc(m.name) + '" data-ini="' + ini + '"></div>' : '<div class="av">' + ini + '</div>';
-        var pills = "";
-        [["LinkedIn", m.links.linkedin], ["X", m.links.x], ["GitHub", m.links.github]].forEach(function(it){
-          if (/^https:\/\/[^\s"'<>]+$/i.test(it[1] || "")) pills += '<a href="' + esc(it[1]) + '" target="_blank" rel="noopener noreferrer">' + it[0] + '</a>';
-        });
-        return '<div class="member">' + av + '<div class="mi"><span class="tag">' + esc(m.tag) + '</span><h3>' + esc(m.role[lang]) + '</h3><div class="nm">' + esc(m.name) + '</div><p>' + esc(m.desc[lang]) + '</p><div class="pills">' + pills + '</div></div></div>';
-      }).join("");
-    }
-    if (s.links) {
-      html += '<div class="links">' + s.links.map(function(l){
-        var ext = /^https?:/.test(l.u);
-        return '<a class="card" href="' + esc(l.u) + '"' + (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '><b>' + esc(l.n[lang] || l.n.en) + '</b><span>' + esc(l.d[lang]) + '</span></a>';
-      }).join("") + "</div>";
-    }
-    if (s.code) html += '<div class="mono">' + esc(CONTRACT) + "</div>";
-    if (s.actions) {
-      html += '<button class="btn primary" type="button" data-copy="1">' + esc(u.copy) + '</button>' +
-        '<a class="btn" href="' + BSCSCAN + '" target="_blank" rel="noopener noreferrer">' + esc(u.bsc) + '</a>';
-    }
-    html += "</section>";
-  });
-  if (PAGE.pdf) html += '<div class="foot"><a class="btn" href="/whitepaper-bitworld-btw-publik-v2.pdf" download>' + esc(u.pdf) + '</a></div>';
-  document.getElementById("toc").innerHTML = toc;
-  document.getElementById("content").innerHTML = html;
-  document.getElementById("pages").innerHTML = PAGES.map(function(p){
-    return '<a href="' + p[1] + '"' + (p[0] === CUR ? ' class="cur"' : '') + '>' + esc(u[p[0]]) + '</a>';
-  }).join("");
-  Array.prototype.forEach.call(document.querySelectorAll(".av img"), function(im){
-    im.addEventListener("error", function(){ im.parentNode.textContent = im.getAttribute("data-ini") || ""; });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(b){ b.onclick = function(){ copyText(CONTRACT); }; });
-}
-function setLang(l){ lang = l; try { localStorage.setItem("btw_lang", l); } catch (e) {} render(); }
-document.getElementById("l-en").onclick = function(){ setLang("en"); };
-document.getElementById("l-id").onclick = function(){ setLang("id"); };
-render();
+  function legacy(txt){
+    var ta = document.createElement("textarea");
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta); return ok;
+  }
+  var btns = document.querySelectorAll("[data-copy]");
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function(){
+      var b = this, el = document.getElementById(b.getAttribute("data-copy"));
+      if (!el) return;
+      var txt = el.textContent.trim();
+      var done = function(){ b.textContent = D[cur].copied; setTimeout(function(){ apply(cur); }, 1500); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function(){ if (legacy(txt)) done(); });
+        else if (legacy(txt)) done();
+      } catch (e) { if (legacy(txt)) done(); }
+    });
+  }
+})();
 </script>
 </body>
 </html>
