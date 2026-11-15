@@ -18,7 +18,7 @@
     kyc_required: ['Selesaikan verifikasi KYC dulu.', 'Complete KYC verification first.'],
     wallet_required: ['Hubungkan dompet dulu.', 'Connect your wallet first.'],
     email_required: ['Verifikasi email Anda dulu.', 'Verify your email first.'],
-    not_enough_sessions: ['Selesaikan minimal 7 sesi mining dulu sebelum klaim pertama.', 'Complete at least 7 mining sessions before your first claim.'],
+    not_enough_days: ['Hari mining belum cukup untuk klaim pertama.', 'Not enough mining days yet for your first claim.'],
     claim_cooldown: ['Klaim hanya bisa sekali dalam 7 hari.', 'You can claim once every 7 days.'],
     below_min: ['Saldo belum mencapai batas minimal klaim.', 'Balance is below the minimum claim.'],
     insufficient: ['Saldo tidak cukup.', 'Insufficient balance.'],
@@ -149,6 +149,8 @@
     c.appendChild(line(tx(['Klaim ke Dompet', 'Claim to Wallet']), 'font-size:18px;font-weight:700;color:#fff'));
     c.appendChild(line(tx(['Tarik saldo BTW ke dompet BSC Anda. Biaya gas sedikit BNB.', 'Withdraw your BTW balance to your BSC wallet. Gas needs a little BNB.']), 'font-size:12px;color:var(--muted,#8a93a6);margin:2px 0 12px'));
     c.appendChild(line(tx(['Saldo: ', 'Balance: ']) + nf(st.balance) + ' BTW', 'font-size:15px;font-weight:600;margin-bottom:4px'));
+    var need = Number(st.mineNeed || 0), have = Number(st.mineDays || 0);
+    if (need > 0) c.appendChild(line(tx(['Hari mining: ', 'Mining days: ']) + Math.min(have, need) + '/' + need, 'font-size:13px;font-weight:600;color:' + (have >= need ? '#86efac' : 'var(--muted,#8a93a6)') + ';margin-bottom:4px'));
     c.appendChild(line(st.wallet ? tx(['Dompet: ', 'Wallet: ']) + short(st.wallet) : tx(['Dompet belum terhubung.', 'No wallet linked yet.']), 'font-size:13px;color:var(--muted,#8a93a6);margin-bottom:12px'));
 
     var b;
@@ -159,8 +161,10 @@
       b = document.createElement('button'); b.type = 'button'; b.textContent = busy ? '…' : tx(['Selesaikan Klaim', 'Finish Claim']);
       styleBtn(b, !busy); b.addEventListener('click', claim);
     } else {
-      var can = st.kyc === 'approved' && st.balance >= st.min && !busy;
+      var daysOk = have >= need;
+      var can = st.kyc === 'approved' && daysOk && st.balance >= st.min && !busy;
       var label = st.kyc !== 'approved' ? tx(['Selesaikan KYC untuk klaim', 'Complete KYC to claim'])
+        : !daysOk ? tx(['Mining ', 'Mine ']) + need + tx([' hari dulu (', ' days first (']) + have + '/' + need + ')'
         : st.balance < st.min ? tx(['Minimal klaim ', 'Minimum claim ']) + nf(st.min) + ' BTW'
         : tx(['Klaim ', 'Claim ']) + nf(Math.min(st.balance, st.max)) + ' BTW';
       b = document.createElement('button'); b.type = 'button'; b.textContent = busy ? '…' : label;
