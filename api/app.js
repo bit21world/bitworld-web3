@@ -11,8 +11,9 @@ const REQUIRE_KYC_FOR_CLAIM = true;   // ubah ke false jika klaim tidak perlu KY
 const MIN_CLAIM = 1;                  // minimal BTW per klaim
 const MAX_CLAIM = 1000;               // harus sama dengan maxPerClaim di kontrak
 const VOUCHER_TTL = 3600;             // detik voucher berlaku
-const MIN_SESSIONS = 7;               // minimal sesi mining selesai sebelum boleh klaim pertama
+const MIN_MINE_DAYS = 30;             // hari mining efektif yang dibutuhkan sebelum klaim pertama
 const CLAIM_COOLDOWN_DAYS = 7;        // jeda antar klaim (hari)
+const TASK_BONUS = 0.5;               // BTW bonus untuk menyelesaikan semua tugas sekali klaim (ubah sesuai keputusan)
 const CHAIN_ID = Number(process.env.CHAIN_ID || 56);          // 56 = BSC mainnet, 97 = testnet
 const DECIMALS = Number(process.env.TOKEN_DECIMALS || 18);
 const RPC = process.env.BSC_RPC || "https://bsc-dataseed.binance.org";
@@ -25,6 +26,19 @@ const claimData = (wei, nonce, deadline, sig) =>
   new (eth().Interface)(["function claim(uint256 amount, bytes32 nonce, uint256 deadline, bytes signature)"])
     .encodeFunctionData("claim", [wei, nonce, BigInt(deadline), sig]);
 const linkMsg = (uid, ts) => "Hubungkan dompet ke Bitworld\nAkun: " + uid + "\nWaktu: " + ts;
+
+// Hari mining efektif = sesi selesai dikurangi hari yang terlewat (tidak bisa kurang dari 0).
+// Hari terlewat = tiap 24 jam jeda penuh antara selesainya satu sesi dan dimulainya sesi berikutnya.
+// Sesi baru yang dimulai tepat setelah sesi lama selesai (jeda kurang dari 24 jam) tidak dihitung terlewat.
+async function mineDays(uid) {
+  const r = await sql`
+    select count(*)::int as n,
+      coalesce(sum(case when lag_t is null then 0
+        else floor(greatest(0, extract(epoch from (created_at - lag_t)) - 86400) / 86400) end), 0)::int as missed
+    from (select created_at, lag(created_at) over (order by created_at) as lag_t
+          from bw_mining_log where user_id = ${uid}) x`;
+  return Math.max(0, Number(r[0].n) - Number(r[0].missed));
+}
 
 // Cek voucher aktif: sudah diklaim di chain -> 'claimed'; lewat batas waktu & belum dipakai -> 'expired' + saldo dikembalikan.
 async function syncVouchers(uid) {
@@ -150,14 +164,18 @@ module.exports = async (req, res) => {
         fb:    { reward: 0.05, kind: "link" },
         ref3:  { reward: 0.3,  kind: "auto", target: 3 },
         kyc:   { reward: 0.5,  kind: "auto", target: 1 },
-        mine7: { reward: 0.2,  kind: "auto", target: 7 }
+        mine7: { reward: 0.2,  kind: "auto", target: 7 },
+        // Bonus: aktif setelah ketujuh tugas di atas selesai diklaim. Hanya sekali.
+        alltasks: { reward: TASK_BONUS, kind: "auto", target: 7 }
       };
       const prog = async () => {
         const r = await sql`select
           (select count(*)::int from bw_referrals where referrer_id = ${uid} and status = 'active') as ref,
           (select count(*)::int from bw_users where id = ${uid} and kyc_status = 'approved') as kyc,
-          (select count(*)::int from bw_mining_log where user_id = ${uid}) as mine`;
-        return { ref3: r[0].ref, kyc: r[0].kyc, mine7: r[0].mine, mine: r[0].mine };
+          (select count(*)::int from bw_mining_log where user_id = ${uid}) as mine,
+          (select count(*)::int from bw_task_done where user_id = ${uid}
+             and task_key in ('tg','tggroup','x','fb','ref3','kyc','mine7')) as done_all`;
+        return { ref3: r[0].ref, kyc: r[0].kyc, mine7: r[0].mine, mine: r[0].mine, alltasks: r[0].done_all };
       };
       if (a === "tasks") {
         const done = await sql`select task_key from bw_task_done where user_id = ${uid}`;
@@ -326,10 +344,13 @@ module.exports = async (req, res) => {
       await syncVouchers(uid);
       const bal = (await sql`select balance from bw_users where id = ${uid}`)[0].balance;
       const v = await sql`select nonce, amount, deadline, sig from bw_vouchers where user_id = ${uid} and status = 'issued' limit 1`;
+      const cb = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'claimed' limit 1`;
+      const days = await mineDays(uid);
       const { parseUnits } = eth();
       return send(res, 200, {
         uid: String(uid), wallet: me.wallet || null, balance: Number(bal), kyc: me.kyc || "none",
         min: MIN_CLAIM, max: MAX_CLAIM, chainId: CHAIN_ID, pool: process.env.POOL_ADDRESS,
+        mineDays: days, mineNeed: cb.length ? 0 : MIN_MINE_DAYS,
         voucher: v.length ? (() => {
           const w = parseUnits(String(v[0].amount), DECIMALS);
           return { amount: w.toString(), nonce: v[0].nonce, deadline: Number(v[0].deadline), signature: v[0].sig,
@@ -364,8 +385,6 @@ module.exports = async (req, res) => {
       if (!(await limit("vc:" + uid, 5, 60))) return send(res, 429, { error: "rate_limited" });
       const ev = await sql`select email_verified from bw_users where id = ${uid}`;
       if (!ev.length || ev[0].email_verified !== true) return send(res, 403, { error: "email_required" });
-      const ms = await sql`select count(*)::int as n from bw_mining_log where user_id = ${uid}`;
-      if (ms[0].n < MIN_SESSIONS) return send(res, 403, { error: "not_enough_sessions" });
       // Jeda antar klaim: deadline voucher = waktu terbit + VOUCHER_TTL, jadi cukup dibandingkan dengan deadline.
       const lastv = await sql`select 1 from bw_vouchers where user_id = ${uid} and status in ('issued','claimed')
                               and deadline > ${Math.floor(Date.now() / 1000) - CLAIM_COOLDOWN_DAYS * 86400} limit 1`;
@@ -373,6 +392,9 @@ module.exports = async (req, res) => {
       await syncVouchers(uid);
       const act = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'issued'`;
       if (act.length) return send(res, 409, { error: "voucher_active" });
+      // Klaim pertama: wajib sudah punya MIN_MINE_DAYS hari mining efektif. Klaim berikutnya hanya kena jeda 7 hari.
+      const cb = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'claimed' limit 1`;
+      if (!cb.length && (await mineDays(uid)) < MIN_MINE_DAYS) return send(res, 403, { error: "not_enough_days" });
 
       const bal = (await sql`select balance from bw_users where id = ${uid}`)[0].balance;
       const micro = Math.min(Math.floor(Number(bal) * 1e6), MAX_CLAIM * 1e6);
