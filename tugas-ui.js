@@ -355,6 +355,9 @@
   var ERR = {
     kyc_required: ['Selesaikan verifikasi KYC dulu.', 'Complete KYC verification first.'],
     wallet_required: ['Hubungkan dompet dulu.', 'Connect your wallet first.'],
+    email_required: ['Verifikasi email Anda dulu.', 'Verify your email first.'],
+    not_enough_sessions: ['Selesaikan minimal 7 sesi mining dulu sebelum klaim pertama.', 'Complete at least 7 mining sessions before your first claim.'],
+    claim_cooldown: ['Klaim hanya bisa sekali dalam 7 hari.', 'You can claim once every 7 days.'],
     below_min: ['Saldo belum mencapai batas minimal klaim.', 'Balance is below the minimum claim.'],
     insufficient: ['Saldo tidak cukup.', 'Insufficient balance.'],
     voucher_active: ['Masih ada klaim yang belum diselesaikan.', 'You have an unfinished claim.'],
