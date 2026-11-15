@@ -11,6 +11,8 @@ const REQUIRE_KYC_FOR_CLAIM = true;   // ubah ke false jika klaim tidak perlu KY
 const MIN_CLAIM = 1;                  // minimal BTW per klaim
 const MAX_CLAIM = 1000;               // harus sama dengan maxPerClaim di kontrak
 const VOUCHER_TTL = 3600;             // detik voucher berlaku
+const MIN_SESSIONS = 7;               // minimal sesi mining selesai sebelum boleh klaim pertama
+const CLAIM_COOLDOWN_DAYS = 7;        // jeda antar klaim (hari)
 const CHAIN_ID = Number(process.env.CHAIN_ID || 56);          // 56 = BSC mainnet, 97 = testnet
 const DECIMALS = Number(process.env.TOKEN_DECIMALS || 18);
 const RPC = process.env.BSC_RPC || "https://bsc-dataseed.binance.org";
@@ -360,6 +362,14 @@ module.exports = async (req, res) => {
       if (REQUIRE_KYC_FOR_CLAIM && me.kyc !== "approved") return send(res, 403, { error: "kyc_required" });
       if (!me.wallet) return send(res, 400, { error: "wallet_required" });
       if (!(await limit("vc:" + uid, 5, 60))) return send(res, 429, { error: "rate_limited" });
+      const ev = await sql`select email_verified from bw_users where id = ${uid}`;
+      if (!ev.length || ev[0].email_verified !== true) return send(res, 403, { error: "email_required" });
+      const ms = await sql`select count(*)::int as n from bw_mining_log where user_id = ${uid}`;
+      if (ms[0].n < MIN_SESSIONS) return send(res, 403, { error: "not_enough_sessions" });
+      // Jeda antar klaim: deadline voucher = waktu terbit + VOUCHER_TTL, jadi cukup dibandingkan dengan deadline.
+      const lastv = await sql`select 1 from bw_vouchers where user_id = ${uid} and status in ('issued','claimed')
+                              and deadline > ${Math.floor(Date.now() / 1000) - CLAIM_COOLDOWN_DAYS * 86400} limit 1`;
+      if (lastv.length) return send(res, 429, { error: "claim_cooldown" });
       await syncVouchers(uid);
       const act = await sql`select 1 from bw_vouchers where user_id = ${uid} and status = 'issued'`;
       if (act.length) return send(res, 409, { error: "voucher_active" });
