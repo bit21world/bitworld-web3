@@ -15,39 +15,18 @@
       }
     } catch (e) {}
   }
-  function ganti() {
-    /* cari gambar koin besar lama di latar belakang (gambar, background, atau ::before/::after) dan ganti dengan logo baru */
+  function spin() {
+    /* globe dan orbit berputar saat mining sedang berjalan (status "Mining" tampil) */
     try {
-      var NEW = "/btw-logo-256.png", n = 0, css = "";
-      var has = function (v) { return v && v.indexOf("url(") > -1 && v.indexOf("btw-logo") < 0; };
-      var els = document.querySelectorAll("html, body, body *");
-      for (var i = 0; i < els.length; i++) {
-        var el = els[i];
-        if (el.getAttribute("data-pub") === "1") continue;
-        var r = el.getBoundingClientRect(), big = r.width > 260 && r.height > 260;
-        if (el.tagName === "IMG" && big && (el.currentSrc || el.src || "").indexOf("btw-logo") < 0) {
-          el.src = NEW; el.removeAttribute("srcset"); el.setAttribute("data-pub", "1"); continue;
+      var host = document.getElementById("v-mine2"), on = false;
+      if (host && host.offsetParent !== null) {
+        var all = host.querySelectorAll("*");
+        for (var i = 0; i < all.length; i++) {
+          var e = all[i];
+          if (e.children.length === 0 && (e.textContent || "").trim() === "Mining") { on = true; break; }
         }
-        var cs = getComputedStyle(el);
-        if (big && has(cs.backgroundImage)) {
-          el.style.setProperty("background-image", "url(" + NEW + ")", "important");
-          el.setAttribute("data-pub", "1");
-        }
-        ["::before", "::after"].forEach(function (ps) {
-          var p = getComputedStyle(el, ps);
-          if (p.display !== "none" && has(p.backgroundImage)) {
-            var c = "pubbg" + (n++);
-            el.classList.add(c);
-            css += "." + c + ps + "{background-image:url(" + NEW + ")!important}";
-            el.setAttribute("data-pub", "1");
-          }
-        });
       }
-      if (css) {
-        var st = document.createElement("style");
-        st.textContent = css;
-        document.head.appendChild(st);
-      }
+      document.documentElement.classList.toggle("mining-on", on);
     } catch (e) {}
   }
   function neon() {
@@ -67,14 +46,18 @@
         "#v-mine2 [class*='mn-bal'],#v-mine2 [class*='mn-num'],#v-mine2 [class*='mn-amount'],#v-mine2 [class*='mn-total']{color:#67e8f9!important;text-shadow:0 0 14px rgba(34,211,238,.85),0 2px 0 rgba(0,20,60,.6)!important}" +
         "#v-mine2 button,#v-mine2 [class*='btn']{background:linear-gradient(180deg,#67e8f9,#0ea5e9)!important;color:#021a2e!important;border:0!important;border-radius:14px!important;font-weight:800!important;box-shadow:0 0 22px rgba(34,211,238,.65),inset 0 1px 0 rgba(255,255,255,.55)!important}" +
         "#v-mine2 button:disabled,#v-mine2 button[disabled]{background:linear-gradient(180deg,#334a7a,#1b2c52)!important;color:#9db4e0!important;box-shadow:none!important}";
+      st.textContent +=
+        "html::after{background-image:url(/btw-logo.svg)!important}" +
+        "html.mining-on::after{background-image:url(/btw-logo-anim.svg)!important}" +
+        "html.mining-on body{--btw-logo:url(/btw-logo-anim.svg)!important}";
       document.head.appendChild(st);
     } catch (e) {}
   }
   function init() {
     logo();
     neon();
-    [400, 1500, 4000].forEach(function (t) { setTimeout(ganti, t); });
-    document.addEventListener("click", function () { setTimeout(ganti, 500); });
+    setInterval(spin, 1000);
+    document.addEventListener("click", function () { setTimeout(spin, 300); });
     var v = document.getElementById("v-auth");
     if (!v || document.getElementById("pubLinks")) return;
     var en = window.ulang !== "id";
