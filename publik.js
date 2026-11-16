@@ -6,19 +6,47 @@
   function logo() {
     /* ganti logo kecil di pojok kiri atas dan ikon tab browser dengan logo baru */
     try {
-      /* koin besar transparan di latar belakang (Beranda dan Mining) */
-      if (!document.getElementById("latar-baru")) {
-        var bg = document.createElement("style");
-        bg.id = "latar-baru";
-        bg.textContent = "html body::before{display:block!important;background-image:url(/btw-logo-256.png)!important;background-size:min(88vw,520px) auto!important;background-position:center 42%!important;background-repeat:no-repeat!important;opacity:.16!important}";
-        document.head.appendChild(bg);
-      }
       var im = document.querySelector(".brand img");
       if (im) im.src = "/btw-logo-128.png";
       if (!document.querySelector('link[rel="icon"]')) {
         var l = document.createElement("link");
         l.rel = "icon"; l.type = "image/png"; l.href = "/btw-logo-32.png";
         document.head.appendChild(l);
+      }
+    } catch (e) {}
+  }
+  function ganti() {
+    /* cari gambar koin besar lama di latar belakang (gambar, background, atau ::before/::after) dan ganti dengan logo baru */
+    try {
+      var NEW = "/btw-logo-256.png", n = 0, css = "";
+      var has = function (v) { return v && v.indexOf("url(") > -1 && v.indexOf("btw-logo") < 0; };
+      var els = document.querySelectorAll("html, body, body *");
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        if (el.getAttribute("data-pub") === "1") continue;
+        var r = el.getBoundingClientRect(), big = r.width > 260 && r.height > 260;
+        if (el.tagName === "IMG" && big && (el.currentSrc || el.src || "").indexOf("btw-logo") < 0) {
+          el.src = NEW; el.removeAttribute("srcset"); el.setAttribute("data-pub", "1"); continue;
+        }
+        var cs = getComputedStyle(el);
+        if (big && has(cs.backgroundImage)) {
+          el.style.setProperty("background-image", "url(" + NEW + ")", "important");
+          el.setAttribute("data-pub", "1");
+        }
+        ["::before", "::after"].forEach(function (ps) {
+          var p = getComputedStyle(el, ps);
+          if (p.display !== "none" && has(p.backgroundImage)) {
+            var c = "pubbg" + (n++);
+            el.classList.add(c);
+            css += "." + c + ps + "{background-image:url(" + NEW + ")!important}";
+            el.setAttribute("data-pub", "1");
+          }
+        });
+      }
+      if (css) {
+        var st = document.createElement("style");
+        st.textContent = css;
+        document.head.appendChild(st);
       }
     } catch (e) {}
   }
@@ -45,6 +73,8 @@
   function init() {
     logo();
     neon();
+    [400, 1500, 4000].forEach(function (t) { setTimeout(ganti, t); });
+    document.addEventListener("click", function () { setTimeout(ganti, 500); });
     var v = document.getElementById("v-auth");
     if (!v || document.getElementById("pubLinks")) return;
     var en = window.ulang !== "id";
