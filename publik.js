@@ -47,8 +47,8 @@
         "#v-mine2 button,#v-mine2 [class*='btn']{background:linear-gradient(180deg,#67e8f9,#0ea5e9)!important;color:#021a2e!important;border:0!important;border-radius:14px!important;font-weight:800!important;box-shadow:0 0 22px rgba(34,211,238,.65),inset 0 1px 0 rgba(255,255,255,.55)!important}" +
         "#v-mine2 button:disabled,#v-mine2 button[disabled]{background:linear-gradient(180deg,#334a7a,#1b2c52)!important;color:#9db4e0!important;box-shadow:none!important}";
       st.textContent +=
-        "html::after{background-image:url(/btw-logo.svg)!important}" +
-        "html.mining-on::after{background-image:url(/btw-logo-anim.svg)!important}" +
+        "html::after,html.mining-on::after{display:none!important;content:none!important}" +
+        "html body{background:#0b4a7d!important;background-image:none!important}" +
         "html.mining-on body{--btw-logo:url(/btw-logo-anim.svg)!important}";
       document.head.appendChild(st);
     } catch (e) {}
