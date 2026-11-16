@@ -3,7 +3,20 @@
    <script src="/publik.js"></script> tepat di bawah baris <script src="/tim.js"></script>. */
 (function () {
   "use strict";
+  function logo() {
+    /* ganti logo kecil di pojok kiri atas dan ikon tab browser dengan logo baru */
+    try {
+      var im = document.querySelector(".brand img");
+      if (im) im.src = "/btw-logo-128.png";
+      if (!document.querySelector('link[rel="icon"]')) {
+        var l = document.createElement("link");
+        l.rel = "icon"; l.type = "image/png"; l.href = "/btw-logo-32.png";
+        document.head.appendChild(l);
+      }
+    } catch (e) {}
+  }
   function init() {
+    logo();
     var v = document.getElementById("v-auth");
     if (!v || document.getElementById("pubLinks")) return;
     var en = window.ulang !== "id";
